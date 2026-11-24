@@ -19,6 +19,18 @@ Open http://localhost:3000.
 
 Copy `.env.example` to `.env.local` and fill in the keys (never commit `.env.local`).
 
+## Round-by-round snapshots
+
+Each evaluation round is saved as a git tag: `round-1`, `round-2`, `round-3`.
+To open one round as its own folder (to show exactly that stage):
+
+```bash
+git worktree add ../himrakshak-round-1 round-1
+```
+
+Then `cd ../himrakshak-round-1 && npm install && npm run dev`.
+Nothing is pushed to GitHub until the hackathon starts.
+
 ## Using AI tools on this project
 
 | Tool | How it gets our rules |
