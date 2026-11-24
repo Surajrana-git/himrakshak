@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LngLatBounds, Map as MapLibreMap, setWorkerUrl, type GeoJSONSource } from "maplibre-gl";
+import { LngLatBounds, Map as MapLibreMap, Popup, setWorkerUrl, type GeoJSONSource } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { RISK_STYLE, type RiskLevel } from "@/lib/risk";
+import { REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
 
 // The bundler can't find MapLibre's worker next to its own chunk, so we serve a copy
 // from /public (copied there by the `postinstall` script).
@@ -22,6 +23,7 @@ export type MapSegment = {
 type Props = {
   segments: MapSegment[];
   towns: { name: string; lat: number; lon: number }[];
+  reports: Report[];
 };
 
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
@@ -37,9 +39,47 @@ function toGeoJSON(segments: MapSegment[]): GeoJSON.FeatureCollection {
   };
 }
 
-export default function RiskMap({ segments, towns }: Props) {
+function reportsToGeoJSON(reports: Report[]): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: reports.map((r) => ({
+      type: "Feature",
+      properties: { id: r.id, clear: r.kind === "clear" },
+      geometry: { type: "Point", coordinates: [r.lon, r.lat] },
+    })),
+  };
+}
+
+// Built with textContent, never innerHTML: report text comes from the public.
+function reportPopup(report: Report): HTMLElement {
+  const root = document.createElement("div");
+  root.className = "text-ink";
+  const title = document.createElement("p");
+  title.className = "font-semibold";
+  title.textContent = `${REPORT_KINDS[report.kind].hindi} · ${REPORT_KINDS[report.kind].label}`;
+  const time = document.createElement("p");
+  time.className = "text-sm text-muted";
+  time.textContent = timeAgo(report.created_at);
+  root.append(title, time);
+  if (report.note) {
+    const note = document.createElement("p");
+    note.textContent = report.note;
+    root.append(note);
+  }
+  if (report.photo_url) {
+    const img = document.createElement("img");
+    img.src = report.photo_url;
+    img.alt = "Report photo";
+    img.className = "mt-2 max-h-40 w-full object-cover";
+    root.append(img);
+  }
+  return root;
+}
+
+export default function RiskMap({ segments, towns, reports }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const reportsRef = useRef(reports);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -96,6 +136,26 @@ export default function RiskMap({ segments, towns }: Props) {
         layout: { "text-field": ["get", "name"], "text-font": ["Noto Sans Bold"], "text-size": 13, "text-offset": [0, 1.2] },
         paint: { "text-color": "#14231F", "text-halo-color": "#F3F1EA", "text-halo-width": 2 },
       });
+
+      map.addSource("reports", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      map.addLayer({
+        id: "reports",
+        type: "circle",
+        source: "reports",
+        paint: {
+          "circle-radius": 9,
+          "circle-color": ["case", ["get", "clear"], "#5FB3A1", "#D64545"],
+          "circle-stroke-color": "#F3F1EA",
+          "circle-stroke-width": 3,
+        },
+      });
+      map.on("click", "reports", (e) => {
+        const id = e.features?.[0]?.properties.id;
+        const report = reportsRef.current.find((r) => r.id === id);
+        if (report) new Popup({ maxWidth: "260px" }).setLngLat([report.lon, report.lat]).setDOMContent(reportPopup(report)).addTo(map);
+      });
+      map.on("mouseenter", "reports", () => (map.getCanvas().style.cursor = "pointer"));
+      map.on("mouseleave", "reports", () => (map.getCanvas().style.cursor = ""));
       setLoaded(true);
     });
 
@@ -106,6 +166,12 @@ export default function RiskMap({ segments, towns }: Props) {
     if (!loaded) return;
     mapRef.current?.getSource<GeoJSONSource>("segments")?.setData(toGeoJSON(segments));
   }, [loaded, segments]);
+
+  useEffect(() => {
+    reportsRef.current = reports;
+    if (!loaded) return;
+    mapRef.current?.getSource<GeoJSONSource>("reports")?.setData(reportsToGeoJSON(reports));
+  }, [loaded, reports]);
 
   return <div ref={container} className="h-full w-full" aria-label="Route risk map" />;
 }

@@ -19,6 +19,15 @@ Open http://localhost:3000.
 
 Copy `.env.example` to `.env.local` and fill in the keys (never commit `.env.local`).
 
+### Driver reports (Supabase, free)
+
+1. Create a free project at https://supabase.com.
+2. SQL Editor → New query → paste [supabase/schema.sql](supabase/schema.sql) → Run.
+3. Project Settings → API: copy the project URL and the publishable (anon) key into `.env.local`.
+4. Restart `npm run dev`. The "Rasta report karein" button turns on.
+
+Without keys the map still works; only reports are off.
+
 ## Round-by-round snapshots
 
 Each evaluation round is saved as a git tag: `round-1`, `round-2`, `round-3`.
