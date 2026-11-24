@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #14231f;
+  --color-snow: #f3f1ea;
+  --color-orange: #f08a3e;
+  --color-orange-dark: #a9481a;
+  --color-teal: #5fb3a1;
+  --color-danger: #d64545;
+  --color-muted: #4b5a55;
+  --font-sans: var(--font-public-sans), Arial, sans-serif;
+  --font-display: var(--font-oswald), "Arial Narrow", Arial, sans-serif;
+}
+
+body {
+  background: var(--color-snow);
+  color: var(--color-ink);
+}
