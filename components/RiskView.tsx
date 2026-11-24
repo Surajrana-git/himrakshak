@@ -1,9 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RiskMap, { type MapSegment } from "@/components/RiskMap";
 import ReportForm from "@/components/ReportForm";
-import { REPORT_KINDS, timeAgo, useReports } from "@/lib/reports";
+import SafeTimeCard from "@/components/SafeTimeCard";
+import TripTimeline from "@/components/TripTimeline";
+import LiveReports from "@/components/LiveReports";
+import StormSimulator from "@/components/StormSimulator";
+import { useReports } from "@/lib/reports";
 import { supabase } from "@/lib/supabase";
 import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
 import type { RainSeries } from "@/lib/weather";
@@ -14,141 +18,172 @@ type Props = { route: typeof route; rain: RainSeries };
 export default function RiskView({ route, rain }: Props) {
   const reports = useReports();
   const [reporting, setReporting] = useState(false);
-  const [stormMm, setStormMm] = useState(0);
-  const [stormHours, setStormHours] = useState(3);
-  const segmentName = (id: string) => {
-    const s = route.segments.find((x) => x.id === id);
-    return s ? `${s.from} → ${s.to}` : id;
-  };
-  const series = withSimulatedStorm(rain.mm, rain.nowIndex, stormMm, stormHours);
-  const safeHour = safeDepartureHour(series, rain.nowIndex, route.segments);
-  const safeClock = safeHour === null ? null : rain.times[rain.nowIndex + safeHour]?.slice(11, 16);
+  const [storm, setStorm] = useState({ mmPerHour: 0, hours: 3 });
+  const [focusId, setFocusId] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [locateSignal, setLocateSignal] = useState(0);
+  const [fitSignal, setFitSignal] = useState(0);
+  const online = useOnline();
+
+  const series = withSimulatedStorm(rain.mm, rain.nowIndex, storm.mmPerHour, storm.hours);
   const segments: MapSegment[] = route.segments.map((s, i) => {
     const score = segmentScore(series[i], rain.nowIndex, s.slopeFactor, s.historyFactor);
     return { id: s.id, from: s.from, to: s.to, distanceKm: s.distanceKm, coordinates: s.coordinates, score, level: riskLevel(score) };
   });
   const worst = segments.reduce((a, b) => (b.score > a.score ? b : a));
   const worstStyle = RISK_STYLE[worst.level];
-  const updated = rain.times[rain.nowIndex]?.replace("T", " ");
+
+  const safeHour = safeDepartureHour(series, rain.nowIndex, route.segments);
+  const safeTime = safeHour === null ? null : rain.times[rain.nowIndex + safeHour];
+  const isTomorrow = safeTime !== null && safeTime.slice(0, 10) !== rain.times[rain.nowIndex].slice(0, 10);
+  const safeClock = safeTime === null ? null : `${isTomorrow ? "Kal " : ""}${safeTime.slice(11, 16)}`;
+
+  const segmentName = (id: string) => {
+    const s = route.segments.find((x) => x.id === id);
+    return s ? `${s.from} → ${s.to}` : id;
+  };
+
+  function selectSegment(id: string | null) {
+    setFocusId(id);
+    if (id) setSheetOpen(true);
+  }
 
   return (
-    <div className="flex flex-1 flex-col md:flex-row">
-      <div className="h-[55dvh] md:h-auto md:flex-1">
-        <RiskMap segments={segments} towns={route.towns} reports={reports} />
+    <div className="relative h-dvh w-full overflow-hidden bg-snow text-ink">
+      <div className="absolute inset-0">
+        <RiskMap
+          segments={segments}
+          towns={route.towns}
+          reports={reports}
+          focusId={focusId}
+          onSelectSegment={selectSegment}
+          locateSignal={locateSignal}
+          fitSignal={fitSignal}
+        />
       </div>
 
-      <aside className="flex flex-col gap-6 p-5 md:w-[420px] md:overflow-y-auto md:h-dvh">
-        <header>
-          <h1 className="font-display text-4xl font-bold tracking-wide">Himrakshak</h1>
-          <p className="text-muted">{route.name}</p>
-        </header>
-
-        <section className="bg-ink p-5 text-snow">
-          <p className="font-display text-sm uppercase tracking-[0.2em] text-orange">Route ka sabse risky hissa</p>
-          <p className="mt-2 font-display text-2xl">
-            {worst.from} → {worst.to}
+      {/* Search-bar style route header, like a maps app */}
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col gap-2 px-3 pt-[max(12px,env(safe-area-inset-top))] md:inset-x-auto md:left-4 md:w-[400px] md:px-0 md:pt-4">
+        <div className="pointer-events-auto flex min-h-14 items-center gap-3 rounded-full bg-snow py-2 pr-2 pl-2 shadow-lg">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icon.svg" alt="" className="h-10 w-10 rounded-full" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-display text-lg leading-tight">Himrakshak</p>
+            <p className="truncate text-xs text-muted">{route.name}</p>
+          </div>
+          <span
+            className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold"
+            style={{ backgroundColor: worstStyle.color, color: worstStyle.text }}
+          >
+            {worstStyle.label}
+          </span>
+        </div>
+        {!online && (
+          <p className="pointer-events-auto rounded-full bg-ink px-4 py-2 text-sm text-snow shadow-lg">
+            Offline: aakhri saved map dikh raha hai / showing last saved data
           </p>
-          <p className="mt-1 text-lg" style={{ color: worstStyle.color }}>
-            {worstStyle.hindi} · {worstStyle.label} ({worst.score}/100)
-          </p>
-        </section>
+        )}
+      </header>
 
-        <section className="border-l-8 border-orange-dark bg-white p-5">
-          <p className="font-display text-sm uppercase tracking-[0.2em] text-orange-dark">Kab niklein? / When to leave</p>
-          {safeHour === 0 && (
-            <>
-              <p className="mt-2 font-display text-3xl">Abhi nikal sakte hain</p>
-              <p className="text-muted">Poore route pe koi hissa high risk mein nahi hai.</p>
-            </>
-          )}
-          {safeHour !== null && safeHour > 0 && (
-            <>
-              <p className="mt-2 font-display text-3xl">{safeClock} ke baad niklein</p>
-              <p className="text-muted">
-                Leave after {safeClock} ({safeHour} ghante baad). Tab tak kam se kam ek hissa high risk mein hai.
-              </p>
-            </>
-          )}
-          {safeHour === null && (
-            <>
-              <p className="mt-2 font-display text-3xl text-danger">Agle 12 ghante yatra na karein</p>
-              <p className="text-muted">Avoid travel: the route stays high risk for the next 12 hours.</p>
-            </>
-          )}
-        </section>
+      {/* Floating map buttons */}
+      <div className="absolute top-24 right-3 z-10 flex flex-col gap-2 md:top-4 md:right-4">
+        <MapButton label="Meri location / My location" onClick={() => setLocateSignal((n) => n + 1)}>
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+        </MapButton>
+        <MapButton
+          label="Poora route / Whole route"
+          onClick={() => {
+            setFocusId(null);
+            setFitSignal((n) => n + 1);
+          }}
+        >
+          <path d="M5 19c4-1 3-6 7-7s3-6 7-7" />
+          <circle cx="5" cy="19" r="2" />
+          <circle cx="19" cy="5" r="2" />
+        </MapButton>
+      </div>
+
+      {/* Bottom sheet on phones, side panel on desktop */}
+      <section
+        className={`absolute inset-x-0 bottom-0 z-20 flex flex-col rounded-t-3xl bg-snow shadow-[0_-8px_24px_rgba(20,35,31,0.18)] transition-[max-height] duration-300 ${
+          sheetOpen ? "max-h-[85dvh]" : "max-h-[44dvh]"
+        } md:inset-x-auto md:top-[92px] md:bottom-4 md:left-4 md:max-h-none md:w-[400px] md:rounded-3xl md:shadow-lg`}
+        aria-label="Trip details"
+      >
+        <button
+          onClick={() => setSheetOpen(!sheetOpen)}
+          aria-label={sheetOpen ? "Chhota karein / Collapse" : "Aur dekhein / Expand"}
+          aria-expanded={sheetOpen}
+          className="flex min-h-10 shrink-0 items-center justify-center md:hidden"
+        >
+          <span className="h-1.5 w-12 rounded-full bg-ink/25" />
+        </button>
 
         <button
           onClick={() => setReporting(true)}
           disabled={!supabase}
-          className="min-h-14 bg-orange px-4 font-display text-xl tracking-wide text-ink disabled:opacity-50"
+          aria-label="Rasta report karein / Report road"
+          className="absolute -top-[76px] right-3 flex h-16 w-16 items-center justify-center rounded-full bg-orange text-ink shadow-xl disabled:bg-snow disabled:text-muted md:fixed md:top-auto md:right-6 md:bottom-6"
         >
-          Rasta report karein
+          <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+            <path d="M12 3 2 20h20L12 3z" />
+            <path d="M12 10v4M12 17h.01" />
+          </svg>
         </button>
-        {!supabase && (
-          <p className="text-sm text-muted">Reports band hain: Supabase keys `.env.local` mein nahi hain.</p>
-        )}
 
-        {reports.length > 0 && (
-          <section>
-            <h2 className="font-display text-xl">Taaza reports / Live reports</h2>
-            <ul className="mt-3 divide-y divide-ink/15 border-y border-ink/15">
-              {reports.slice(0, 8).map((r) => (
-                <li key={r.id} className="py-3">
-                  <p className="font-semibold">
-                    {REPORT_KINDS[r.kind].hindi} · {REPORT_KINDS[r.kind].label}
-                  </p>
-                  <p className="text-sm text-muted">
-                    {segmentName(r.segment_id)} · {timeAgo(r.created_at)}
-                    {r.photo_url ? " · photo" : ""}
-                  </p>
-                  {r.note && <p className="mt-1">{r.note}</p>}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-[max(24px,env(safe-area-inset-bottom))] md:pt-4">
+          <SafeTimeCard safeHour={safeHour} safeClock={safeClock} />
 
-        <section>
-          <h2 className="font-display text-xl">Har hissa / Every stretch</h2>
-          <ul className="mt-3 divide-y divide-ink/15 border-y border-ink/15">
-            {segments.map((s) => {
-              const style = RISK_STYLE[s.level];
-              return (
-                <li key={s.id} className="flex min-h-14 items-center justify-between gap-3 py-3">
-                  <div>
-                    <p className="font-semibold">
-                      {s.from} → {s.to}
-                    </p>
-                    <p className="text-sm text-muted">{s.distanceKm} km</p>
-                  </div>
-                  <p className="shrink-0 px-3 py-1 text-sm font-semibold text-ink" style={{ backgroundColor: style.color }}>
-                    {style.label} · {s.score}
-                  </p>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
+          {!supabase && (
+            <p className="text-sm text-muted">Reports band hain: Supabase keys `.env.local` mein nahi hain.</p>
+          )}
 
-        <section className="border-2 border-dashed border-ink/30 p-4">
-          <h2 className="font-display text-xl">Demo: baarish simulate karein</h2>
-          <p className="text-sm text-muted">Simulation only. Live data mein yeh baarish nahi hai.</p>
-          <label className="mt-3 flex flex-col gap-1">
-            <span className="font-semibold">Toofan: {stormMm} mm / ghanta</span>
-            <input type="range" min={0} max={20} value={stormMm} onChange={(e) => setStormMm(Number(e.target.value))} className="accent-orange-dark" />
-          </label>
-          <label className="mt-3 flex flex-col gap-1">
-            <span className="font-semibold">Agle {stormHours} ghante tak</span>
-            <input type="range" min={1} max={8} value={stormHours} onChange={(e) => setStormHours(Number(e.target.value))} className="accent-orange-dark" />
-          </label>
-        </section>
+          <TripTimeline segments={segments} focusId={focusId} onSelect={selectSegment} />
+          <LiveReports reports={reports} segmentName={segmentName} />
+          <StormSimulator
+            mmPerHour={storm.mmPerHour}
+            hours={storm.hours}
+            onChange={(mmPerHour, hours) => setStorm({ mmPerHour, hours })}
+          />
 
-        <footer className="text-sm text-muted">
-          Live rain: Open-Meteo · Updated {updated} IST · Roads: OpenStreetMap
-        </footer>
-      </aside>
+          <footer className="text-xs text-muted">
+            Live rain: Open-Meteo · Updated {rain.times[rain.nowIndex]?.replace("T", " ")} IST · Roads: OpenStreetMap
+          </footer>
+        </div>
+      </section>
 
       {reporting && <ReportForm segments={route.segments} onClose={() => setReporting(false)} />}
     </div>
   );
+}
+
+function MapButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className="flex h-12 w-12 items-center justify-center rounded-full bg-snow text-ink shadow-lg"
+    >
+      <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+        {children}
+      </svg>
+    </button>
+  );
+}
+
+function useOnline(): boolean {
+  const [online, setOnline] = useState(true);
+  useEffect(() => {
+    const update = () => setOnline(navigator.onLine);
+    update();
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, []);
+  return online;
 }

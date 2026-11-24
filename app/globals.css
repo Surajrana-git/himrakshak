@@ -6,10 +6,15 @@
   --color-orange: #f08a3e;
   --color-orange-dark: #a9481a;
   --color-teal: #5fb3a1;
-  --color-danger: #d64545;
+  --color-danger: #b03030;
   --color-muted: #4b5a55;
   --font-sans: var(--font-public-sans), Arial, sans-serif;
   --font-display: var(--font-oswald), "Arial Narrow", Arial, sans-serif;
+}
+
+/* MapLibre's own locate button; we use a bigger custom one that calls trigger(). */
+.maplibregl-ctrl-top-left {
+  display: none;
 }
 
 body {

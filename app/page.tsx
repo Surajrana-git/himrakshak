@@ -5,7 +5,7 @@ import RiskView from "@/components/RiskView";
 
 export default function Page() {
   return (
-    <main className="flex min-h-dvh flex-col bg-snow text-ink">
+    <main className="h-dvh bg-snow text-ink">
       <Suspense fallback={<p className="p-6 text-lg">Live rain data aa raha hai…</p>}>
         <LiveRisk />
       </Suspense>

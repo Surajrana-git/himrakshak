@@ -101,7 +101,7 @@ segment on the route is below 70.
   - `snow` #F3F1EA (light background)
   - `orange` #F08A3E (warning, accent) · `orange-dark` #A9481A (accent on light)
   - `teal` #5FB3A1 (safe / OK)
-  - Risk: green = teal, medium = orange, high = #D64545
+  - Risk: green = teal, medium = orange, high = #B03030 (snow text on it)
 - Fonts: **Oswald** for headings, **Public Sans** for text.
 - **Never:** purple/blue gradients, glassmorphism, emoji as icons, "Welcome to…"
   hero text, rocket emojis, lorem ipsum, stock "AI" illustrations.
