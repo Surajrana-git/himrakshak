@@ -5,7 +5,7 @@ import RiskMap, { type MapSegment } from "@/components/RiskMap";
 import ReportForm from "@/components/ReportForm";
 import { REPORT_KINDS, timeAgo, useReports } from "@/lib/reports";
 import { supabase } from "@/lib/supabase";
-import { RISK_STYLE, riskLevel, segmentScore } from "@/lib/risk";
+import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
 import type { RainSeries } from "@/lib/weather";
 import type route from "@/data/route-badrinath.json";
 
@@ -14,12 +14,17 @@ type Props = { route: typeof route; rain: RainSeries };
 export default function RiskView({ route, rain }: Props) {
   const reports = useReports();
   const [reporting, setReporting] = useState(false);
+  const [stormMm, setStormMm] = useState(0);
+  const [stormHours, setStormHours] = useState(3);
   const segmentName = (id: string) => {
     const s = route.segments.find((x) => x.id === id);
     return s ? `${s.from} → ${s.to}` : id;
   };
+  const series = withSimulatedStorm(rain.mm, rain.nowIndex, stormMm, stormHours);
+  const safeHour = safeDepartureHour(series, rain.nowIndex, route.segments);
+  const safeClock = safeHour === null ? null : rain.times[rain.nowIndex + safeHour]?.slice(11, 16);
   const segments: MapSegment[] = route.segments.map((s, i) => {
-    const score = segmentScore(rain.mm[i], rain.nowIndex, s.slopeFactor, s.historyFactor);
+    const score = segmentScore(series[i], rain.nowIndex, s.slopeFactor, s.historyFactor);
     return { id: s.id, from: s.from, to: s.to, distanceKm: s.distanceKm, coordinates: s.coordinates, score, level: riskLevel(score) };
   });
   const worst = segments.reduce((a, b) => (b.score > a.score ? b : a));
@@ -46,6 +51,30 @@ export default function RiskView({ route, rain }: Props) {
           <p className="mt-1 text-lg" style={{ color: worstStyle.color }}>
             {worstStyle.hindi} · {worstStyle.label} ({worst.score}/100)
           </p>
+        </section>
+
+        <section className="border-l-8 border-orange-dark bg-white p-5">
+          <p className="font-display text-sm uppercase tracking-[0.2em] text-orange-dark">Kab niklein? / When to leave</p>
+          {safeHour === 0 && (
+            <>
+              <p className="mt-2 font-display text-3xl">Abhi nikal sakte hain</p>
+              <p className="text-muted">Poore route pe koi hissa high risk mein nahi hai.</p>
+            </>
+          )}
+          {safeHour !== null && safeHour > 0 && (
+            <>
+              <p className="mt-2 font-display text-3xl">{safeClock} ke baad niklein</p>
+              <p className="text-muted">
+                Leave after {safeClock} ({safeHour} ghante baad). Tab tak kam se kam ek hissa high risk mein hai.
+              </p>
+            </>
+          )}
+          {safeHour === null && (
+            <>
+              <p className="mt-2 font-display text-3xl text-danger">Agle 12 ghante yatra na karein</p>
+              <p className="text-muted">Avoid travel: the route stays high risk for the next 12 hours.</p>
+            </>
+          )}
         </section>
 
         <button
@@ -99,6 +128,19 @@ export default function RiskView({ route, rain }: Props) {
               );
             })}
           </ul>
+        </section>
+
+        <section className="border-2 border-dashed border-ink/30 p-4">
+          <h2 className="font-display text-xl">Demo: baarish simulate karein</h2>
+          <p className="text-sm text-muted">Simulation only. Live data mein yeh baarish nahi hai.</p>
+          <label className="mt-3 flex flex-col gap-1">
+            <span className="font-semibold">Toofan: {stormMm} mm / ghanta</span>
+            <input type="range" min={0} max={20} value={stormMm} onChange={(e) => setStormMm(Number(e.target.value))} className="accent-orange-dark" />
+          </label>
+          <label className="mt-3 flex flex-col gap-1">
+            <span className="font-semibold">Agle {stormHours} ghante tak</span>
+            <input type="range" min={1} max={8} value={stormHours} onChange={(e) => setStormHours(Number(e.target.value))} className="accent-orange-dark" />
+          </label>
         </section>
 
         <footer className="text-sm text-muted">

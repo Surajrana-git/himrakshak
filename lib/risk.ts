@@ -28,6 +28,31 @@ export function segmentScore(
   return Math.min(100, Math.round(rainScore(last24h, next6h) * slopeFactor * historyFactor));
 }
 
+export type SegmentFactors = { slopeFactor: number; historyFactor: number };
+
+// Hours from now (0 = leave now) until every stretch is below "high" risk.
+// Null if no such hour exists in the next `lookaheadHours`.
+export function safeDepartureHour(
+  series: number[][],
+  nowIndex: number,
+  factors: SegmentFactors[],
+  lookaheadHours = 12,
+): number | null {
+  for (let h = 0; h <= lookaheadHours; h++) {
+    const allBelowHigh = series.every(
+      (mm, i) => segmentScore(mm, nowIndex + h, factors[i].slopeFactor, factors[i].historyFactor) < 70,
+    );
+    if (allBelowHigh) return h;
+  }
+  return null;
+}
+
+// Demo only: adds a storm of `mmPerHour` for the next `hours` hours to every series.
+export function withSimulatedStorm(series: number[][], nowIndex: number, mmPerHour: number, hours: number): number[][] {
+  if (mmPerHour === 0) return series;
+  return series.map((mm) => mm.map((v, i) => (i >= nowIndex && i < nowIndex + hours ? v + mmPerHour : v)));
+}
+
 export function riskLevel(score: number): RiskLevel {
   if (score >= 70) return "high";
   if (score >= 40) return "medium";
