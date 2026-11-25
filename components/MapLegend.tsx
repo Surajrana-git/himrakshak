@@ -18,6 +18,12 @@ export default function MapLegend({ pastSlideCount }: { pastSlideCount: number }
           </li>
         ))}
         <li className="col-span-2 flex items-center gap-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-danger bg-snow text-danger">
+            <ReportIcon kind="landslide" className="h-5 w-5" />
+          </span>
+          <span>Haal ki khabar · Recent news (Google News, har ghante update)</span>
+        </li>
+        <li className="col-span-2 flex items-center gap-2">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-orange">
             <ReportIcon kind="landslide" className="h-5 w-5" />
           </span>

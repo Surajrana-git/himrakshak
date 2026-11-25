@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import route from "@/data/route-badrinath.json";
 import { getRain } from "@/lib/weather";
+import { getSlideNews } from "@/lib/slide-news";
 import RiskView from "@/components/RiskView";
 
 export default function Page() {
@@ -14,7 +15,10 @@ export default function Page() {
 }
 
 async function LiveRisk() {
-  const rain = await getRain(route.segments.map((s) => s.rainPoint)).catch(() => null);
+  const [rain, news] = await Promise.all([
+    getRain(route.segments.map((s) => s.rainPoint)).catch(() => null),
+    getSlideNews().catch(() => null),
+  ]);
   if (!rain) {
     return (
       <p className="p-6 text-lg">
@@ -22,5 +26,5 @@ async function LiveRisk() {
       </p>
     );
   }
-  return <RiskView route={route} rain={rain} />;
+  return <RiskView route={route} rain={rain} news={news} />;
 }

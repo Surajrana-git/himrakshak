@@ -8,6 +8,7 @@ All free. Check each link still works before relying on it.
 | Roads | OpenStreetMap via Geofabrik India extract, or Overpass API | NH-7 (Rishikesh–Badrinath), NH-107 (Rudraprayag–Gaurikund) |
 | Map tiles | MapLibre GL JS + free OSM-based style | Respect tile usage limits |
 | Past landslides | NASA Global Landslide Catalog — https://data.nasa.gov/dataset/global-landslide-catalog-export | **Used.** `node scripts/build-landslides.mjs <csv>` keeps events within 2 km of the route with location accuracy ≤10 km → `data/landslides-badrinath.json` (29 events, 2007–2017) |
+| Recent landslides (news) | Google News RSS search, Hindi + English — no key | **Used.** `lib/slide-news.ts`, cached 1 hour. Keeps headlines with a slide word + a route town, last 180 days, news outlets only, skips Kedarnath-trek news. Pin is placed at the town named (approximate). NASA COOLR ArcGIS services returned 404 on 25 Nov 2026; GDELT rate-limits too hard for a demo. |
 | Landslide zones | GSI Bhukosh — https://bhukosh.gsi.gov.in | Landslide inventory layer |
 | Slope / elevation | SRTM or Copernicus DEM (30 m) | Pre-compute slope per road segment into `data/` |
 | Glacial lakes | Sentinel-2 via Copernicus Browser — https://browser.dataspace.copernicus.eu | Pick 2–3 lakes, compare 2–3 dates |

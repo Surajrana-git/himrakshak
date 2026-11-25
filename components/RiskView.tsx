@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import RiskMap, { type MapSegment } from "@/components/RiskMap";
 import ReportForm from "@/components/ReportForm";
 import SafeTimeCard from "@/components/SafeTimeCard";
@@ -9,16 +10,18 @@ import LiveReports from "@/components/LiveReports";
 import StormSimulator from "@/components/StormSimulator";
 import InstallButton from "@/components/InstallButton";
 import MapLegend from "@/components/MapLegend";
+import RecentNews from "@/components/RecentNews";
 import { useReports } from "@/lib/reports";
 import { supabase } from "@/lib/supabase";
 import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
 import type { RainSeries } from "@/lib/weather";
+import type { SlideNewsFeed } from "@/lib/slide-news";
 import type route from "@/data/route-badrinath.json";
 import pastLandslides from "@/data/landslides-badrinath.json";
 
-type Props = { route: typeof route; rain: RainSeries };
+type Props = { route: typeof route; rain: RainSeries; news: SlideNewsFeed | null };
 
-export default function RiskView({ route, rain }: Props) {
+export default function RiskView({ route, rain, news }: Props) {
   const reports = useReports();
   const [reporting, setReporting] = useState(false);
   const [storm, setStorm] = useState({ mmPerHour: 0, hours: 3 });
@@ -27,6 +30,13 @@ export default function RiskView({ route, rain }: Props) {
   const [locateSignal, setLocateSignal] = useState(0);
   const [fitSignal, setFitSignal] = useState(0);
   const online = useOnline();
+  const router = useRouter();
+
+  // The server refreshes rain and news every hour; this pulls the new data into an open screen.
+  useEffect(() => {
+    const timer = setInterval(() => router.refresh(), 60 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, [router]);
 
   const series = withSimulatedStorm(rain.mm, rain.nowIndex, storm.mmPerHour, storm.hours);
   const segments: MapSegment[] = route.segments.map((s, i) => {
@@ -57,6 +67,7 @@ export default function RiskView({ route, rain }: Props) {
         <RiskMap
           segments={segments}
           pastSlides={pastLandslides.landslides}
+          news={news?.items ?? NO_NEWS}
           towns={route.towns}
           reports={reports}
           focusId={focusId}
@@ -146,6 +157,7 @@ export default function RiskView({ route, rain }: Props) {
 
           <TripTimeline segments={segments} focusId={focusId} onSelect={selectSegment} />
           <LiveReports reports={reports} segmentName={segmentName} />
+          <RecentNews news={news} />
           <MapLegend pastSlideCount={pastLandslides.landslides.length} />
           <StormSimulator
             mmPerHour={storm.mmPerHour}
@@ -163,6 +175,9 @@ export default function RiskView({ route, rain }: Props) {
     </div>
   );
 }
+
+// Stable empty list so the map doesn't redraw news pins on every render.
+const NO_NEWS: SlideNewsFeed["items"] = [];
 
 function MapButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
   return (

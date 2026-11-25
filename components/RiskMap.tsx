@@ -15,6 +15,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { RISK_STYLE, type RiskLevel } from "@/lib/risk";
 import { REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
 import { iconElement, REPORT_ICONS } from "@/lib/report-icons";
+import type { SlideNews } from "@/lib/slide-news";
 
 // The bundler can't find MapLibre's worker next to its own chunk, so we serve a copy
 // from /public (copied there by the `postinstall` script).
@@ -44,6 +45,7 @@ export type PastSlide = {
 type Props = {
   segments: MapSegment[];
   pastSlides: PastSlide[];
+  news: SlideNews[];
   towns: { name: string; lat: number; lon: number }[];
   reports: Report[];
   focusId: string | null;
@@ -153,6 +155,49 @@ function reportPin(report: Report): HTMLElement {
   return pin;
 }
 
+// One pin per place, so ten stories about Sirobagad don't stack on top of each other.
+function newsPin(place: string, count: number): HTMLElement {
+  const pin = document.createElement("button");
+  pin.type = "button";
+  pin.setAttribute("aria-label", `${count} landslide news reports near ${place}`);
+  pin.className = "relative flex h-11 w-11 items-center justify-center rounded-full border-[3px] border-danger bg-snow text-danger shadow-lg";
+  pin.append(iconElement(REPORT_ICONS.landslide, 24));
+  const badge = document.createElement("span");
+  badge.className = "absolute -top-2 -right-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-ink px-1 text-xs font-bold text-snow";
+  badge.textContent = String(count);
+  pin.append(badge);
+  return pin;
+}
+
+function newsPopup(place: string, items: SlideNews[]): HTMLElement {
+  const root = document.createElement("div");
+  root.className = "text-ink";
+  const title = document.createElement("p");
+  title.className = "font-semibold";
+  title.textContent = `Haal ki khabar · Recent news near ${place}`;
+  root.append(title);
+  for (const n of items.slice(0, 4)) {
+    const a = document.createElement("a");
+    a.href = n.link;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.className = "mt-2 block border-t border-ink/15 pt-2";
+    const headline = document.createElement("span");
+    headline.className = "block leading-snug underline";
+    headline.textContent = n.title;
+    const meta = document.createElement("span");
+    meta.className = "block text-xs text-muted";
+    meta.textContent = `${n.source} · ${new Date(n.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`;
+    a.append(headline, meta);
+    root.append(a);
+  }
+  const note = document.createElement("p");
+  note.className = "mt-2 text-xs text-muted";
+  note.textContent = "Jagah khabar ke town se andaazan hai / Place is approximate (from the town named in the news)";
+  root.append(note);
+  return root;
+}
+
 function pastSlidePin(slide: PastSlide): HTMLElement {
   const pin = document.createElement("button");
   pin.type = "button";
@@ -162,11 +207,12 @@ function pastSlidePin(slide: PastSlide): HTMLElement {
   return pin;
 }
 
-export default function RiskMap({ segments, pastSlides, towns, reports, focusId, onSelectSegment, locateSignal, fitSignal }: Props) {
+export default function RiskMap({ segments, pastSlides, news, towns, reports, focusId, onSelectSegment, locateSignal, fitSignal }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const geolocateRef = useRef<GeolocateControl | null>(null);
   const reportMarkers = useRef<Marker[]>([]);
+  const newsMarkers = useRef<Marker[]>([]);
   const onSelectRef = useRef(onSelectSegment);
   const [loaded, setLoaded] = useState(false);
 
@@ -258,6 +304,20 @@ export default function RiskMap({ segments, pastSlides, towns, reports, focusId,
     if (!loaded) return;
     mapRef.current?.getSource<GeoJSONSource>("segments")?.setData(segmentsToGeoJSON(segments, focusId));
   }, [loaded, segments, focusId]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    const byPlace = new Map<string, SlideNews[]>();
+    for (const n of news) if (n.place) byPlace.set(n.place, [...(byPlace.get(n.place) ?? []), n]);
+    newsMarkers.current.forEach((m) => m.remove());
+    newsMarkers.current = [...byPlace].map(([place, items]) =>
+      new Marker({ element: newsPin(place, items.length) })
+        .setLngLat([items[0].lon!, items[0].lat!])
+        .setPopup(new Popup({ maxWidth: "280px", offset: 24 }).setDOMContent(newsPopup(place, items)))
+        .addTo(map),
+    );
+  }, [loaded, news]);
 
   // Live reports change often; rebuilding up to 100 DOM pins is cheap.
   useEffect(() => {
