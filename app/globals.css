@@ -12,6 +12,16 @@
   --font-display: var(--font-oswald), "Arial Narrow", Arial, sans-serif;
 }
 
+/* Past-landslide pins shrink to dots when zoomed out (data-far is set in RiskMap). */
+[data-far] .past-slide {
+  width: 12px;
+  height: 12px;
+  border-width: 1.5px;
+}
+[data-far] .past-slide svg {
+  display: none;
+}
+
 /* MapLibre's own locate button; we use a bigger custom one that calls trigger(). */
 .maplibregl-ctrl-top-left {
   display: none;

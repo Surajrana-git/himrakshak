@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ReportIcon from "@/components/ReportIcon";
 import { createReport, REPORT_KINDS, type ReportKind } from "@/lib/reports";
 import { nearestSegment } from "@/lib/geo";
 
@@ -100,13 +101,16 @@ export default function ReportForm({ segments, onClose }: Props) {
             {(Object.keys(REPORT_KINDS) as ReportKind[]).map((k) => (
               <label
                 key={k}
-                className={`flex min-h-14 cursor-pointer flex-col justify-center border-2 px-3 py-2 ${
+                className={`flex min-h-14 cursor-pointer items-center gap-2 border-2 px-3 py-2 ${
                   kind === k ? "border-orange-dark bg-orange/20" : "border-ink/20"
                 }`}
               >
                 <input type="radio" name="kind" value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" />
-                <span className="font-semibold">{REPORT_KINDS[k].hindi}</span>
-                <span className="text-sm text-muted">{REPORT_KINDS[k].label}</span>
+                <ReportIcon kind={k} className="h-7 w-7 shrink-0" />
+                <span className="flex flex-col">
+                  <span className="font-semibold">{REPORT_KINDS[k].hindi}</span>
+                  <span className="text-sm text-muted">{REPORT_KINDS[k].label}</span>
+                </span>
               </label>
             ))}
           </div>

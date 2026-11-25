@@ -8,11 +8,13 @@ import TripTimeline from "@/components/TripTimeline";
 import LiveReports from "@/components/LiveReports";
 import StormSimulator from "@/components/StormSimulator";
 import InstallButton from "@/components/InstallButton";
+import MapLegend from "@/components/MapLegend";
 import { useReports } from "@/lib/reports";
 import { supabase } from "@/lib/supabase";
 import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
 import type { RainSeries } from "@/lib/weather";
 import type route from "@/data/route-badrinath.json";
+import pastLandslides from "@/data/landslides-badrinath.json";
 
 type Props = { route: typeof route; rain: RainSeries };
 
@@ -54,6 +56,7 @@ export default function RiskView({ route, rain }: Props) {
       <div className="absolute inset-0">
         <RiskMap
           segments={segments}
+          pastSlides={pastLandslides.landslides}
           towns={route.towns}
           reports={reports}
           focusId={focusId}
@@ -143,6 +146,7 @@ export default function RiskView({ route, rain }: Props) {
 
           <TripTimeline segments={segments} focusId={focusId} onSelect={selectSegment} />
           <LiveReports reports={reports} segmentName={segmentName} />
+          <MapLegend pastSlideCount={pastLandslides.landslides.length} />
           <StormSimulator
             mmPerHour={storm.mmPerHour}
             hours={storm.hours}
@@ -150,7 +154,7 @@ export default function RiskView({ route, rain }: Props) {
           />
 
           <footer className="text-xs text-muted">
-            Live rain: Open-Meteo · Updated {rain.times[rain.nowIndex]?.replace("T", " ")} IST · Roads: OpenStreetMap
+            Live rain: Open-Meteo · Updated {rain.times[rain.nowIndex]?.replace("T", " ")} IST · Roads: OpenStreetMap · Past landslides: NASA Global Landslide Catalog
           </footer>
         </div>
       </section>

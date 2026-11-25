@@ -5,6 +5,7 @@ import {
   GeolocateControl,
   LngLatBounds,
   Map as MapLibreMap,
+  Marker,
   Popup,
   setWorkerUrl,
   type GeoJSONSource,
@@ -13,6 +14,7 @@ import {
 import "maplibre-gl/dist/maplibre-gl.css";
 import { RISK_STYLE, type RiskLevel } from "@/lib/risk";
 import { REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
+import { iconElement, REPORT_ICONS } from "@/lib/report-icons";
 
 // The bundler can't find MapLibre's worker next to its own chunk, so we serve a copy
 // from /public (copied there by the `postinstall` script).
@@ -28,8 +30,20 @@ export type MapSegment = {
   level: RiskLevel;
 };
 
+export type PastSlide = {
+  id: string;
+  date: string;
+  title: string;
+  accuracy: string;
+  size: string;
+  deaths: number;
+  lat: number;
+  lon: number;
+};
+
 type Props = {
   segments: MapSegment[];
+  pastSlides: PastSlide[];
   towns: { name: string; lat: number; lon: number }[];
   reports: Report[];
   focusId: string | null;
@@ -63,17 +77,6 @@ function segmentsToGeoJSON(segments: MapSegment[], focusId: string | null): GeoJ
   };
 }
 
-function reportsToGeoJSON(reports: Report[]): GeoJSON.FeatureCollection {
-  return {
-    type: "FeatureCollection",
-    features: reports.map((r) => ({
-      type: "Feature",
-      properties: { id: r.id, clear: r.kind === "clear" },
-      geometry: { type: "Point", coordinates: [r.lon, r.lat] },
-    })),
-  };
-}
-
 // Built with textContent, never innerHTML: report text comes from the public.
 function reportPopup(report: Report): HTMLElement {
   const root = document.createElement("div");
@@ -94,17 +97,76 @@ function reportPopup(report: Report): HTMLElement {
     const img = document.createElement("img");
     img.src = report.photo_url;
     img.alt = "Report photo";
-    img.className = "mt-2 max-h-40 w-full object-cover";
+    img.className = "mt-2 max-h-48 w-full rounded-lg object-cover";
     root.append(img);
   }
   return root;
 }
 
-export default function RiskMap({ segments, towns, reports, focusId, onSelectSegment, locateSignal, fitSignal }: Props) {
+function pastSlidePopup(slide: PastSlide): HTMLElement {
+  const root = document.createElement("div");
+  root.className = "text-ink";
+  const lines: [string, string][] = [
+    ["font-semibold", "Purana landslide · Past landslide"],
+    ["text-sm text-muted", new Date(slide.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })],
+    ["", slide.title],
+  ];
+  if (slide.deaths > 0) lines.push(["font-semibold text-danger", `${slide.deaths} logon ki maut / deaths`]);
+  lines.push(["mt-1 text-xs text-muted", `NASA record · size ${slide.size.replace("_", " ")} · location ±${slide.accuracy}`]);
+  for (const [className, text] of lines) {
+    const p = document.createElement("p");
+    p.className = className;
+    p.textContent = text;
+    root.append(p);
+  }
+  return root;
+}
+
+// Waze-style pin: the photo itself when there is one, otherwise the hazard icon.
+function reportPin(report: Report): HTMLElement {
+  const danger = report.kind !== "clear";
+  const ring = danger ? "border-danger" : "border-teal";
+  const fill = danger ? "bg-danger text-snow" : "bg-teal text-ink";
+  const pin = document.createElement("button");
+  pin.type = "button";
+  pin.setAttribute("aria-label", `${REPORT_KINDS[report.kind].label}, ${timeAgo(report.created_at)}`);
+  pin.className = "relative z-10 flex flex-col items-center";
+
+  const head = document.createElement("span");
+  if (report.photo_url) {
+    head.className = `relative block h-14 w-14 rounded-full border-[3px] ${ring} bg-snow shadow-lg`;
+    const img = document.createElement("img");
+    img.src = report.photo_url;
+    img.alt = "";
+    img.className = "h-full w-full rounded-full object-cover";
+    const badge = document.createElement("span");
+    badge.className = `absolute -right-1.5 -bottom-1.5 flex h-7 w-7 items-center justify-center rounded-full border-2 border-snow ${fill}`;
+    badge.append(iconElement(REPORT_ICONS[report.kind], 16));
+    head.append(img, badge);
+  } else {
+    head.className = `flex h-12 w-12 items-center justify-center rounded-full border-[3px] border-snow shadow-lg ${fill}`;
+    head.append(iconElement(REPORT_ICONS[report.kind], 26));
+  }
+  const tail = document.createElement("span");
+  tail.className = `-mt-1.5 block h-3 w-3 rotate-45 ${danger ? "bg-danger" : "bg-teal"}`;
+  pin.append(head, tail);
+  return pin;
+}
+
+function pastSlidePin(slide: PastSlide): HTMLElement {
+  const pin = document.createElement("button");
+  pin.type = "button";
+  pin.setAttribute("aria-label", `Past landslide, ${slide.date}`);
+  pin.className = "past-slide flex h-8 w-8 items-center justify-center rounded-full border-2 border-snow bg-ink text-orange shadow-md";
+  pin.append(iconElement(REPORT_ICONS.landslide, 18));
+  return pin;
+}
+
+export default function RiskMap({ segments, pastSlides, towns, reports, focusId, onSelectSegment, locateSignal, fitSignal }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const geolocateRef = useRef<GeolocateControl | null>(null);
-  const reportsRef = useRef(reports);
+  const reportMarkers = useRef<Marker[]>([]);
   const onSelectRef = useRef(onSelectSegment);
   const [loaded, setLoaded] = useState(false);
 
@@ -168,47 +230,46 @@ export default function RiskMap({ segments, towns, reports, focusId, onSelectSeg
         paint: { "circle-radius": 6, "circle-color": "#F3F1EA", "circle-stroke-color": "#14231F", "circle-stroke-width": 3 },
       });
 
-      map.addSource("reports", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
-      map.addLayer({
-        id: "reports",
-        type: "circle",
-        source: "reports",
-        paint: {
-          "circle-radius": 10,
-          "circle-color": ["case", ["get", "clear"], "#5FB3A1", "#B03030"],
-          "circle-stroke-color": "#F3F1EA",
-          "circle-stroke-width": 3,
-        },
-      });
-
       map.on("click", "segments", (e) => {
         const id = e.features?.[0]?.properties.id;
         if (typeof id === "string") onSelectRef.current(id);
       });
-      map.on("click", "reports", (e) => {
-        const id = e.features?.[0]?.properties.id;
-        const report = reportsRef.current.find((r) => r.id === id);
-        if (report) new Popup({ maxWidth: "260px" }).setLngLat([report.lon, report.lat]).setDOMContent(reportPopup(report)).addTo(map);
-      });
-      for (const layer of ["segments", "reports"]) {
-        map.on("mouseenter", layer, () => (map.getCanvas().style.cursor = "pointer"));
-        map.on("mouseleave", layer, () => (map.getCanvas().style.cursor = ""));
+      // Zoomed out, 29 full pins would hide the route colours, so they shrink to dots.
+      const markFar = () => container.current?.toggleAttribute("data-far", map.getZoom() < 10);
+      markFar();
+      map.on("zoomend", markFar);
+
+      map.on("mouseenter", "segments", () => (map.getCanvas().style.cursor = "pointer"));
+      map.on("mouseleave", "segments", () => (map.getCanvas().style.cursor = ""));
+
+      for (const slide of pastSlides) {
+        new Marker({ element: pastSlidePin(slide) })
+          .setLngLat([slide.lon, slide.lat])
+          .setPopup(new Popup({ maxWidth: "260px", offset: 18 }).setDOMContent(pastSlidePopup(slide)))
+          .addTo(map);
       }
       setLoaded(true);
     });
 
     return () => map.remove();
-  }, [towns]);
+  }, [towns, pastSlides]);
 
   useEffect(() => {
     if (!loaded) return;
     mapRef.current?.getSource<GeoJSONSource>("segments")?.setData(segmentsToGeoJSON(segments, focusId));
   }, [loaded, segments, focusId]);
 
+  // Live reports change often; rebuilding up to 100 DOM pins is cheap.
   useEffect(() => {
-    reportsRef.current = reports;
-    if (!loaded) return;
-    mapRef.current?.getSource<GeoJSONSource>("reports")?.setData(reportsToGeoJSON(reports));
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    reportMarkers.current.forEach((m) => m.remove());
+    reportMarkers.current = reports.map((r) =>
+      new Marker({ element: reportPin(r), anchor: "bottom" })
+        .setLngLat([r.lon, r.lat])
+        .setPopup(new Popup({ maxWidth: "260px", offset: 60 }).setDOMContent(reportPopup(r)))
+        .addTo(map),
+    );
   }, [loaded, reports]);
 
   // Zoom to the chosen stretch, or back to the whole route.

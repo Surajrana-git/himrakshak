@@ -1,0 +1,32 @@
+import ReportIcon from "@/components/ReportIcon";
+import { REPORT_KINDS, type ReportKind } from "@/lib/reports";
+
+// Every map symbol written out in words too, so colour is never the only clue.
+export default function MapLegend({ pastSlideCount }: { pastSlideCount: number }) {
+  return (
+    <section>
+      <h2 className="font-display text-xl">Map pe kya hai / Map key</h2>
+      <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+        {(Object.keys(REPORT_KINDS) as ReportKind[]).map((k) => (
+          <li key={k} className="flex items-center gap-2">
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${k === "clear" ? "bg-teal text-ink" : "bg-danger text-snow"}`}>
+              <ReportIcon kind={k} className="h-5 w-5" />
+            </span>
+            <span>
+              {REPORT_KINDS[k].hindi} · {REPORT_KINDS[k].label}
+            </span>
+          </li>
+        ))}
+        <li className="col-span-2 flex items-center gap-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-orange">
+            <ReportIcon kind="landslide" className="h-5 w-5" />
+          </span>
+          <span>
+            Purane landslides · Past landslides ({pastSlideCount}, NASA record 2007–2017)
+          </span>
+        </li>
+      </ul>
+      <p className="mt-2 text-xs text-muted">Driver ki photo ho toh pin pe wahi photo dikhti hai. Tap karke badi photo dekhein.</p>
+    </section>
+  );
+}
