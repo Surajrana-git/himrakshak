@@ -7,6 +7,7 @@ import SafeTimeCard from "@/components/SafeTimeCard";
 import TripTimeline from "@/components/TripTimeline";
 import LiveReports from "@/components/LiveReports";
 import StormSimulator from "@/components/StormSimulator";
+import InstallButton from "@/components/InstallButton";
 import { useReports } from "@/lib/reports";
 import { supabase } from "@/lib/supabase";
 import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
@@ -134,6 +135,7 @@ export default function RiskView({ route, rain }: Props) {
 
         <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-[max(24px,env(safe-area-inset-bottom))] md:pt-4">
           <SafeTimeCard safeHour={safeHour} safeClock={safeClock} />
+          <InstallButton />
 
           {!supabase && (
             <p className="text-sm text-muted">Reports band hain: Supabase keys `.env.local` mein nahi hain.</p>

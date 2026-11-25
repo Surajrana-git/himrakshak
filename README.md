@@ -28,6 +28,20 @@ Copy `.env.example` to `.env.local` and fill in the keys (never commit `.env.loc
 
 Without keys the map still works; only reports are off.
 
+## Install as an app (PWA)
+
+The service worker only runs in production, so test it with:
+
+```bash
+npm run build && npm start
+```
+
+- Android / desktop Chrome: tap **App install karein** in the bottom sheet.
+- iPhone Safari: Share → Add to Home Screen (the app shows these steps).
+- Offline: the last map, rain data and map tiles you opened stay available.
+  Supabase reports and fresh rain need a connection.
+- Changed `public/sw.js`? Bump `VERSION` in it so phones drop old caches.
+
 ## Round-by-round snapshots
 
 Each evaluation round is saved as a git tag: `round-1`, `round-2`, `round-3`.
