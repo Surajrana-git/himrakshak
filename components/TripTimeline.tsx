@@ -1,4 +1,3 @@
-import { RISK_STYLE } from "@/lib/risk";
 import type { MapSegment } from "@/components/RiskMap";
 
 type Props = {
@@ -20,7 +19,7 @@ export default function TripTimeline({ segments, focusId, onSelect }: Props) {
       </div>
       <ol className="mt-3">
         {segments.map((s) => {
-          const style = RISK_STYLE[s.level];
+          const style = s.display;
           const focused = s.id === focusId;
           return (
             <li key={s.id}>
@@ -36,7 +35,7 @@ export default function TripTimeline({ segments, focusId, onSelect }: Props) {
                 <span className="flex min-h-14 flex-1 items-center justify-between gap-2 py-2 pr-2">
                   <span className="text-sm text-muted">{s.distanceKm} km</span>
                   <span className="rounded-full px-3 py-1 text-sm font-semibold" style={{ backgroundColor: style.color, color: style.text }}>
-                    {style.hindi} · {style.label} · {s.score}
+                    {style.label}
                   </span>
                 </span>
               </button>

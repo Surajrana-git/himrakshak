@@ -2,15 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { distanceKm } from "@/lib/geo";
 
-export type ReportKind = "landslide" | "rockfall" | "road_blocked" | "water" | "clear";
+export type ReportKind = "landslide" | "rockfall" | "road_blocked" | "water" | "jam" | "clear";
 
-export const REPORT_KINDS: Record<ReportKind, { hindi: string; label: string }> = {
-  landslide: { hindi: "भूस्खलन", label: "Landslide" },
-  rockfall: { hindi: "पत्थर गिर रहे", label: "Rockfall" },
-  road_blocked: { hindi: "रास्ता बंद", label: "Road blocked" },
-  water: { hindi: "पानी / नाला", label: "Water on road" },
-  clear: { hindi: "रास्ता खुला", label: "Road clear" },
+// `fill`/`ring`: full Tailwind class names (Tailwind only finds classes written out in full).
+const DANGER = { fill: "bg-danger text-snow", ring: "border-danger", tail: "bg-danger" };
+export const REPORT_KINDS: Record<ReportKind, { hindi: string; label: string; fill: string; ring: string; tail: string }> = {
+  landslide: { hindi: "भूस्खलन", label: "Landslide", ...DANGER },
+  rockfall: { hindi: "पत्थर गिर रहे", label: "Rockfall", ...DANGER },
+  road_blocked: { hindi: "रास्ता बंद", label: "Road blocked", ...DANGER },
+  water: { hindi: "पानी / नाला", label: "Water on road", ...DANGER },
+  jam: { hindi: "ट्रैफिक जाम", label: "Traffic jam", fill: "bg-orange text-ink", ring: "border-orange", tail: "bg-orange" },
+  clear: { hindi: "रास्ता खुला", label: "Road clear", fill: "bg-teal text-ink", ring: "border-teal", tail: "bg-teal" },
 };
 
 export type Report = {
@@ -88,6 +92,28 @@ export async function createReport(report: NewReport): Promise<void> {
     photo_url,
   });
   if (error) throw new Error(`Report save failed: ${error.message}`);
+}
+
+const BLOCKING: ReportKind[] = ["landslide", "rockfall", "road_blocked"];
+const CONFIRM_KM = 1;
+const CONFIRM_HOURS = 12;
+
+// A road counts as closed when 2+ drivers report it within 1 km in the last 12 h,
+// and nobody has reported it clear since. One report alone could be a mistake or a prank.
+export function confirmedBlocks(reports: Report[]): { lat: number; lon: number; segmentId: string; count: number }[] {
+  const since = Date.now() - CONFIRM_HOURS * 3600_000;
+  const recent = reports.filter((r) => new Date(r.created_at).getTime() > since);
+  const blocks: { lat: number; lon: number; segmentId: string; count: number }[] = [];
+  for (const r of recent) {
+    if (!BLOCKING.includes(r.kind)) continue;
+    if (blocks.some((b) => distanceKm(b.lat, b.lon, r.lat, r.lon) < CONFIRM_KM)) continue;
+    const nearby = recent.filter((o) => distanceKm(o.lat, o.lon, r.lat, r.lon) < CONFIRM_KM);
+    const latestBlock = nearby.filter((o) => BLOCKING.includes(o.kind)).map((o) => o.created_at).sort().pop()!;
+    const reopened = nearby.some((o) => o.kind === "clear" && o.created_at > latestBlock);
+    const count = nearby.filter((o) => BLOCKING.includes(o.kind)).length;
+    if (count >= 2 && !reopened) blocks.push({ lat: r.lat, lon: r.lon, segmentId: r.segment_id, count });
+  }
+  return blocks;
 }
 
 export function timeAgo(iso: string): string {

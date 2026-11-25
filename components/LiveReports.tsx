@@ -15,7 +15,7 @@ export default function LiveReports({ reports, segmentName }: Props) {
               // eslint-disable-next-line @next/next/no-img-element
               <img src={r.photo_url} alt="Report photo" className="h-14 w-14 shrink-0 rounded-xl object-cover" />
             ) : (
-              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${r.kind === "clear" ? "bg-teal text-ink" : "bg-danger text-snow"}`}>
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${REPORT_KINDS[r.kind].fill}`}>
                 <ReportIcon kind={r.kind} />
               </span>
             )}

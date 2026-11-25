@@ -9,7 +9,7 @@ export default function MapLegend({ pastSlideCount }: { pastSlideCount: number }
       <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
         {(Object.keys(REPORT_KINDS) as ReportKind[]).map((k) => (
           <li key={k} className="flex items-center gap-2">
-            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${k === "clear" ? "bg-teal text-ink" : "bg-danger text-snow"}`}>
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${REPORT_KINDS[k].fill}`}>
               <ReportIcon kind={k} className="h-5 w-5" />
             </span>
             <span>

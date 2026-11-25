@@ -11,6 +11,8 @@ export const REPORT_ICONS: Record<ReportKind, string[]> = {
   road_blocked: ["M3 9h18v5H3z", "M8 9l-3 5", "M13 9l-3 5", "M18 9l-3 5", "M5 14v6", "M19 14v6"],
   // Water flowing over the road.
   water: ["M2 8c2.5-2 4.5-2 7 0s4.5 2 7 0 3.5-1.5 6 0", "M2 13c2.5-2 4.5-2 7 0s4.5 2 7 0 3.5-1.5 6 0", "M2 18c2.5-2 4.5-2 7 0s4.5 2 7 0 3.5-1.5 6 0"],
+  // Two cars nose to tail.
+  jam: ["M2 16v-3l1.6-3.5h5.8L11 13v3z", "M13 16v-3l1.6-3.5h5.8L22 13v3z", "M4.5 19h.01", "M8.5 19h.01", "M15.5 19h.01", "M19.5 19h.01"],
   clear: ["M5 12.5l4.5 4.5L19 7.5"],
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import RiskMap, { type MapSegment } from "@/components/RiskMap";
 import ReportForm from "@/components/ReportForm";
@@ -11,17 +11,22 @@ import StormSimulator from "@/components/StormSimulator";
 import InstallButton from "@/components/InstallButton";
 import MapLegend from "@/components/MapLegend";
 import RecentNews from "@/components/RecentNews";
-import { useReports } from "@/lib/reports";
+import RerouteCard from "@/components/RerouteCard";
+import ClosureSimulator from "@/components/ClosureSimulator";
+import { confirmedBlocks, useReports } from "@/lib/reports";
 import { supabase } from "@/lib/supabase";
 import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
 import type { RainSeries } from "@/lib/weather";
 import type { SlideNewsFeed } from "@/lib/slide-news";
+import type { Detour } from "@/lib/detour";
+import type { TrafficFeed } from "@/lib/traffic";
+import { TRAFFIC_STYLE, trafficLevel } from "@/lib/traffic-status";
 import type route from "@/data/route-badrinath.json";
 import pastLandslides from "@/data/landslides-badrinath.json";
 
-type Props = { route: typeof route; rain: RainSeries; news: SlideNewsFeed | null };
+type Props = { route: typeof route; rain: RainSeries; news: SlideNewsFeed | null; traffic: TrafficFeed | null };
 
-export default function RiskView({ route, rain, news }: Props) {
+export default function RiskView({ route, rain, news, traffic }: Props) {
   const reports = useReports();
   const [reporting, setReporting] = useState(false);
   const [storm, setStorm] = useState({ mmPerHour: 0, hours: 3 });
@@ -29,6 +34,10 @@ export default function RiskView({ route, rain, news }: Props) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [locateSignal, setLocateSignal] = useState(0);
   const [fitSignal, setFitSignal] = useState(0);
+  const [demoClosedId, setDemoClosedId] = useState<string | null>(null);
+  const [layer, setLayer] = useState<"risk" | "traffic">("risk");
+  const [detourSignal, setDetourSignal] = useState(0);
+  const [detourResult, setDetourResult] = useState<{ key: string; detour: Detour | null; failed: boolean } | null>(null);
   const online = useOnline();
   const router = useRouter();
 
@@ -39,17 +48,55 @@ export default function RiskView({ route, rain, news }: Props) {
   }, [router]);
 
   const series = withSimulatedStorm(rain.mm, rain.nowIndex, storm.mmPerHour, storm.hours);
-  const segments: MapSegment[] = route.segments.map((s, i) => {
+  const scored = route.segments.map((s, i) => {
     const score = segmentScore(series[i], rain.nowIndex, s.slopeFactor, s.historyFactor);
     return { id: s.id, from: s.from, to: s.to, distanceKm: s.distanceKm, coordinates: s.coordinates, score, level: riskLevel(score) };
   });
-  const worst = segments.reduce((a, b) => (b.score > a.score ? b : a));
+  const worst = scored.reduce((a, b) => (b.score > a.score ? b : a));
   const worstStyle = RISK_STYLE[worst.level];
 
   const safeHour = safeDepartureHour(series, rain.nowIndex, route.segments);
   const safeTime = safeHour === null ? null : rain.times[rain.nowIndex + safeHour];
   const isTomorrow = safeTime !== null && safeTime.slice(0, 10) !== rain.times[rain.nowIndex].slice(0, 10);
   const safeClock = safeTime === null ? null : `${isTomorrow ? "Kal " : ""}${safeTime.slice(11, 16)}`;
+
+  // Closed spots: confirmed by drivers, plus the one picked in the demo control.
+  const closures = useMemo(() => {
+    const list = confirmedBlocks(reports).map((b) => ({ lat: b.lat, lon: b.lon, segmentId: b.segmentId }));
+    const demo = route.segments.find((s) => s.id === demoClosedId);
+    if (demo) {
+      const [lon, lat] = demo.coordinates[Math.floor(demo.coordinates.length / 2)];
+      list.push({ lat, lon, segmentId: demo.id });
+    }
+    return list;
+  }, [reports, demoClosedId, route.segments]);
+  const closureKey = closures.map((c) => `${c.lat.toFixed(4)},${c.lon.toFixed(4)}`).join(";");
+
+  useEffect(() => {
+    if (!closureKey) return;
+    let stale = false;
+    fetch(`/api/reroute?blocks=${closureKey}`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`reroute ${res.status}`))))
+      .then((detour: Detour) => !stale && setDetourResult({ key: closureKey, detour, failed: false }))
+      .catch(() => !stale && setDetourResult({ key: closureKey, detour: null, failed: true }));
+    return () => {
+      stale = true;
+    };
+  }, [closureKey]);
+  const current = detourResult?.key === closureKey ? detourResult : null;
+  const detourLine = current?.detour?.found ? current.detour.coordinates : null;
+
+  // Google-Maps-style layer switch: the same road coloured by landslide risk or by traffic.
+  const segments: MapSegment[] = scored.map((s, i) => {
+    if (layer === "risk") {
+      const r = RISK_STYLE[s.level];
+      return { ...s, display: { color: r.color, text: r.text, label: `${r.hindi} · ${r.label} · ${s.score}` } };
+    }
+    const flow = traffic?.enabled ? traffic.flows[i] : null;
+    const t = TRAFFIC_STYLE[trafficLevel(s.id, closures.some((c) => c.segmentId === s.id), flow, reports)];
+    const speed = flow && !flow.closed ? ` · ${flow.currentKmh} km/h` : "";
+    return { ...s, display: { color: t.color, text: t.text, label: `${t.hindi} · ${t.label}${speed}` } };
+  });
 
   const segmentName = (id: string) => {
     const s = route.segments.find((x) => x.id === id);
@@ -68,6 +115,9 @@ export default function RiskView({ route, rain, news }: Props) {
           segments={segments}
           pastSlides={pastLandslides.landslides}
           news={news?.items ?? NO_NEWS}
+          closures={closures}
+          detour={closureKey ? detourLine : null}
+          detourSignal={detourSignal}
           towns={route.towns}
           reports={reports}
           focusId={focusId}
@@ -92,6 +142,24 @@ export default function RiskView({ route, rain, news }: Props) {
           >
             {worstStyle.label}
           </span>
+        </div>
+        <div role="radiogroup" aria-label="Map layer" className="pointer-events-auto flex self-start rounded-full bg-snow p-1 shadow-lg">
+          {(
+            [
+              ["risk", "खतरा · Risk"],
+              ["traffic", "ट्रैफिक · Traffic"],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              role="radio"
+              aria-checked={layer === value}
+              onClick={() => setLayer(value)}
+              className={`min-h-10 rounded-full px-4 text-sm font-semibold ${layer === value ? "bg-ink text-snow" : "text-ink"}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
         {!online && (
           <p className="pointer-events-auto rounded-full bg-ink px-4 py-2 text-sm text-snow shadow-lg">
@@ -123,7 +191,7 @@ export default function RiskView({ route, rain, news }: Props) {
       <section
         className={`absolute inset-x-0 bottom-0 z-20 flex flex-col rounded-t-3xl bg-snow shadow-[0_-8px_24px_rgba(20,35,31,0.18)] transition-[max-height] duration-300 ${
           sheetOpen ? "max-h-[85dvh]" : "max-h-[44dvh]"
-        } md:inset-x-auto md:top-[92px] md:bottom-4 md:left-4 md:max-h-none md:w-[400px] md:rounded-3xl md:shadow-lg`}
+        } md:inset-x-auto md:top-[144px] md:bottom-4 md:left-4 md:max-h-none md:w-[400px] md:rounded-3xl md:shadow-lg`}
         aria-label="Trip details"
       >
         <button
@@ -148,6 +216,14 @@ export default function RiskView({ route, rain, news }: Props) {
         </button>
 
         <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-[max(24px,env(safe-area-inset-bottom))] md:pt-4">
+          {closures.length > 0 && (
+            <RerouteCard
+              closedNames={[...new Set(closures.map((c) => segmentName(c.segmentId)))]}
+              detour={current?.detour ?? null}
+              failed={current?.failed ?? false}
+              onShow={() => setDetourSignal((n) => n + 1)}
+            />
+          )}
           <SafeTimeCard safeHour={safeHour} safeClock={safeClock} />
           <InstallButton />
 
@@ -155,6 +231,11 @@ export default function RiskView({ route, rain, news }: Props) {
             <p className="text-sm text-muted">Reports band hain: Supabase keys `.env.local` mein nahi hain.</p>
           )}
 
+          {layer === "traffic" && !traffic?.enabled && (
+            <p className="text-sm text-muted">
+              Traffic: live speed band hai (TOMTOM_API_KEY nahi). Sirf driver ki &ldquo;जाम&rdquo; reports dikh rahi hain.
+            </p>
+          )}
           <TripTimeline segments={segments} focusId={focusId} onSelect={selectSegment} />
           <LiveReports reports={reports} segmentName={segmentName} />
           <RecentNews news={news} />
@@ -165,8 +246,10 @@ export default function RiskView({ route, rain, news }: Props) {
             onChange={(mmPerHour, hours) => setStorm({ mmPerHour, hours })}
           />
 
+          <ClosureSimulator segments={route.segments} closedId={demoClosedId} onChange={setDemoClosedId} />
+
           <footer className="text-xs text-muted">
-            Live rain: Open-Meteo · Updated {rain.times[rain.nowIndex]?.replace("T", " ")} IST · Roads: OpenStreetMap · Past landslides: NASA Global Landslide Catalog
+            Live rain: Open-Meteo · Updated {rain.times[rain.nowIndex]?.replace("T", " ")} IST · Roads: OpenStreetMap · Past landslides: NASA Global Landslide Catalog · Detours: Valhalla (OpenStreetMap)
           </footer>
         </div>
       </section>

@@ -5,7 +5,7 @@ create table if not exists public.reports (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   segment_id text not null,
-  kind text not null check (kind in ('landslide', 'rockfall', 'road_blocked', 'water', 'clear')),
+  kind text not null check (kind in ('landslide', 'rockfall', 'road_blocked', 'water', 'jam', 'clear')),
   note text check (char_length(note) <= 280),
   lat double precision not null,
   lon double precision not null,

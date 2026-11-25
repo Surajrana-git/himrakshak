@@ -12,7 +12,7 @@ import {
   type PaddingOptions,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { RISK_STYLE, type RiskLevel } from "@/lib/risk";
+import type { RiskLevel } from "@/lib/risk";
 import { REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
 import { iconElement, REPORT_ICONS } from "@/lib/report-icons";
 import type { SlideNews } from "@/lib/slide-news";
@@ -29,6 +29,8 @@ export type MapSegment = {
   coordinates: number[][];
   score: number;
   level: RiskLevel;
+  // What the line and badge show right now: landslide risk or traffic.
+  display: { color: string; text: string; label: string };
 };
 
 export type PastSlide = {
@@ -46,6 +48,9 @@ type Props = {
   segments: MapSegment[];
   pastSlides: PastSlide[];
   news: SlideNews[];
+  closures: { lat: number; lon: number }[];
+  detour: number[][] | null;
+  detourSignal: number;
   towns: { name: string; lat: number; lon: number }[];
   reports: Report[];
   focusId: string | null;
@@ -59,7 +64,7 @@ const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 // Keep the route clear of the floating panel: left side on desktop, bottom sheet on phones.
 function viewPadding(): PaddingOptions {
   if (window.innerWidth >= 768) return { top: 48, bottom: 48, left: 456, right: 88 };
-  return { top: 110, bottom: Math.round(window.innerHeight * 0.45), left: 32, right: 72 };
+  return { top: 160, bottom: Math.round(window.innerHeight * 0.45), left: 32, right: 72 };
 }
 
 function boundsOf(coordinates: number[][]): LngLatBounds {
@@ -73,7 +78,7 @@ function segmentsToGeoJSON(segments: MapSegment[], focusId: string | null): GeoJ
     type: "FeatureCollection",
     features: segments.map((s) => ({
       type: "Feature",
-      properties: { id: s.id, color: RISK_STYLE[s.level].color, focused: s.id === focusId },
+      properties: { id: s.id, color: s.display.color, focused: s.id === focusId },
       geometry: { type: "LineString", coordinates: s.coordinates },
     })),
   };
@@ -126,9 +131,7 @@ function pastSlidePopup(slide: PastSlide): HTMLElement {
 
 // Waze-style pin: the photo itself when there is one, otherwise the hazard icon.
 function reportPin(report: Report): HTMLElement {
-  const danger = report.kind !== "clear";
-  const ring = danger ? "border-danger" : "border-teal";
-  const fill = danger ? "bg-danger text-snow" : "bg-teal text-ink";
+  const { ring, fill, tail: tailColor } = REPORT_KINDS[report.kind];
   const pin = document.createElement("button");
   pin.type = "button";
   pin.setAttribute("aria-label", `${REPORT_KINDS[report.kind].label}, ${timeAgo(report.created_at)}`);
@@ -150,7 +153,7 @@ function reportPin(report: Report): HTMLElement {
     head.append(iconElement(REPORT_ICONS[report.kind], 26));
   }
   const tail = document.createElement("span");
-  tail.className = `-mt-1.5 block h-3 w-3 rotate-45 ${danger ? "bg-danger" : "bg-teal"}`;
+  tail.className = `-mt-1.5 block h-3 w-3 rotate-45 ${tailColor}`;
   pin.append(head, tail);
   return pin;
 }
@@ -198,6 +201,18 @@ function newsPopup(place: string, items: SlideNews[]): HTMLElement {
   return root;
 }
 
+function closurePin(): HTMLElement {
+  const pin = document.createElement("div");
+  pin.setAttribute("role", "img");
+  pin.setAttribute("aria-label", "Road closed");
+  pin.className = "relative z-20 flex items-center gap-1 rounded-full border-[3px] border-snow bg-danger py-1 pr-3 pl-1.5 font-bold text-snow shadow-xl";
+  pin.append(iconElement(REPORT_ICONS.road_blocked, 24));
+  const label = document.createElement("span");
+  label.textContent = "BAND";
+  pin.append(label);
+  return pin;
+}
+
 function pastSlidePin(slide: PastSlide): HTMLElement {
   const pin = document.createElement("button");
   pin.type = "button";
@@ -207,12 +222,26 @@ function pastSlidePin(slide: PastSlide): HTMLElement {
   return pin;
 }
 
-export default function RiskMap({ segments, pastSlides, news, towns, reports, focusId, onSelectSegment, locateSignal, fitSignal }: Props) {
+export default function RiskMap({
+  segments,
+  pastSlides,
+  news,
+  closures,
+  detour,
+  detourSignal,
+  towns,
+  reports,
+  focusId,
+  onSelectSegment,
+  locateSignal,
+  fitSignal,
+}: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const geolocateRef = useRef<GeolocateControl | null>(null);
   const reportMarkers = useRef<Marker[]>([]);
   const newsMarkers = useRef<Marker[]>([]);
+  const closureMarkers = useRef<Marker[]>([]);
   const onSelectRef = useRef(onSelectSegment);
   const [loaded, setLoaded] = useState(false);
 
@@ -242,6 +271,24 @@ export default function RiskMap({ segments, pastSlides, news, towns, reports, fo
     geolocateRef.current = geolocate;
 
     map.on("load", () => {
+      // The detour: dark line with light dashes, drawn under the route so where it shares
+      // NH-7 the risk colours stay visible and only the part that turns off shows.
+      map.addSource("detour", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      map.addLayer({
+        id: "detour-casing",
+        type: "line",
+        source: "detour",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#14231F", "line-width": 8 },
+      });
+      map.addLayer({
+        id: "detour",
+        type: "line",
+        source: "detour",
+        layout: { "line-join": "round" },
+        paint: { "line-color": "#F3F1EA", "line-width": 3, "line-dasharray": [2, 2] },
+      });
+
       map.addSource("segments", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       map.addLayer({
         id: "segments-casing",
@@ -318,6 +365,33 @@ export default function RiskMap({ segments, pastSlides, news, towns, reports, fo
         .addTo(map),
     );
   }, [loaded, news]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    map.getSource<GeoJSONSource>("detour")?.setData({
+      type: "FeatureCollection",
+      features: detour ? [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: detour } }] : [],
+    });
+  }, [loaded, detour]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    closureMarkers.current.forEach((m) => m.remove());
+    closureMarkers.current = closures.map((c) => new Marker({ element: closurePin() }).setLngLat([c.lon, c.lat]).addTo(map));
+  }, [loaded, closures]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map || detourSignal === 0 || !detour) return;
+    // The detour shares most of NH-7, so zoom to the part that leaves it (~300 m off the route).
+    const routePoints = segments.flatMap((seg) => seg.coordinates);
+    const offRoute = detour.filter(([x, y]) => routePoints.every(([rx, ry]) => Math.abs(rx - x) + Math.abs(ry - y) > 0.004));
+    map.fitBounds(boundsOf(offRoute.length > 1 ? offRoute : detour), { padding: viewPadding(), duration: 800 });
+    // Only a tap on "show detour" should move the camera, not every new detour.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, detourSignal]);
 
   // Live reports change often; rebuilding up to 100 DOM pins is cheap.
   useEffect(() => {
