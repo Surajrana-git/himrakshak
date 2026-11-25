@@ -13,7 +13,11 @@ import MapLegend from "@/components/MapLegend";
 import RecentNews from "@/components/RecentNews";
 import RerouteCard from "@/components/RerouteCard";
 import ClosureSimulator from "@/components/ClosureSimulator";
-import { confirmedBlocks, useReports } from "@/lib/reports";
+import TripPlanner from "@/components/TripPlanner";
+import NavPanel from "@/components/NavPanel";
+import NavAlert from "@/components/NavAlert";
+import { nearestPlace, useTrip, type Hazard } from "@/lib/trip";
+import { confirmedBlocks, recentJams, useReports } from "@/lib/reports";
 import { supabase } from "@/lib/supabase";
 import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
 import type { RainSeries } from "@/lib/weather";
@@ -72,6 +76,27 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
   }, [reports, demoClosedId, route.segments]);
   const closureKey = closures.map((c) => `${c.lat.toFixed(4)},${c.lon.toFixed(4)}`).join(";");
 
+  // Hazards the trip watches for: closed spots, and jams drivers reported in the last 2 hours.
+  const knownHazards = useMemo(() => {
+    const list: Hazard[] = closures.map((c) => ({ id: `closure-${c.lat.toFixed(3)},${c.lon.toFixed(3)}`, kind: "closure", lat: c.lat, lon: c.lon }));
+    for (const r of recentJams(reports)) list.push({ id: r.id, kind: "jam", lat: r.lat, lon: r.lon });
+    return list;
+  }, [closures, reports]);
+  const trip = useTrip(knownHazards, storm);
+  const mapClosures = useMemo(
+    () => [...closures, ...trip.demoHazards.filter((h) => h.kind === "closure")],
+    [closures, trip.demoHazards],
+  );
+  const mapJams = useMemo(() => trip.demoHazards.filter((h) => h.kind === "jam"), [trip.demoHazards]);
+  const tripLines = useMemo(() => {
+    if (trip.stage === "nav" && trip.active) return [{ id: "active", coordinates: trip.active.coordinates, selected: true }];
+    if (trip.stage === "plan" && trip.options) {
+      return trip.options.map((o) => ({ id: o.id, coordinates: o.coordinates, selected: o.id === trip.selected?.id }));
+    }
+    return [];
+  }, [trip.stage, trip.active, trip.options, trip.selected]);
+  const stopPlace = trip.car ? nearestPlace(trip.car) : null;
+
   useEffect(() => {
     if (!closureKey) return;
     let stale = false;
@@ -115,9 +140,13 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
           segments={segments}
           pastSlides={pastLandslides.landslides}
           news={news?.items ?? NO_NEWS}
-          closures={closures}
-          detour={closureKey ? detourLine : null}
+          closures={mapClosures}
+          jams={mapJams}
+          detour={closureKey && trip.stage === "idle" ? detourLine : null}
           detourSignal={detourSignal}
+          tripLines={tripLines}
+          fitLine={trip.stage === "plan" ? (trip.selected?.coordinates ?? null) : null}
+          car={trip.stage === "nav" ? trip.car : null}
           towns={route.towns}
           reports={reports}
           focusId={focusId}
@@ -132,10 +161,19 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
         <div className="pointer-events-auto flex min-h-14 items-center gap-3 rounded-full bg-snow py-2 pr-2 pl-2 shadow-lg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icon.svg" alt="" className="h-10 w-10 rounded-full" />
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-display text-lg leading-tight">Himrakshak</p>
-            <p className="truncate text-xs text-muted">{route.name}</p>
-          </div>
+          {trip.stage === "idle" ? (
+            <button onClick={trip.openPlanner} className="flex min-h-10 min-w-0 flex-1 flex-col items-start text-left">
+              <span className="truncate font-display text-lg leading-tight">Kahan jaana hai?</span>
+              <span className="truncate text-xs text-muted">Himrakshak · safe route, live khatra</span>
+            </button>
+          ) : (
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-display text-lg leading-tight">
+                {trip.from.hindi} → {trip.to?.hindi ?? "…"}
+              </p>
+              <p className="truncate text-xs text-muted">{trip.stage === "nav" ? "Safar chal raha hai / Navigating" : "Rasta chunein / Choose a route"}</p>
+            </div>
+          )}
           <span
             className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold"
             style={{ backgroundColor: worstStyle.color, color: worstStyle.text }}
@@ -168,6 +206,18 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
         )}
       </header>
 
+      {trip.alert && (
+        <div className="absolute inset-x-3 top-[76px] z-30 max-h-[calc(100dvh-96px)] overflow-y-auto md:right-auto md:left-[432px] md:w-[400px]">
+          <NavAlert
+            key={trip.alert.hazard.id}
+            alert={trip.alert}
+            current={{ km: trip.remainingKm, hours: trip.remainingHours }}
+            stopPlace={stopPlace?.hindi ?? "pichhle town"}
+            onResolve={trip.resolveAlert}
+          />
+        </div>
+      )}
+
       {/* Floating map buttons */}
       <div className="absolute top-24 right-3 z-10 flex flex-col gap-2 md:top-4 md:right-4">
         <MapButton label="Meri location / My location" onClick={() => setLocateSignal((n) => n + 1)}>
@@ -190,7 +240,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
       {/* Bottom sheet on phones, side panel on desktop */}
       <section
         className={`absolute inset-x-0 bottom-0 z-20 flex flex-col rounded-t-3xl bg-snow shadow-[0_-8px_24px_rgba(20,35,31,0.18)] transition-[max-height] duration-300 ${
-          sheetOpen ? "max-h-[85dvh]" : "max-h-[44dvh]"
+          trip.stage === "plan" ? "max-h-[58dvh]" : sheetOpen ? "max-h-[85dvh]" : "max-h-[44dvh]"
         } md:inset-x-auto md:top-[144px] md:bottom-4 md:left-4 md:max-h-none md:w-[400px] md:rounded-3xl md:shadow-lg`}
         aria-label="Trip details"
       >
@@ -203,6 +253,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
           <span className="h-1.5 w-12 rounded-full bg-ink/25" />
         </button>
 
+        {trip.stage === "idle" && (
         <button
           onClick={() => setReporting(true)}
           disabled={!supabase}
@@ -214,8 +265,41 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
             <path d="M12 10v4M12 17h.01" />
           </svg>
         </button>
+        )}
 
         <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-[max(24px,env(safe-area-inset-bottom))] md:pt-4">
+          {trip.stage === "plan" && (
+            <TripPlanner
+              from={trip.from}
+              to={trip.to}
+              options={trip.options}
+              loading={trip.planLoading}
+              failed={trip.planFailed}
+              selected={trip.selected}
+              avoidsClosures={mapClosures.length > 0}
+              onFrom={trip.setFrom}
+              onTo={trip.setTo}
+              onPick={trip.pick}
+              onStart={trip.start}
+              onClose={trip.close}
+            />
+          )}
+          {trip.stage === "nav" && (
+            <NavPanel
+              destination={trip.to ? `${trip.to.hindi} · ${trip.to.name}` : ""}
+              remainingKm={trip.remainingKm}
+              remainingHours={trip.remainingHours}
+              gps={trip.gps}
+              arrived={trip.arrived}
+              halted={trip.halted}
+              stopPlace={stopPlace ? `${stopPlace.hindi} (${stopPlace.name})` : "pichhle town"}
+              onDemo={trip.demoHazard}
+              onReport={supabase ? () => setReporting(true) : null}
+              onStop={trip.close}
+            />
+          )}
+          {trip.stage === "idle" && (
+          <>
           {closures.length > 0 && (
             <RerouteCard
               closedNames={[...new Set(closures.map((c) => segmentName(c.segmentId)))]}
@@ -247,6 +331,9 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
           />
 
           <ClosureSimulator segments={route.segments} closedId={demoClosedId} onChange={setDemoClosedId} />
+
+          </>
+          )}
 
           <footer className="text-xs text-muted">
             Live rain: Open-Meteo · Updated {rain.times[rain.nowIndex]?.replace("T", " ")} IST · Roads: OpenStreetMap · Past landslides: NASA Global Landslide Catalog · Detours: Valhalla (OpenStreetMap)

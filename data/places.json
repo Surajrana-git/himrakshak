@@ -1,0 +1,166 @@
+{
+ "source": "Route towns from data/route-badrinath.json; others verified 25 Nov 2026 with the Open-Meteo geocoding API or OpenStreetMap Nominatim",
+ "places": [
+  {
+   "name": "Rishikesh",
+   "hindi": "ऋषिकेश",
+   "lat": 30.0869,
+   "lon": 78.2676,
+   "dham": false
+  },
+  {
+   "name": "Devprayag",
+   "hindi": "देवप्रयाग",
+   "lat": 30.146,
+   "lon": 78.598,
+   "dham": false
+  },
+  {
+   "name": "Srinagar",
+   "hindi": "श्रीनगर (गढ़वाल)",
+   "lat": 30.2232,
+   "lon": 78.7806,
+   "dham": false
+  },
+  {
+   "name": "Rudraprayag",
+   "hindi": "रुद्रप्रयाग",
+   "lat": 30.2844,
+   "lon": 78.9811,
+   "dham": false
+  },
+  {
+   "name": "Gauchar",
+   "hindi": "गौचर",
+   "lat": 30.289,
+   "lon": 79.155,
+   "dham": false
+  },
+  {
+   "name": "Karnaprayag",
+   "hindi": "कर्णप्रयाग",
+   "lat": 30.2617,
+   "lon": 79.2187,
+   "dham": false
+  },
+  {
+   "name": "Chamoli",
+   "hindi": "चमोली",
+   "lat": 30.401,
+   "lon": 79.329,
+   "dham": false
+  },
+  {
+   "name": "Pipalkoti",
+   "hindi": "पीपलकोटी",
+   "lat": 30.428,
+   "lon": 79.43,
+   "dham": false
+  },
+  {
+   "name": "Joshimath",
+   "hindi": "जोशीमठ",
+   "lat": 30.555,
+   "lon": 79.565,
+   "dham": false
+  },
+  {
+   "name": "Badrinath",
+   "hindi": "बदरीनाथ धाम",
+   "lat": 30.7433,
+   "lon": 79.4938,
+   "dham": true
+  },
+  {
+   "name": "Haridwar",
+   "hindi": "हरिद्वार",
+   "lat": 29.9479,
+   "lon": 78.1603,
+   "dham": false
+  },
+  {
+   "name": "Dehradun",
+   "hindi": "देहरादून",
+   "lat": 30.3244,
+   "lon": 78.0339,
+   "dham": false
+  },
+  {
+   "name": "New Tehri",
+   "hindi": "नई टिहरी",
+   "lat": 30.3739,
+   "lon": 78.4325,
+   "dham": false
+  },
+  {
+   "name": "Pauri",
+   "hindi": "पौड़ी",
+   "lat": 30.1529,
+   "lon": 78.7771,
+   "dham": false
+  },
+  {
+   "name": "Uttarkashi",
+   "hindi": "उत्तरकाशी",
+   "lat": 30.7299,
+   "lon": 78.4434,
+   "dham": false
+  },
+  {
+   "name": "Barkot",
+   "hindi": "बड़कोट",
+   "lat": 30.8086,
+   "lon": 78.206,
+   "dham": false
+  },
+  {
+   "name": "Janki Chatti (Yamunotri)",
+   "hindi": "जानकी चट्टी (यमुनोत्री)",
+   "lat": 30.9765,
+   "lon": 78.4383,
+   "dham": true
+  },
+  {
+   "name": "Gangotri",
+   "hindi": "गंगोत्री धाम",
+   "lat": 30.9959,
+   "lon": 78.9432,
+   "dham": true
+  },
+  {
+   "name": "Guptkashi",
+   "hindi": "गुप्तकाशी",
+   "lat": 30.5283,
+   "lon": 79.0818,
+   "dham": false
+  },
+  {
+   "name": "Sonprayag",
+   "hindi": "सोनप्रयाग",
+   "lat": 30.6317,
+   "lon": 78.9987,
+   "dham": false
+  },
+  {
+   "name": "Gaurikund (Kedarnath)",
+   "hindi": "गौरीकुंड (केदारनाथ)",
+   "lat": 30.6534,
+   "lon": 79.0268,
+   "dham": true
+  },
+  {
+   "name": "Govindghat",
+   "hindi": "गोविंदघाट",
+   "lat": 30.6256,
+   "lon": 79.5584,
+   "dham": false
+  },
+  {
+   "name": "Mana",
+   "hindi": "माणा",
+   "lat": 30.7683,
+   "lon": 79.4951,
+   "dham": false
+  }
+ ]
+}

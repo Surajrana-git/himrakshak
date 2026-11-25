@@ -116,6 +116,12 @@ export function confirmedBlocks(reports: Report[]): { lat: number; lon: number; 
   return blocks;
 }
 
+// Jams go stale fast: only reports from the last 2 hours count.
+export function recentJams(reports: Report[]): Report[] {
+  const since = Date.now() - 2 * 3600_000;
+  return reports.filter((r) => r.kind === "jam" && new Date(r.created_at).getTime() > since);
+}
+
 export function timeAgo(iso: string): string {
   const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
   if (minutes < 1) return "abhi";

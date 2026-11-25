@@ -49,8 +49,13 @@ type Props = {
   pastSlides: PastSlide[];
   news: SlideNews[];
   closures: { lat: number; lon: number }[];
+  jams: { lat: number; lon: number }[];
   detour: number[][] | null;
   detourSignal: number;
+  // Trip: route options (one selected) or the route being driven, the car, and camera behaviour.
+  tripLines: { id: string; coordinates: number[][]; selected: boolean }[];
+  fitLine: number[][] | null;
+  car: { lat: number; lon: number } | null;
   towns: { name: string; lat: number; lon: number }[];
   reports: Report[];
   focusId: string | null;
@@ -213,6 +218,29 @@ function closurePin(): HTMLElement {
   return pin;
 }
 
+function jamPin(): HTMLElement {
+  const pin = document.createElement("div");
+  pin.setAttribute("role", "img");
+  pin.setAttribute("aria-label", "Traffic jam");
+  pin.className = "flex items-center gap-1 rounded-full border-[3px] border-snow bg-orange py-1 pr-3 pl-1.5 font-bold text-ink shadow-xl";
+  pin.append(iconElement(REPORT_ICONS.jam, 24));
+  const label = document.createElement("span");
+  label.textContent = "JAAM";
+  pin.append(label);
+  return pin;
+}
+
+function carPin(): HTMLElement {
+  const pin = document.createElement("div");
+  pin.setAttribute("role", "img");
+  pin.setAttribute("aria-label", "Aapki gaadi / Your vehicle");
+  pin.className = "relative z-30 flex h-9 w-9 items-center justify-center rounded-full border-4 border-snow bg-ink shadow-xl";
+  const dot = document.createElement("span");
+  dot.className = "h-3 w-3 rounded-full bg-orange";
+  pin.append(dot);
+  return pin;
+}
+
 function pastSlidePin(slide: PastSlide): HTMLElement {
   const pin = document.createElement("button");
   pin.type = "button";
@@ -227,8 +255,12 @@ export default function RiskMap({
   pastSlides,
   news,
   closures,
+  jams,
   detour,
   detourSignal,
+  tripLines,
+  fitLine,
+  car,
   towns,
   reports,
   focusId,
@@ -242,6 +274,8 @@ export default function RiskMap({
   const reportMarkers = useRef<Marker[]>([]);
   const newsMarkers = useRef<Marker[]>([]);
   const closureMarkers = useRef<Marker[]>([]);
+  const jamMarkers = useRef<Marker[]>([]);
+  const carMarker = useRef<Marker | null>(null);
   const onSelectRef = useRef(onSelectSegment);
   const [loaded, setLoaded] = useState(false);
 
@@ -287,6 +321,26 @@ export default function RiskMap({
         source: "detour",
         layout: { "line-join": "round" },
         paint: { "line-color": "#F3F1EA", "line-width": 3, "line-dasharray": [2, 2] },
+      });
+
+      // Trip lines sit under the risk colours too: options are faint, the chosen one is bold.
+      map.addSource("trip", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      map.addLayer({
+        id: "trip-other",
+        type: "line",
+        source: "trip",
+        filter: ["!", ["get", "selected"]],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#4B5A55", "line-width": 6, "line-opacity": 0.55 },
+      });
+      map.addLayer({
+        id: "trip-selected",
+        type: "line",
+        source: "trip",
+        filter: ["get", "selected"],
+        layout: { "line-cap": "round", "line-join": "round" },
+        // Wider than the risk line, so on NH-7 it shows as a halo and elsewhere as the road to take.
+        paint: { "line-color": "#A9481A", "line-width": 14 },
       });
 
       map.addSource("segments", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
@@ -374,6 +428,47 @@ export default function RiskMap({
       features: detour ? [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: detour } }] : [],
     });
   }, [loaded, detour]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    map.getSource<GeoJSONSource>("trip")?.setData({
+      type: "FeatureCollection",
+      // Selected last so it draws on top of the faint options.
+      features: [...tripLines]
+        .sort((a, b) => Number(a.selected) - Number(b.selected))
+        .map((l) => ({ type: "Feature", properties: { selected: l.selected }, geometry: { type: "LineString", coordinates: l.coordinates } })),
+    });
+  }, [loaded, tripLines]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map || !fitLine) return;
+    map.fitBounds(boundsOf(fitLine), { padding: viewPadding(), duration: 800 });
+  }, [loaded, fitLine]);
+
+  // While driving the camera follows the car, like turn-by-turn apps.
+  const carLat = car?.lat;
+  const carLon = car?.lon;
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    if (carLat === undefined || carLon === undefined) {
+      carMarker.current?.remove();
+      carMarker.current = null;
+      return;
+    }
+    if (!carMarker.current) carMarker.current = new Marker({ element: carPin() }).setLngLat([carLon, carLat]).addTo(map);
+    carMarker.current.setLngLat([carLon, carLat]);
+    map.easeTo({ center: [carLon, carLat], zoom: Math.max(map.getZoom(), 10), padding: viewPadding(), duration: 380 });
+  }, [loaded, carLat, carLon]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    jamMarkers.current.forEach((m) => m.remove());
+    jamMarkers.current = jams.map((j) => new Marker({ element: jamPin() }).setLngLat([j.lon, j.lat]).addTo(map));
+  }, [loaded, jams]);
 
   useEffect(() => {
     const map = mapRef.current;

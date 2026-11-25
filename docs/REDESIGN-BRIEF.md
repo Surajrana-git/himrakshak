@@ -1,6 +1,6 @@
 # Redesign brief (next step)
 
-Status on 25 Nov 2026: **not built yet**. This file is the brief for the full redesign,
+Status on 25 Nov 2026: build steps **1–4 are done** (route options, search panel, navigation with demo drive, jam / landslide alerts with Hindi voice). Steps 5–6 (Survive, Predict) are next. This file is the brief for the full redesign,
 so any AI tool (Claude Code, Antigravity, ChatGPT, DeepSeek) can pick it up.
 Follow `AGENTS.md` for every rule. Keep everything free and local (no git push).
 
