@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import RiskMap, { type MapSegment } from "@/components/RiskMap";
 import ReportForm from "@/components/ReportForm";
 import SafeTimeCard from "@/components/SafeTimeCard";
@@ -220,6 +221,14 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
 
       {/* Floating map buttons */}
       <div className="absolute top-24 right-3 z-10 flex flex-col gap-2 md:top-4 md:right-4">
+        {/* Always one tap away, also while navigating. */}
+        <Link
+          href="/sos"
+          aria-label="SOS · मदद / Emergency help"
+          className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-snow bg-danger font-display text-lg text-snow shadow-xl"
+        >
+          SOS
+        </Link>
         <MapButton label="Meri location / My location" onClick={() => setLocateSignal((n) => n + 1)}>
           <circle cx="12" cy="12" r="4" />
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />

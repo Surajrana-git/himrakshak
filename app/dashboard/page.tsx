@@ -1,0 +1,12 @@
+import type { Metadata } from "next";
+import RescueDashboard from "@/components/RescueDashboard";
+
+export const metadata: Metadata = { title: "Rescue room · Himrakshak" };
+
+export default function DashboardPage() {
+  return (
+    <main className="h-dvh overflow-hidden bg-ink text-snow">
+      <RescueDashboard />
+    </main>
+  );
+}

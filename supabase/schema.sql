@@ -31,3 +31,24 @@ on conflict (id) do nothing;
 
 create policy "anyone can upload report photos" on storage.objects
   for insert to anon, authenticated with check (bucket_id = 'report-photos');
+
+-- SOS calls for help. Prototype rule: anyone can send and read, so the rescue
+-- dashboard works without login. Before a real launch, limit "read" to rescue staff.
+create table if not exists public.sos (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  lat double precision not null,
+  lon double precision not null,
+  accuracy_m double precision,
+  message text check (char_length(message) <= 280)
+);
+
+alter table public.sos enable row level security;
+
+create policy "anyone can send sos" on public.sos
+  for insert to anon, authenticated with check (true);
+
+create policy "prototype: anyone can read sos" on public.sos
+  for select to anon, authenticated using (true);
+
+alter publication supabase_realtime add table public.sos;
