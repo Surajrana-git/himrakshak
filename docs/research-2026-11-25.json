@@ -1,0 +1,958 @@
+[
+ {
+  "key": "glaciers",
+  "out": {
+   "lakes": [
+    {
+     "name": "Vasudhara Tal (Vasundhara Tal / Vasundhara Lake, Raikana glacier lake)",
+     "nameHindi": "वसुधारा ताल (वसुंधरा ताल)",
+     "lat": 30.90106,
+     "lon": 79.75438,
+     "coordinateSource": "Peer-reviewed paper: Pandey A. (2026), Open Geosciences 18(1):20250974, Table 1, lake L55: 30°54'3.825\"N, 79°45'15.782\"E, 4,677 m a.s.l. (section 4.3 of the same paper rounds this to 30°54'03\"N, 79°45'17\"E). OpenStreetMap and Nominatim have no named feature for this lake.",
+     "nearestTown": "Malari / Niti villages (Dhauliganga valley). Downstream: Raini, Tapovan and Joshimath, where the Dhauliganga meets the Alaknanda at Vishnuprayag on NH-7.",
+     "nearestRoad": "Joshimath–Malari–Niti border road along the Dhauliganga. 101Reporters (Aug 2025) says the lake is 14 km from the nearest road. The Dhauliganga joins NH-7 (Badrinath highway) at Vishnuprayag near Joshimath.",
+     "areaHistory": [
+      {
+       "year": 1972,
+       "areaKm2": 0.137,
+       "source": "Pandey 2026, Open Geosciences (Landsat MSS, ±0.022)"
+      },
+      {
+       "year": 1994,
+       "areaKm2": 0.158,
+       "source": "Pandey 2026, Open Geosciences, Table 1"
+      },
+      {
+       "year": 2001,
+       "areaKm2": 0.198,
+       "source": "Pandey 2026, Open Geosciences, section 4.3 (±0.013)"
+      },
+      {
+       "year": 2011,
+       "areaKm2": 0.536,
+       "source": "Pandey 2026, Open Geosciences, section 4.3 (±0.022)"
+      },
+      {
+       "year": 2023,
+       "areaKm2": 0.572,
+       "source": "Pandey 2026, Open Geosciences, Table 1 (the text of the same paper gives 0.622 ±0.008 for 2023)"
+      },
+      {
+       "year": 1968,
+       "areaKm2": 0.14,
+       "source": "101Reporters, 20 Aug 2025 (secondary news, citing USDMA/WIHG)"
+      },
+      {
+       "year": 2021,
+       "areaKm2": 0.59,
+       "source": "101Reporters, 20 Aug 2025, and Down To Earth (secondary news)"
+      }
+     ],
+     "growthSummary": "About 4x bigger in 50 years: 0.137 km² in 1972 to roughly 0.57–0.62 km² in 2023. That is +261% from 1994 to 2023, and +171% in 2001–2011 alone, the fastest-growing lake in the Alaknanda basin (Pandey 2026). USDMA's October 2026 field team measured about 900 m long, 600 m wide and 38.5 m deep, and said the size has not changed noticeably compared with earlier data.",
+     "riskNote": "NDMA Category A, the highest-risk group (the only Category A lake in Chamoli; the other four are in Pithoragarh). It is held back only by moraine on the Raikana glacier. An outburst would go down the Raikana river into the Dhauliganga, past Malari, Raini and Tapovan (the 2021 Chamoli disaster area and its hydro projects), and into the Alaknanda at Vishnuprayag/Joshimath on NH-7, the Badrinath road. USDMA installed the state's first sensor-based early-warning system here (phase 1, Oct 2026): water level, weather, snow depth, tilt and accelerometer sensors, sending data over Iridium satellite every 2 hours, or at once in an emergency.",
+     "sources": [
+      "https://doi.org/10.1515/geo-2025-0974",
+      "https://publications.cuni.cz/bitstream/handle/20.500.14178/3897/Pandey_10.1515_geo_2025_0974__1_.pdf?sequence=1&isAllowed=y",
+      "https://usdma.uk.gov.in/14-sep-2026-usdma-successfully-completes-first-phase-of-early-warning-system-installation-at-vasundhara-tal/",
+      "https://101reporters.com/article/environment/In_the_land_where_gods_reside_glaciers_are_retreating_increasing_the_risk_of_avalanches_and_glacial_lake_floods",
+      "https://www.drishtiias.com/state-pcs-current-affairs/risk-posed-by-13-glacial-lakes-during-monsoon/print_manually",
+      "https://timesofindia.indiatimes.com/city/dehradun/urgent-assessment-of-dangerous-vasundhara-tal-in-uttarakhand-findings-on-glacial-lake-risks/articleshow/115908361.cms"
+     ]
+    },
+    {
+     "name": "Balbala Lake (glacial lake on the Mana Pass road, upstream of Badrinath)",
+     "nameHindi": "बालबाला झील (माणा पास के पास)",
+     "lat": 30.9759,
+     "lon": 79.45892,
+     "coordinateSource": "Peer-reviewed paper: Pandey A. (2026), Open Geosciences, section 4.1: 30°58'33.23\"N, 79°27'32.10\"E, about 5,550 m (Table 1, L29: 30°58'31.438\"N, 79°27'29.651\"E, 5,538 m). Not in OpenStreetMap.",
+     "nearestTown": "Mana village, then Badrinath (Saraswati–Alaknanda valley), about 20 km down-valley",
+     "nearestRoad": "Mana Pass road (Badrinath–Mana–Mana Pass). The paper puts the lake NE of the road, about 4.5 km from Rattakona. NH-7 ends at Badrinath/Mana.",
+     "areaHistory": [
+      {
+       "year": 1980,
+       "areaKm2": 0.023,
+       "source": "Pandey 2026, Open Geosciences (lake begins forming, ±0.009)"
+      },
+      {
+       "year": 1994,
+       "areaKm2": 0.084,
+       "source": "Pandey 2026, Open Geosciences, Table 1"
+      },
+      {
+       "year": 2001,
+       "areaKm2": 0.116,
+       "source": "Pandey 2026, Open Geosciences, section 4.1"
+      },
+      {
+       "year": 2011,
+       "areaKm2": 0.16,
+       "source": "Pandey 2026, Open Geosciences, section 4.1"
+      },
+      {
+       "year": 2023,
+       "areaKm2": 0.198,
+       "source": "Pandey 2026, Open Geosciences, Table 1 and section 4.1 (the conclusion gives 0.206 ±0.005)"
+      }
+     ],
+     "growthSummary": "New lake that keeps growing: it first appeared around 1980 at 0.023 km² and reached 0.198 km² by 2023 (+119% since 1994; the paper says +805% since 1980). The fastest jump was in 2001–2011 (+38.5%).",
+     "riskNote": "This is the lake the paper calls 'rapidly growing ... upstream of Badrinath'. It is the only lake the paper checked in the field (9 Oct 2019). Its GLOF susceptibility index is 0.855 ('very high'). About one third of the shore touches the glacier, ice calves into it, rockfall and debris land in it from slopes steeper than 45°, and water seeps out through a soft, unstable moraine outlet. The paper also warns that several growing lakes near Rattakona and Mana could join together and make a flood bigger. An outburst would come down the valley toward Mana and Badrinath, the end of our NH-7 route. The paper says the lake drains toward the Badrinath side; that it follows the Saraswati is my inference from the map.",
+     "sources": [
+      "https://doi.org/10.1515/geo-2025-0974",
+      "https://publications.cuni.cz/bitstream/handle/20.500.14178/3897/Pandey_10.1515_geo_2025_0974__1_.pdf?sequence=1&isAllowed=y",
+      "https://www.eurasiareview.com/10092026-himalayan-glacial-lakes-are-growing-and-so-is-the-downstream-flood-risk/"
+     ]
+    },
+    {
+     "name": "Chorabari Tal (Gandhi Sarovar), above Kedarnath (source of the 2013 disaster)",
+     "nameHindi": "चोराबाड़ी ताल (गांधी सरोवर)",
+     "lat": 30.7475,
+     "lon": 79.06083,
+     "coordinateSource": "Wikipedia (Chorabari Lake coordinates, read through the Wikipedia API). Consistent with the OpenStreetMap path 'Chorabari Tal Road' (Nominatim way 169828819 ends near 30.7427, 79.0621) and with the Current Science description: about 2 km upstream of Kedarnath, 3,960 m.",
+     "nearestTown": "Kedarnath (about 2 km downstream). Downstream: Rambara, Gaurikund, Sonprayag, then Rudraprayag on NH-7.",
+     "nearestRoad": "Gaurikund–Kedarnath foot trek. The motor road ends at Gaurikund/Sonprayag (NH-107), and the Mandakini joins the Alaknanda and NH-7 at Rudraprayag.",
+     "areaHistory": [],
+     "growthSummary": "Not growing: the lake drained completely in 5–10 minutes when its moraine broke on 16–17 June 2013 and has not refilled. Today it is a flat area of boulders with a small stream. Before 2013 it was about 400 m long, 200 m wide and 15–20 m deep (Dobhal et al. 2013). No source states an area in km².",
+     "riskNote": "Shows what a lake outburst does to a Char Dham road. Very heavy rain (WIHG gauge: 325 mm in 24 h) plus snowmelt filled the lake until it broke, and the flood wiped out Kedarnath town and the Kedarnath–Gaurikund route down the Mandakini. Use it on the map as the 'this already happened' marker. It is history, not a live growing lake.",
+     "sources": [
+      "https://www.currentscience.ac.in/Volumes/105/02/0171.pdf",
+      "https://en.wikipedia.org/wiki/Chorabari_Lake",
+      "https://dialogue.earth/en/climate/death-of-chorabari-lake/",
+      "https://nhess.copernicus.org/preprints/3/941/2015/nhessd-3-941-2015-print.pdf"
+     ]
+    }
+   ],
+   "newsFinding": "Found it. Down To Earth Hindi, 30 Oct 2026 (published 08:13 UTC, author Dayanidhi): https://hindi.downtoearth.org.in/climate-change/risk-of-glacier-collapse-looms-over-badrinath-398-buildings-are-in-the-danger-zone. It is NOT about a glacial lake. It is about three HANGING GLACIERS on the slopes above Badrinath, at 4,700–5,465 m (Badrinath itself is about 3,415 m, on the Alaknanda). The risk is an ice avalanche, not a lake outburst. The report covers a peer-reviewed study in the journal 'Landslides', published 28 Oct 2026, by scientists from IISc, the University of Cambridge and DRDO; it does not name the glaciers or the paper's authors. Key facts: (1) Worst case, if the biggest of the three breaks: about 398 buildings, 2.66 km of road, 2 bridges, a helipad and a parking area could be damaged. (2) The second glacier is the most destructive: about 5.32 million m³ of ice (53.2 lakh m³), mean slope 34.57°, and in the model its avalanche reaches 78.5 m/s (about 283 km/h) with a flow up to 73.5 m high. (3) The ice flow is not expected to hit the temple directly, but rocks and debris could pile up around it. (4) The scientists stress this is a worst-case model, not a warning that the glacier will fall soon; the thickness and volume come from satellite images and models. (5) They recommend mapping avalanche zones and buffer zones, and strict rules on new building and infrastructure. (6) It mentions an April 2026 study that found 219 hanging glaciers, about 30% of them in the Alaknanda basin. The same study was covered by News18 Hindi (29 Oct), Jansatta (30 Oct), Jagran (1 Nov) and Bharat Express (6 Nov). Bharat Express quotes 58.9 lakh m³, which does not match DTE's 53.2 lakh m³ for the second glacier. For the Predict layer, show this as a separate 'ice avalanche zone above Badrinath', not as a lake, and do not draw the exact zone unless we get the paper's map.",
+   "caveats": [
+    "Vasudhara Tal area numbers conflict even inside one source. Pandey 2026 gives 0.572 km² for 2023 in Table 1 but 0.622 km² in the text. 101Reporters/DTE say 0.14 km² (1968) and 0.59 km² (2021) but do not show a primary source. The cited USDMA report (usdma.uk.gov.in/pdf/VasudharaReportFinal.pdf) now returns 404, and the Internet Archive was offline, so I could not check it. Show the area series as 'satellite estimates' with the source name, and do not mix years from different sources on one line.",
+    "USDMA's Oct 2026 field team (CBRI Roorkee) said the lake's size shows 'no significant change' compared with earlier data. That sounds opposite to the satellite growth story. It is not really: the big growth was 1972–2011. Say both in the UI.",
+    "Balbala Lake is named only in Pandey 2026, which named it. It is not on the official NDMA/USDMA list of 13 lakes as far as I could find. The 2023 area is 0.198 or 0.206 km² depending on the section. I inferred that it drains toward Mana via the Saraswati from the paper ('upstream of Badrinath', near the Mana Pass road / Rattakona). The paper does not trace the flood path.",
+    "Chorabari Tal has no area in km² in any source I could open (only 400 m × 200 m × 15–20 m deep, Dobhal et al. 2013, Current Science 105(2):171). Its areaHistory is left empty on purpose; do not compute an area from length × width. Its coordinates come from Wikipedia and match OSM, not from a paper.",
+    "The official NDMA list of 13 Uttarakhand lakes is not published as one public table. News and exam-prep sites confirm Vasudhara is Category A (Chamoli) and the other four Category A lakes are in Pithoragarh, far from Char Dham roads. USDMA (8 Sep 2026) also surveyed Saraswati Tal (Chamoli, about 5,700 m) and Kedartal (Uttarkashi, about 4,750 m, above Gangotri; OSM way 102905497 at 30.9127, 79.9574 — note: lon is 78.9574). I found no area-over-time figures for them, so I left them out. Kedartal is the best extra lake if the Gangotri route is added later.",
+    "Satopanth Tal (near Badrinath, 30.74367 N, 79.35711 E, 4,333 m; 0.018 km² in 1994 to 0.029 km² in 2023, Pandey 2026 Table 1) is real but tiny. I did not use it as a main lake.",
+    "The Landslides paper on the Badrinath hanging glaciers: I did not find its DOI or full text. Every number in newsFinding comes from the DTE Hindi article itself (read in full through its JSON-LD articleBody)."
+   ]
+  }
+ },
+ {
+  "key": "free-tech",
+  "out": {
+   "findings": [
+    {
+     "topic": "Open-Meteo Elevation API: slope_factor from 1.0 (flat) to 2.0 (very steep)",
+     "works": true,
+     "howToUse": "GET https://api.open-meteo.com/v1/elevation?latitude=lat1,lat2,...&longitude=lon1,lon2,... needs no key and returns {\"elevation\":[metres,...]}. Run it once in a build script (like scripts/build-landslides.mjs) and write slopeFactor into data/route-*.json. Do not call it at runtime. Recipe for each segment: about every 1 km, take road point P plus 8 points 200 m away (N, NE, E ... NW; dLat = 200/111320, dLon = 200/(111320*cos(lat))). uphillDeg = max over the 8 points of atan(max(z_i - z_P, 0) / 200) * 180/PI. This measures the ground rising above the road, where slides start. Segment slope = mean of its samples. slope_factor = 1 + clamp((slope - 10) / 30, 0, 1), so 10 deg or less = 1.0, 25 deg = 1.5, 40 deg or more = 2.0. A plain central-difference slope, atan(sqrt(((zE-zW)/2d)^2 + ((zN-zS)/2d)^2)), gives 30.1 deg at the test point, but it cancels out across a V-shaped valley, so use the uphill max. Credit line: 'Elevation: Copernicus DEM GLO-90 via Open-Meteo'.",
+     "limits": "Max 100 coordinates per request; 101 returns HTTP 400. Each coordinate counts as one API call (header X-RateLimit-Cost: 100.0 for 100 points; X-RateLimit-Limit 600 per 60 s window). Free non-commercial limits are 600/min, 5,000/hour and 10,000/day. About 300 km x 1 sample/km x 9 points = ~2,700 calls, so send 100 points per request, at most 6 requests per minute, and run it only once. The data is Copernicus DEM 2021 GLO-90 with 90 m cells, so cliffs and road cuts are smoothed: use baselines of 200 m or more and treat the values as relative. 3 samples per segment is too noisy (Srinagar-Rudraprayag gave 7, 35 and 8 deg), so sample about every 1 km. The free API is for non-commercial use only (CC BY 4.0; credit Copernicus and Open-Meteo).",
+     "testedOutput": "Cross-section at route vertex 30.24146,78.9011 (segment srinagar-rudraprayag, road bearing 116 deg), offsets -300 to +300 m across the road: 876, 802, 740, [road] 634, 594 (river side), 609, 628 m. Uphill slope over 200 m = atan(168/200) = 40.0 deg -> slope_factor 2.0. Points 200 m N/S/E/W of 30.2412,78.9006: centre 657, N 594, S 802, E 650, W 753 m. 101 points -> {\"reason\":\"Parameter 'latitude' and 'longitude' must not exceed 100 coordinates.\",\"error\":true}. A quick run with 3 samples per segment (243 calls) on data/route-badrinath.json gave: rishikesh-devprayag 1.71, devprayag-srinagar 1.45, srinagar-rudraprayag 1.22, rudraprayag-gauchar 1.78, gauchar-karnaprayag 1.91, karnaprayag-chamoli 1.39, chamoli-pipalkoti 1.43, pipalkoti-joshimath 1.85, joshimath-badrinath 1.67.",
+     "sourceUrl": "https://open-meteo.com/en/docs/elevation-api ; https://open-meteo.com/en/terms"
+    },
+    {
+     "topic": "Open-Meteo Geocoding API for the 'kahan jaana hai' search (Hindi and Char Dham names)",
+     "works": false,
+     "howToUse": "Do not use it as the main search. Ship data/places.json with about 40 Char Dham stops (Hindi name, English name, common spellings, road-head point) and search it locally. That works offline in the PWA and in Hindi. Route to the road head: Kedarnath -> Sonprayag/Gaurikund (geocoder PPL 30.66028,79.03271); Yamunotri -> Janki Chatti (30.9765,78.4383, from Photon). If you keep it as an online fallback: GET https://geocoding-api.open-meteo.com/v1/search?name=<3+ letters>&count=10&language=hi&countryCode=IN. Keep only results with admin1 == 'Uttarakhand' and a feature_code starting with 'PPL'; this drops mountains (MT/PK) and glaciers (GLCR).",
+     "limits": "The data comes from GeoNames. Free non-commercial terms: under 10,000 calls/day, 5,000/hour, 600/min, CC BY 4.0. count must be 1-100. Names under 3 letters must match exactly. Responses carry cache-control max-age=86400. Hindi: language=hi only translates the admin and country fields (उत्तराखंड, भारत) and a few names. Hindi-script queries केदारनाथ, बद्रीनाथ, रुद्रप्रयाग, ऋषिकेश and जानकी चट्टी return 0 results; only गंगोत्री matched. Missing places: Janki Chatti, Jankichatti, Yamunotri (only 'Yamnotri', about 6 km west of the temple), Devprayag/Deoprayag, Sonprayag, Guptkashi, Dharali. The first hits for Kedarnath (6,940 m), Badrinath (7,138 m) and Gaurikund are mountain peaks (MT), not the towns. Prefix 'Kedar' returned three 'Kedār' villages, not Kedarnath. The 'Gaurikund, Uttarakhand' qualifier is accepted, but the MT result still comes first.",
+     "testedOutput": "Kedarnath (countryCode=IN): #1 'Kedarnath' MT 30.7975,79.06749 elev 6940; #2 'Kedārnāth' PPL 30.72016,79.06831 pop 508. Gangotri: #1 'Gangotri' PPL 30.99589,78.94321 (Uttar Kashi). Rudraprayag: 'Rudraprayāg' PPL 30.28467,78.98354. 'Janki Chatti': {\"generationtime_ms\":0.239} with no results. language=hi: 'गंगोत्री' -> 'गंगोत्री | उत्तराखंड | उत्तरकाशी | भारत'; 'केदारनाथ' -> 0 results; 'Rudraprayag' -> the name stays 'Rudraprayāg' and admin1 becomes 'उत्तराखंड'. Badrinath: #1 MT 30.7333,79.2833 elev 7138; #2 'Badarīnāth' PPL 30.73944,79.49408.",
+     "sourceUrl": "https://open-meteo.com/en/docs/geocoding-api ; https://open-meteo.com/en/terms"
+    },
+    {
+     "topic": "Photon (OpenStreetMap) geocoder as an online fallback for names Open-Meteo misses",
+     "works": true,
+     "howToUse": "GET https://photon.komoot.io/api/?q=<text>&limit=5&lat=30.3&lon=78.9 needs no key; lat/lon biases results towards Garhwal. Read features[].geometry.coordinates ([lon,lat]) and properties.name / state / osm_value, and keep state == 'Uttarakhand'. Call it from a server route with User-Agent himrakshak-hackathon-prototype, debounce typing and cache results. Keep the local places list as the primary search.",
+     "limits": "Fair use only: the site says heavy use is throttled and availability is not guaranteed. It does not cover commercial use. It works for English/Latin names only: the Hindi query केदारनाथ returned schools in Nepal. It needs a network connection, so it cannot replace the offline local list.",
+     "testedOutput": "'Janki Chatti' -> Janki Chatti, Uttarakhand, place=village [78.4383369, 30.9764513]. 'Devprayag' -> Devprayag, place=town [78.5985849, 30.1461443]. 'Yamunotri' -> Yamunotri, place=hamlet [78.4626951, 30.999214]. 'केदारनाथ' -> 3 schools in Nepal (wrong).",
+     "sourceUrl": "https://photon.komoot.io/"
+    },
+    {
+     "topic": "Valhalla public server (valhalla1.openstreetmap.de): usage policy and routing to all four dhams",
+     "works": true,
+     "howToUse": "Use the same call lib/valhalla.ts already makes: GET https://valhalla1.openstreetmap.de/route?json={locations:[from,to],costing:'auto',units:'kilometers',exclude_polygons:[...]} with User-Agent himrakshak-hackathon-prototype. Read trip.summary.length (km), trip.summary.time (seconds) and legs[].shape (polyline6). Keep calls server-side and cached ('use cache'), and send them one at a time so the app never makes more than 1 per second. The terms require OSM attribution with an openstreetmap.org/fixthemap link and a team contact e-mail on the site. They also advise against hard-coding the service URL; an env var with this default would do.",
+     "limits": "The official FOSSGIS terms cover valhalla1.openstreetmap.de and say \"Maximum one request per second\" (FOSSGIS e.V.). They also require: a User-Agent that names the app (library defaults are not accepted; pretending to be another app gets you blocked), a Referer where possible, at most 2 parallel connections (1 for scripts), no high-traffic websites, commercial use only as a minor part of a product, and no mass downloading. It runs on a single server with no availability guarantee, and permission can be withdrawn at any time. Responses carry no rate-limit headers, so you cannot see your remaining quota. Travel times are free-flow estimates with no live traffic. Scaling path: self-host Valhalla (open source) on an Uttarakhand OSM extract.",
+     "testedOutput": "Rishikesh 30.0869,78.2676 -> Srinagar 30.2232,78.7806: 105.9 km, 161 min. -> Gaurikund 30.6527,79.0262: 211.9 km, 313 min. -> Gangotri 30.99589,78.94321: 269.3 km, 402 min via NH7, NH34 (Narendranagar Bypass). -> Janki Chatti 30.9765,78.4383: 241.5 km, 362 min via NH7, NH34, NH134. All returned HTTP 200 in 0.7-1.3 s from nginx, with no X-RateLimit headers.",
+     "sourceUrl": "https://fossgis.de/arbeitsgruppen/osm-server/nutzungsbedingungen/"
+    },
+    {
+     "topic": "Valhalla 'alternates' for safest-vs-fastest route options",
+     "works": false,
+     "howToUse": "Treat alternates as a bonus, not the source of the two options. Request alternates: 2. Fastest = trip; candidates = trip plus alternates[].trip. Score each candidate with the risk engine along its line, then label the lowest-risk one 'Sabse surakshit' and the quickest one 'Sabse tez'. If no alternate comes back, build the second option yourself: exclude the highest-risk stretch (or a reported closure) with exclude_polygons (the existing 2x2 km box) and call again. HTTP 400 or no trip means there is no other road: show 'Doosra rasta nahi - safe time to leave ka intezaar karein'. For the 10-15 s closure popup, a single call with exclude_polygons plus alternates: 1 returned two real detours.",
+     "limits": "Valhalla docs: there may be no alternates, or fewer than requested. Alternates do not work with more than 2 locations or with time-dependent routes. In tests the normal Badrinath/Kedarnath corridor returned 0 alternates, because mountain detours are much longer than the main road. Gangotri and Janki Chatti returned 1-2. Every extra call counts against the 1 request/second rule. The response field is alternates[], each item holding a trip.",
+     "testedOutput": "With alternates=2: Rishikesh->Srinagar 0 alternates; Rishikesh->Gaurikund 0; Rishikesh->Gangotri 1 (373.0 km, 579 min via Dehradun ISBT, NH507, NH134, NH34); Rishikesh->Janki Chatti 2 (204.2 km/374 min via Mussoorie and NH707A; 238.0 km/381 min via Dehradun, NH507, NH134). With a 2x2 km exclude_polygon at 30.2412,78.9006 plus alternates=1, Rishikesh->Gaurikund returned a main route of 275.6 km, 511 min via NH309, Pauri Highway, Khirsu Road, NH107, and an alternate of 266.9 km, 539 min via NH34, NH707A (Tehri), SH 15, NH107. The normal route is 211.9 km, 313 min.",
+     "sourceUrl": "https://valhalla.github.io/valhalla/api/route/api-reference/"
+    },
+    {
+     "topic": "SMS fallback and 112 from the web page (sms: and tel: links)",
+     "works": true,
+     "howToUse": "Android: href = 'sms:112?body=' + encodeURIComponent(text). iOS: 'sms:112&body=' + encodeURIComponent(text); pick it with /iPhone|iPad/.test(navigator.userAgent). Developers report that 'sms:112?&body=' works on both. Keep the text in plain ASCII Hinglish so it fits one 160-character SMS; any Devanagari letter switches the SMS to Unicode, which allows only 70 characters per part. Example: 'SOS Himrakshak: phanse hain, 3 log. 30.24120,78.90060 +-25m 14:05 NH7 Srinagar-Rudraprayag'. Put a big 'Call 112' button (href='tel:112') next to it, and offer the same SMS to a saved family number. Make sure /sos is in the service-worker precache so it opens with no data.",
+     "limits": "The link only opens Messages with the text filled in; the driver must press Send. RFC 5724 says activating the link should not send without the user confirming, so a web page cannot send an SMS by itself. Apple's official URL-scheme page allows only a phone number and no message text, so '&body=' on iOS is undocumented behaviour (reported working since iOS 8, with some flaky reports). Test it on the demo iPhone. On Android the body depends on the SMS app (Google Messages reads ?body=). tel:112: Android opens the dialer with 112 filled in and the user taps Call; Android does not let apps auto-call emergency numbers, only dial them. iOS Safari shows a confirm prompt first. SMS to 112: MHA lists SMS as one of the 10 ERSS-112 channels, and the 112.gov.in FAQ (seen via search) says to send an SMS to 112. No official message format or delivery confirmation is published, so put the coordinates in plain text. Android Emergency Location Service (automatic location with a 112 call or SMS) went live on 23 Dec 2025 only in Uttar Pradesh; Uttarakhand is not confirmed. 112.gov.in served a TLS certificate that curl rejected as self-signed, so it could not be fetched directly. General GSM behaviour (not tested): an emergency voice call can use any operator's network ('Emergency calls only'), but SMS needs your own network. That is why both buttons are needed.",
+     "testedOutput": "No phone was available in this session, so the links were not tapped. Checked by curl: mha.gov.in/nirbhayaerss-section lists Voice Call, SMS, SOS through the 112 India app, Email, Web Request, Chatbot, WhatsApp and others among the 10 ERSS-112 channels. The MHA ERSS 2.0 Guidelines PDF (January 2026), text extracted locally, requires reception over voice, SOS, SMS, email, web and WhatsApp. Example link built: sms:112?body=SOS%20Himrakshak%3A%2030.24120%2C78.90060",
+     "sourceUrl": "https://www.mha.gov.in/nirbhayaerss-section ; https://www.mha.gov.in/files/inline-documents/GuidelinesERSS20_03112026.pdf ; https://www.rfc-editor.org/rfc/rfc5724 ; https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/SMSLinks/SMSLinks.html ; https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/PhoneLinks/PhoneLinks.html ; https://developer.android.com/reference/android/content/Intent#ACTION_CALL ; https://blog.google/intl/en-in/company-news/technology/activating-android-emergency-location-service-in-india/"
+    },
+    {
+     "topic": "Web Speech API speechSynthesis in Hindi (hi-IN) for voice alerts",
+     "works": true,
+     "howToUse": "Unlock audio on the 'Start navigation' tap by speaking one short line inside that tap handler (a user gesture). Later alerts: const u = new SpeechSynthesisUtterance('आगे भूस्खलन है, दूसरा रास्ता लें'); u.lang = 'hi-IN'; u.voice = speechSynthesis.getVoices().find(v => v.lang.replace('_','-').toLowerCase().startsWith('hi')) ?? null; speechSynthesis.speak(u). Read the voices after the 'voiceschanged' event. Prefer voices with v.localService === true, which work offline. Keep each line short. Always show the same words on screen, and add an 'Awaaz test karein' button. Before the demo, on the Android phone: Settings > Text-to-speech > Google > install Hindi voice data.",
+     "limits": "Since Chrome 71, speak() fails with 'not-allowed' unless the page has had a user tap; iOS Safari also needs a gesture for the first speech. Android Chrome uses the phone's TTS engine: getVoices() lists every language even if not downloaded, tags look like 'hi_IN', and if the Hindi pack is missing Chrome silently uses an English voice. So the app cannot reliably detect a missing Hindi voice; test on the demo phone. Offline speech works only with on-device voices. Chrome desktop 'Google' voices need internet and cut off after about 14 s. On iOS every browser is WebKit and uses Apple system voices (Lekha = Hindi). Downloaded enhanced voices are not listed, and there are iOS 18 reports of lower-quality voices. Speech stops when the page is hidden.",
+     "testedOutput": "On macOS 26.7.3, `say -v '?'` lists 'Lekha  hi_IN  # नमस्ते, मेरा नाम लेखा है।'. That is Apple's Hindi system voice, from the same voice set iOS gives Safari. It was not tested on an Android or iOS device in this session.",
+     "sourceUrl": "https://developer.chrome.com/blog/chrome-71-deps-rems/ ; https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/speak ; https://readium.org/speech/docs/WebSpeech.html"
+    },
+    {
+     "topic": "Open-Meteo Flood API (GloFAS river discharge) as a river-rise signal",
+     "works": true,
+     "howToUse": "GET https://flood-api.open-meteo.com/v1/flood?latitude=30.275&longitude=78.925&daily=river_discharge&past_days=7&forecast_days=7 needs no key. Pick each river point yourself: request the 0.05-degree cells around a town in one multi-coordinate call, keep the cell with the biggest discharge, and store it in data. For Rudraprayag that is the main stem at 30.275,78.925 and the Alaknanda upstream at 30.275,79.025. Show 'Nadi tezi se badh rahi / River rising fast' when the highest forecast for the next 3 days is at least 2x today's flow. Label the layer 'Modelled river flow (GloFAS, 5 km)'. Demo evidence: replay June 2013 from the history, when flow went from 174 to 680 m3/s in 3 days.",
+     "limits": "This is GloFAS v4 model output, not gauge data: about a 5 km grid, one value per day, history from 1984, forecast 92 days by default (max 210). The nearest cell is often a side slope: the town coordinate returned 0.17 m3/s, and the docs warn the closest river may not be picked. Absolute numbers are unreliable (the modelled June 2013 peak of 681 m3/s is below the Aug 2025 monsoon max of 1,221), so use ratios. It cannot see sudden floods from glacier or rock avalanches: Feb 2021 Chamoli shows nothing. Ensemble statistics exist only for forecasts and showed no spread today. Free non-commercial terms (CC BY 4.0; credit GloFAS and Open-Meteo).",
+     "testedOutput": "30.2844,78.9811 snapped to 30.275,78.975: 0.17 m3/s, flat from 20 Nov to 4 Dec (wrong cell). Cell scan: 30.275,78.925 = 159.32; 30.325,78.925 = 158.96; 30.275,79.025 = 126.64; all others 0.16-0.49. Forecast at 30.275,78.925: 159.32 (25 Nov) -> 151.05 (29 Nov). 2013: 10 Jun 100.39, 15 Jun 173.98, 16 Jun 266.30, 17 Jun 473.24, 18 Jun 679.77, 19 Jun 681.34. Aug 2025: 813.7-1220.8, peak on 19 Aug. Feb 2021 near Joshimath (30.575,79.525): 19.46 -> 19.42 on 7 Feb, no signal.",
+     "sourceUrl": "https://open-meteo.com/en/docs/flood-api"
+    },
+    {
+     "topic": "Google Gemini API free tier (optional AI photo check)",
+     "works": true,
+     "howToUse": "Add an optional server route app/api/photo-check that reads process.env.GEMINI_API_KEY. If the key is missing, the report still posts and the UI says 'AI photo check off (no key)'. Call POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent with header x-goog-api-key. Body: the photo as inline_data (JPEG resized to about 1024 px, base64) plus a prompt asking for JSON {kind: landslide|rockfall|road_blocked|water|jam|clear|unclear, confidence}. Show the result as a hint ('AI ka andaza') and never auto-reject a driver report. A team member creates the key in Google AI Studio; no billing needed.",
+     "limits": "Official docs: the Free tier needs only an active project or free trial (some projects need verification) and no billing. Limits are per project, not per key, and the daily quota resets at midnight Pacific. Google no longer publishes per-model free numbers; check them in AI Studio. A third-party AI Studio reading from 21 Oct 2026 gave: Flash models 5 RPM / 20 RPD, gemini-3.5 and 3.1 flash-lite 15 RPM / 500 RPD, 2.5 flash-lite 10 RPM / 20 RPD, Pro models 0. The pricing page says free-tier inputs are used to improve Google's products, so tell drivers and keep faces and number plates out of photos. gemini-2.5-flash is deprecated and routes to gemini-3.5-flash-lite from 1 Dec 2026, so do not hard-code 2.5 models. The paid rows list image input for Flash-Lite, but the free tier does not state it separately.",
+     "testedOutput": "Not called: no key exists, and creating one needs a team member's Google account. Official pages read on 25 Nov 2026: the rate-limits page (Free tier, billing not required, per-project limits) and the pricing page, which lists 'Free of charge' on the free tier for gemini-3.8-flash, gemini-3.6-flash, gemini-3.5-flash-lite, gemini-3.1-flash-lite and gemini-2.5-flash-lite, with 'used to improve our products: Yes'. The models page lists stable model codes gemini-3.8-flash, gemini-3.6-flash, gemini-3.5-flash-lite and gemini-3.1-flash-lite.",
+     "sourceUrl": "https://aistudio.google.com/docs/rate-limits ; https://aistudio.google.com/docs/pricing ; https://aistudio.google.com/docs/models ; https://imisofts.com/blog/gemini-api-free-tier-limits/"
+    },
+    {
+     "topic": "Supabase Free plan limits for reports, photos and realtime",
+     "works": true,
+     "howToUse": "Create the project now and add the URL and anon key to .env.local. A project pauses only after a week of low activity, and the app's own reads count as activity. Resize photos in the browser before upload (canvas -> JPEG quality about 0.7, longest side 1280 px, about 150-250 KB) so 1 GB holds about 5,000 photos. Use a small thumbnail for map pins to save egress. Use one realtime channel per client for new reports (Postgres changes or Broadcast).",
+     "limits": "Free plan: 500 MB database per project, 1 GB file storage, 50 MB max upload, 5 GB egress (+5 GB cached), 50,000 monthly active users, 200 concurrent realtime connections, 2 million realtime messages/month, 500,000 edge function calls, 2 active free projects. Realtime: 100 messages/s, 100 channel joins/s, 100 channels per connection, 20 presence messages/s, 256 KB broadcast payload, 1,024 KB Postgres-change payload. Over a limit, joins are refused (too_many_connections) or clients are disconnected (tenant_events). Projects pause after 1 week of inactivity; an e-mail warning comes first, and a few database requests per day usually prevent it. Restore window: current docs say up to 1 year (a 2024 changelog said 90 days). The pricing page does not say whether a card is needed.",
+     "testedOutput": "No project exists yet, so nothing was called. Read on 25 Nov 2026 from supabase.com/pricing, the realtime limits page and the project-pausing page: the numbers above (Free: 200 realtime connections, 2M messages, 500 MB DB, 1 GB storage, paused after 1 week of inactivity, 2 active projects).",
+     "sourceUrl": "https://supabase.com/pricing ; https://supabase.com/docs/guides/realtime/limits ; https://supabase.com/docs/guides/platform/free-project-pausing"
+    },
+    {
+     "topic": "Geolocation watchPosition in the PWA on Android Chrome",
+     "works": true,
+     "howToUse": "If window.isSecureContext is false, show 'GPS ke liye HTTPS chahiye'. Start with id = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, timeout: 20000, maximumAge: 10000 }). Show coords.accuracy ('+-25 m') and the age of the last fix. Error 1 = 'Location ki permission band hai'; error 2 = 'GPS nahi mil raha, khuli jagah jaayein'; error 3 = keep the last fix and keep waiting. On visibilitychange, restart the watch and request a Screen Wake Lock again (navigator.wakeLock.request('screen'); HTTPS only, released when the page is hidden) so the screen stays on while navigating. The venue is in Dehradun, so add a clearly badged 'DEMO DRIVE' toggle that feeds points along the route line into the same onPos. For phone testing use the Vercel HTTPS URL, because http://<laptop-IP>:3000 is not secure. Or add that origin on the test phone at chrome://flags/#unsafely-treat-insecure-origin-as-secure. next dev --experimental-https creates a mkcert certificate that only the laptop trusts.",
+     "limits": "It needs a secure context (HTTPS or localhost). Since Chrome 50, HTTP pages get error code 1 with a message starting 'Only secure origins are allowed'. It also needs the user's permission. Defaults: enableHighAccuracy false, timeout Infinity (the callback may never fire without a fix, so always set a timeout), maximumAge 0. Error codes: 1 PERMISSION_DENIED, 2 POSITION_UNAVAILABLE, 3 TIMEOUT. Without a GPS fix, Android may return a coarse Wi-Fi/cell position with large accuracy, or nothing. GPS itself needs no mobile data, but the first fix is slower without assisted data (general behaviour, not tested). Chrome on Android stops sending positions when the tab or PWA is hidden or the screen is off, and may not retry after a failure; this comes from community bug reports, not an official doc. The web has no background geolocation.",
+     "testedOutput": "Not tested on a device in this session. Docs checked: MDN watchPosition (secure context and permission), MDN getCurrentPosition (defaults: timeout Infinity, maximumAge 0, enableHighAccuracy false), MDN GeolocationPositionError (codes 1/2/3), the Chrome blog (geolocation removed from HTTP in Chrome 50, 20 Apr 2016), MDN Screen Wake Lock (Baseline 2025, HTTPS only, released when hidden), and the Next.js 16 docs bundled in node_modules/next/dist/docs/01-app/03-api-reference/06-cli/next.md (--experimental-https generates a self-signed mkcert certificate).",
+     "sourceUrl": "https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/watchPosition ; https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition ; https://developer.mozilla.org/en-US/docs/Web/API/GeolocationPositionError/code ; https://developer.chrome.com/blog/geolocation-on-secure-contexts-only ; https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API"
+    }
+   ]
+  }
+ },
+ {
+  "key": "places",
+  "out": {
+   "places": [
+    {
+     "name": "Yamunotri",
+     "nameHindi": "यमुनोत्री",
+     "lat": 30.99921,
+     "lon": 78.4627,
+     "role": "dham",
+     "verifiedBy": "Nominatim/OSM node 342112741, 'Yamunotri' hamlet with ele 3291. The temple itself is not tagged in OSM, so this point may be a few hundred m off the shrine. Open-Meteo has no match. Hindi is the standard spelling (OSM has no name:hi)."
+    },
+    {
+     "name": "Janki Chatti",
+     "nameHindi": "जानकी चट्टी",
+     "lat": 30.97645,
+     "lon": 78.43834,
+     "role": "road-head",
+     "verifiedBy": "Nominatim/OSM node 342114711 (alt_name Janaki Chatti). Last road point for Yamunotri; the trek from here is about 6 km. Open-Meteo has no match."
+    },
+    {
+     "name": "Kharsali",
+     "nameHindi": "खरसाली",
+     "lat": 30.97279,
+     "lon": 78.43822,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 2377998224, next to Janki Chatti. It is Yamunotri's winter seat."
+    },
+    {
+     "name": "Gangotri",
+     "nameHindi": "गंगोत्री",
+     "lat": 30.99443,
+     "lon": 78.94115,
+     "role": "dham",
+     "verifiedBy": "Nominatim/OSM way 484379942 (Gangotri Temple). The OSM town node 342110021 (30.99437, 78.93987, name:hi गंगोत्री) and Open-Meteo/GeoNames (30.99589, 78.94321) both agree within 250 m. The road reaches the temple town, so Gangotri is its own road head."
+    },
+    {
+     "name": "Kedarnath",
+     "nameHindi": "केदारनाथ",
+     "lat": 30.73518,
+     "lon": 79.06687,
+     "role": "dham",
+     "verifiedBy": "Nominatim/OSM way 226843462 (Kedarnath Mandir). The OSM town node 1188262619 (30.73389, 79.06691, name:hi केदारनाथ) agrees. Open-Meteo/GeoNames PPL (30.72016, 79.06831) is about 1.7 km south, so it is less precise. There is no road to the temple: about 16 km of trek from Gaurikund."
+    },
+    {
+     "name": "Sonprayag",
+     "nameHindi": "सोनप्रयाग",
+     "lat": 30.63171,
+     "lon": 78.99866,
+     "role": "road-head",
+     "verifiedBy": "Nominatim/OSM node 1809868954. Open-Meteo has no match. Private vehicles stop here (parking at Sitapur/Sonprayag) and shuttle jeeps run about 5 km on to Gaurikund."
+    },
+    {
+     "name": "Gaurikund",
+     "nameHindi": "गौरीकुंड",
+     "lat": 30.6534,
+     "lon": 79.02682,
+     "role": "road-head",
+     "verifiedBy": "Nominatim/OSM node 342108397. Open-Meteo/GeoNames 1271456 (30.66028, 79.03271) is about 0.9 km away. The Kedarnath trek starts here."
+    },
+    {
+     "name": "Sitapur",
+     "nameHindi": "सीतापुर",
+     "lat": 30.61714,
+     "lon": 78.99867,
+     "role": "junction",
+     "verifiedBy": "Nominatim/OSM node 342108377 (Ukhimath tehsil). Main Kedarnath parking, just before Sonprayag."
+    },
+    {
+     "name": "Badrinath",
+     "nameHindi": "बदरीनाथ",
+     "lat": 30.7433,
+     "lon": 79.4938,
+     "role": "dham",
+     "verifiedBy": "Reused from data/route-badrinath.json. It is within 0.15 km of OSM node 342104576 (30.74233, 79.49303) and Open-Meteo/GeoNames 1278010 (30.73944, 79.49408). The temple is OSM way 186130667 at 30.74469, 79.49116. OSM name:hi is बद्रीनाथ; बदरीनाथ is the official/news spelling, so search should match both."
+    },
+    {
+     "name": "Mana",
+     "nameHindi": "माणा",
+     "lat": 30.77048,
+     "lon": 79.49594,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342109077. Open-Meteo/GeoNames 1263977 (30.76828, 79.4951) is about 0.25 km away. The road ends here, about 3 km past Badrinath."
+    },
+    {
+     "name": "Haridwar",
+     "nameHindi": "हरिद्वार",
+     "lat": 29.93845,
+     "lon": 78.1453,
+     "role": "city",
+     "verifiedBy": "Nominatim/OSM city node 1211180500 (name:hi हरिद्वार). Open-Meteo/GeoNames 1270351 (29.94791, 78.16025) is about 1.8 km away (city centroid)."
+    },
+    {
+     "name": "Rishikesh",
+     "nameHindi": "ऋषिकेश",
+     "lat": 30.0869,
+     "lon": 78.2676,
+     "role": "city",
+     "verifiedBy": "Reused from data/route-badrinath.json (start of the NH-7 route geometry). The OSM town node 3735821429 (30.10865, 78.29162, name:hi ऋषिकेश) and Open-Meteo (30.10778, 78.29255) are about 3.3 km NE at the old town centre. The repo point is the highway start."
+    },
+    {
+     "name": "Dehradun",
+     "nameHindi": "देहरादून",
+     "lat": 30.32556,
+     "lon": 78.04368,
+     "role": "city",
+     "verifiedBy": "Nominatim/OSM city node 299531301 (name:hi देहरादून). Open-Meteo/GeoNames 1273313 (30.32443, 78.03392) is about 1 km away."
+    },
+    {
+     "name": "Mussoorie",
+     "nameHindi": "मसूरी",
+     "lat": 30.4569,
+     "lon": 78.07829,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 245770206 (name:hi मसूरी). On the Dehradun to Yamunotri road."
+    },
+    {
+     "name": "Nainbagh",
+     "nameHindi": "नैनबाग",
+     "lat": 30.57049,
+     "lon": 78.00505,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342115258 (Tehri). On the Mussoorie to Barkot road."
+    },
+    {
+     "name": "Damta",
+     "nameHindi": "डामटा",
+     "lat": 30.64834,
+     "lon": 78.01703,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342115278 (Uttarkashi)."
+    },
+    {
+     "name": "Naugaon",
+     "nameHindi": "नौगांव",
+     "lat": 30.78644,
+     "lon": 78.13339,
+     "role": "junction",
+     "verifiedBy": "Nominatim/OSM node 342113649 (Rajgarhi, Uttarkashi). This is the Naugaon on the Damta to Barkot road; other Naugaons exist in Pauri and Bhatwari."
+    },
+    {
+     "name": "Barkot",
+     "nameHindi": "बड़कोट",
+     "lat": 30.80861,
+     "lon": 78.20596,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 2377984900 (name:hi बड़कोट) and Open-Meteo/GeoNames 1276917 give an identical point. Several other 'Barkot' hamlets exist in Dehradun, Tehri and Pauri, so filter by Uttarkashi."
+    },
+    {
+     "name": "Syanachatti",
+     "nameHindi": "स्यानाचट्टी",
+     "lat": 30.90548,
+     "lon": 78.36056,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342114828 (Rajgarhi, Uttarkashi). Open-Meteo has no match."
+    },
+    {
+     "name": "Hanuman Chatti (Yamunotri)",
+     "nameHindi": "हनुमानचट्टी",
+     "lat": 30.93117,
+     "lon": 78.39956,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342114676 (Rajgarhi, Uttarkashi). Not the same place as Hanuman Chatti near Badrinath (GeoNames 1270408, 30.69601, 79.51577)."
+    },
+    {
+     "name": "Narendranagar",
+     "nameHindi": "नरेंद्रनगर",
+     "lat": 30.16071,
+     "lon": 78.28531,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342114412 (Tehri). On the Rishikesh to Chamba road (Yamunotri/Gangotri side)."
+    },
+    {
+     "name": "Chamba",
+     "nameHindi": "चंबा",
+     "lat": 30.34561,
+     "lon": 78.39432,
+     "role": "junction",
+     "verifiedBy": "Nominatim/OSM node 342113183 (Tehri). Open-Meteo/GeoNames 8658972 (30.34384, 78.39294) is about 0.2 km away. Not Chamba in Himachal Pradesh."
+    },
+    {
+     "name": "New Tehri",
+     "nameHindi": "नई टिहरी",
+     "lat": 30.37445,
+     "lon": 78.43277,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 245770131 (name:hi नई टिहरी). Open-Meteo/GeoNames 8740724 (30.37386, 78.43248) agrees within 0.1 km."
+    },
+    {
+     "name": "Chinyalisaur",
+     "nameHindi": "चिन्यालीसौड़",
+     "lat": 30.57441,
+     "lon": 78.32766,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342114133 (name:hi चिन्यालीसौड़)."
+    },
+    {
+     "name": "Dharasu",
+     "nameHindi": "धरासू",
+     "lat": 30.61464,
+     "lon": 78.31471,
+     "role": "junction",
+     "verifiedBy": "Nominatim/OSM node 2377984940 and Open-Meteo/GeoNames 1272869 (30.61446, 78.31501) agree. This is where the Yamunotri road (NH-134) leaves the Gangotri road. PWD's first NH-134 point is 30.6283, 78.3201."
+    },
+    {
+     "name": "Brahmkhal",
+     "nameHindi": "ब्रह्मखाल",
+     "lat": 30.69855,
+     "lon": 78.30231,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342113063 (Dunda, Uttarkashi). On NH-134 between Dharasu and Barkot."
+    },
+    {
+     "name": "Uttarkashi",
+     "nameHindi": "उत्तरकाशी",
+     "lat": 30.7291,
+     "lon": 78.44035,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM town node 342112752 (name:hi उत्तरकाशी). Open-Meteo/GeoNames 1253628 (30.72986, 78.44342) is about 0.3 km away."
+    },
+    {
+     "name": "Maneri",
+     "nameHindi": "मनेरी",
+     "lat": 30.7433,
+     "lon": 78.53906,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 7837971436 (Bhatwari tehsil)."
+    },
+    {
+     "name": "Bhatwari",
+     "nameHindi": "भटवाड़ी",
+     "lat": 30.81116,
+     "lon": 78.61954,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342114011 (alt Bhatwāri). Other Bhatwaris are in Shimla and Tehri, so filter by Uttarkashi."
+    },
+    {
+     "name": "Gangnani",
+     "nameHindi": "गंगनानी",
+     "lat": 30.90298,
+     "lon": 78.67978,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM way 509821384 (village area centroid). The hamlet node 1052455042 is at 30.91246, 78.67581."
+    },
+    {
+     "name": "Harsil",
+     "nameHindi": "हर्षिल",
+     "lat": 31.03691,
+     "lon": 78.75065,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM way 509821388 (village centroid). Open-Meteo/GeoNames 1270277 (31.03333, 78.73333) is rounded to a 1-minute grid, about 1.7 km away."
+    },
+    {
+     "name": "Dharali",
+     "nameHindi": "धराली",
+     "lat": 31.04085,
+     "lon": 78.78153,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342110686 (name:hi धराली). On the Gangotri road just past Harsil."
+    },
+    {
+     "name": "Bhaironghati",
+     "nameHindi": "भैरोंघाटी",
+     "lat": 31.02672,
+     "lon": 78.86788,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342110623. The last stop before Gangotri."
+    },
+    {
+     "name": "Shivpuri",
+     "nameHindi": "शिवपुरी",
+     "lat": 30.13808,
+     "lon": 78.39217,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 7886624339 (Narendranagar, Tehri). It is 0.14 km from the repo NH-7 line."
+    },
+    {
+     "name": "Kaudiyala",
+     "nameHindi": "कौड़ियाला",
+     "lat": 30.07471,
+     "lon": 78.50179,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342114464 (Tehri). It is 0.03 km from the repo NH-7 line and marks the north end of the Tota Ghati stretch (Down To Earth)."
+    },
+    {
+     "name": "Devprayag",
+     "nameHindi": "देवप्रयाग",
+     "lat": 30.146,
+     "lon": 78.598,
+     "role": "town",
+     "verifiedBy": "Reused from data/route-badrinath.json. OSM node 342114339 (30.14614, 78.59858, name:hi देवप्रयाग) agrees within 0.05 km."
+    },
+    {
+     "name": "Kirtinagar",
+     "nameHindi": "कीर्तिनगर",
+     "lat": 30.21479,
+     "lon": 78.74836,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 12989276733. It is 0.11 km from the repo NH-7 line, opposite Srinagar."
+    },
+    {
+     "name": "Srinagar (Garhwal)",
+     "nameHindi": "श्रीनगर गढ़वाल",
+     "lat": 30.2232,
+     "lon": 78.7806,
+     "role": "town",
+     "verifiedBy": "Reused from data/route-badrinath.json. OSM node 342110107 (30.22313, 78.78995, name:hi श्रीनगर) is 0.9 km away and Open-Meteo/GeoNames 1255635 (30.22243, 78.78341) is 0.3 km away. Search must not match Srinagar in Kashmir."
+    },
+    {
+     "name": "Pauri",
+     "nameHindi": "पौड़ी",
+     "lat": 30.14799,
+     "lon": 78.77595,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342110039 (name:hi पौड़ी). Open-Meteo/GeoNames 1260016 (30.15286, 78.7771) is 0.55 km away. It is off NH-7, on the Pauri to Khirsu detour."
+    },
+    {
+     "name": "Rudraprayag",
+     "nameHindi": "रुद्रप्रयाग",
+     "lat": 30.2844,
+     "lon": 78.9811,
+     "role": "junction",
+     "verifiedBy": "Reused from data/route-badrinath.json. OSM town node 342107378 (30.28656, 78.98072, name:hi रुद्रप्रयाग) and Open-Meteo 1258003 (30.28467, 78.98354) agree within 0.25 km. This is the fork for the Kedarnath road (NH-107) and NH-7."
+    },
+    {
+     "name": "Tilwara",
+     "nameHindi": "तिलवाड़ा",
+     "lat": 30.34561,
+     "lon": 78.9766,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342112524. The PWD NH-107 point 5 photo is geotagged Tilwara at 30.3456, 78.9765. Open-Meteo only knows a Tilwara in Nainital, so do not use that one."
+    },
+    {
+     "name": "Agastyamuni",
+     "nameHindi": "अगस्त्यमुनि",
+     "lat": 30.39196,
+     "lon": 79.02604,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 7835565001, spelled 'Agastmuni'. Searches for 'Agastyamuni' return nothing in Nominatim or Open-Meteo, so add both spellings as aliases."
+    },
+    {
+     "name": "Chandrapuri",
+     "nameHindi": "चंद्रापुरी",
+     "lat": 30.42505,
+     "lon": 79.06847,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342108043 'Chandrapuri (001)' (Ukhimath tehsil), on NH-107."
+    },
+    {
+     "name": "Kund",
+     "nameHindi": "कुंड",
+     "lat": 30.50491,
+     "lon": 79.08783,
+     "role": "junction",
+     "verifiedBy": "Nominatim/OSM node 342107444 (Ukhimath tehsil). The road splits here to Guptkashi/Kedarnath and to Ukhimath/Chopta. Two other 'Kund' hamlets exist in Rudraprayag."
+    },
+    {
+     "name": "Guptkashi",
+     "nameHindi": "गुप्तकाशी",
+     "lat": 30.52832,
+     "lon": 79.08178,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342108333 (alt Gupta Kashi). Open-Meteo has no match."
+    },
+    {
+     "name": "Phata",
+     "nameHindi": "फाटा",
+     "lat": 30.57724,
+     "lon": 79.0395,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342108342 (Ukhimath tehsil). Kedarnath helipads are here."
+    },
+    {
+     "name": "Ukhimath",
+     "nameHindi": "ऊखीमठ",
+     "lat": 30.51395,
+     "lon": 79.09476,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 299531768 (name:hi ऊखीमठ). Open-Meteo/GeoNames 1253905 (30.51572, 79.0918) is about 0.4 km away."
+    },
+    {
+     "name": "Chopta",
+     "nameHindi": "चोपता",
+     "lat": 30.4849,
+     "lon": 79.20002,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342107674 'Chopta Chatti' (Ukhimath), on NH-107A (Ukhimath to Gopeshwar). A different Chopta at 30.3514, 79.04268 is near Rudraprayag and is not this one."
+    },
+    {
+     "name": "Mandal",
+     "nameHindi": "मंडल",
+     "lat": 30.46052,
+     "lon": 79.27454,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 1347494803 (Chamoli tehsil). On the Chopta to Gopeshwar road."
+    },
+    {
+     "name": "Gauchar",
+     "nameHindi": "गौचर",
+     "lat": 30.289,
+     "lon": 79.155,
+     "role": "town",
+     "verifiedBy": "Reused from data/route-badrinath.json. OSM node 342108175 (30.2889, 79.15708) agrees within 0.2 km. Open-Meteo/GeoNames (30.27763, 79.17645) is about 2.4 km off, so it is less accurate."
+    },
+    {
+     "name": "Karnaprayag",
+     "nameHindi": "कर्णप्रयाग",
+     "lat": 30.2617,
+     "lon": 79.2187,
+     "role": "junction",
+     "verifiedBy": "Reused from data/route-badrinath.json. OSM node 245769705 (30.25965, 79.21707, name:hi कर्णप्रयाग) and Open-Meteo 1267703 (30.25942, 79.22028) agree within 0.3 km."
+    },
+    {
+     "name": "Langasu",
+     "nameHindi": "लंगासू",
+     "lat": 30.29006,
+     "lon": 79.27639,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342107725. It is 0.03 km from the repo NH-7 line."
+    },
+    {
+     "name": "Nandprayag",
+     "nameHindi": "नंदप्रयाग",
+     "lat": 30.33188,
+     "lon": 79.31992,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 245769841 'Nandaprayāg' (name:hi नंदप्रयाग). Searches for 'Nandprayag' only return a hospital, so keep both spellings."
+    },
+    {
+     "name": "Chamoli",
+     "nameHindi": "चमोली",
+     "lat": 30.401,
+     "lon": 79.329,
+     "role": "junction",
+     "verifiedBy": "Reused from data/route-badrinath.json. Open-Meteo/GeoNames 1274838 (30.40271, 79.33303) is about 0.4 km away. OSM has no separate town node (it merges it with Gopeshwar). This is the fork for the Gopeshwar/Chopta road."
+    },
+    {
+     "name": "Gopeshwar",
+     "nameHindi": "गोपेश्वर",
+     "lat": 30.40878,
+     "lon": 79.31855,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342107407 (name:hi चमोली-गोपेश्वर). Open-Meteo/GeoNames 1270949 (30.41252, 79.31978) is 0.4 km away. District HQ, uphill from Chamoli."
+    },
+    {
+     "name": "Birahi",
+     "nameHindi": "बिरही",
+     "lat": 30.40741,
+     "lon": 79.38584,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342109786. It is 0.11 km from the repo NH-7 line."
+    },
+    {
+     "name": "Pipalkoti",
+     "nameHindi": "पीपलकोटी",
+     "lat": 30.428,
+     "lon": 79.43,
+     "role": "town",
+     "verifiedBy": "Reused from data/route-badrinath.json. OSM node 342104895 (30.4335, 79.42841) is 0.6 km away and Open-Meteo 1259617 (30.42553, 79.43066) is 0.3 km away. Other Pipalkotis exist in Pauri, so filter by Chamoli."
+    },
+    {
+     "name": "Helang",
+     "nameHindi": "हेलंग",
+     "lat": 30.52022,
+     "lon": 79.51081,
+     "role": "junction",
+     "verifiedBy": "Open-Meteo/GeoNames 10328319 (Joshimath tehsil). It is 0.67 km from the repo NH-7 line, so treat it as about 0.5 km accurate. Nominatim has no match."
+    },
+    {
+     "name": "Joshimath (Jyotirmath)",
+     "nameHindi": "ज्योतिर्मठ (जोशीमठ)",
+     "lat": 30.555,
+     "lon": 79.565,
+     "role": "town",
+     "verifiedBy": "Reused from data/route-badrinath.json. OSM node 342105699 (30.55558, 79.56126, name:hi जोशीमठ, alt_name Jyotirmath) and Open-Meteo 1268814 (30.55543, 79.56436) agree within 0.4 km. Renamed Jyotirmath in 2024, so keep both names searchable."
+    },
+    {
+     "name": "Govindghat",
+     "nameHindi": "गोविंदघाट",
+     "lat": 30.61923,
+     "lon": 79.56197,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 440867595 (alt Gobind Ghat). Open-Meteo/GeoNames 10328277 (30.62563, 79.55845) is 0.8 km away. It is 0.03 km from the repo NH-7 line."
+    },
+    {
+     "name": "Pandukeshwar",
+     "nameHindi": "पांडुकेश्वर",
+     "lat": 30.63441,
+     "lon": 79.54708,
+     "role": "town",
+     "verifiedBy": "Nominatim/OSM node 342105645, spelled 'Pandukeshar' (alt Pāndukeshwar). It is 0.07 km from the repo NH-7 line."
+    }
+   ],
+   "chronicSlideZones": [
+    {
+     "name": "Sirobagad",
+     "nameHindi": "सिरोबगड़",
+     "lat": 30.2412,
+     "lon": 78.9006,
+     "road": "NH-7 (Rishikesh–Badrinath), Srinagar–Rudraprayag, about 18 km past Srinagar",
+     "source": "NASA Global Landslide Catalog in data/landslides-badrinath.json: 6 events from 2011 to 2017 cluster at 30.241–30.2416, 78.897–78.908 (ids 3578, 3673, 7161, 7273, 10067, plus 4975 'Sirobhgarh Bend'). The same point is already used in lib/slide-news.ts. A GFDRR/UDMA symposium report names Sirobagad as a chronic zone. OSM has no named feature.",
+     "accuracyNote": "NASA rows say 5–10 km accuracy, but 6 independent events agree within about 0.5 km and the point is 0.06 km from the road line. Treat it as a stretch of about 1 km."
+    },
+    {
+     "name": "Kaliasaur (Kalyasaur)",
+     "nameHindi": "कलियासौड़",
+     "lat": 30.25795,
+     "lon": 78.88007,
+     "road": "NH-7, Srinagar–Rudraprayag, near Dhari Devi, road km 14.9 from Srinagar",
+     "source": "OSM village node 7837769517 'Kalyasaur' (Srinagar tehsil, Pauri), found with Nominatim. The slide is a well-studied chronic zone (Natural Hazards 2013 'Kaliasaur landslide on NH-58'; Quaternary Science Advances 2021) on the left bank of the Alaknanda.",
+     "accuracyNote": "This is the village point, 0.08 km from the road; the slide face spans a few hundred m. One paper gives a latitude of about 30°14'30\" and '18 km upstream of Srinagar', which matches Sirobagad more closely than this village. Use about 1 km accuracy and do not merge it with Sirobagad."
+    },
+    {
+     "name": "Pagal Nala",
+     "nameHindi": "पागल नाला",
+     "lat": 30.4786,
+     "lon": 79.4679,
+     "road": "NH-7, Pipalkoti–Helang (near Tangni / Tangi Malli)",
+     "source": "OSM stream way 1074487781 'Pagal Nala' (OpenStreetMap API). Its crossing with the repo's OSRM NH-7 line was computed in this run (closest stream node 0.04 km from the road).",
+     "accuracyNote": "Crossing point is about 50 m accurate. The debris-flow zone covers a few hundred m on each side."
+    },
+    {
+     "name": "Patal Ganga",
+     "nameHindi": "पातालगंगा",
+     "lat": 30.4871,
+     "lon": 79.4841,
+     "road": "NH-7, Pipalkoti–Helang (near Langsi)",
+     "source": "OSM stream way 1074487783 'Patal Ganga'; the NH-7 crossing was computed against the repo route (0.04 km). A Springer 2025 paper cites a large NH-7 landslide at 30.486168, 79.479475, about 0.5 km away.",
+     "accuracyNote": "Crossing point is about 50 m accurate. The slide zone around Langsi is about 0.5–1 km long."
+    },
+    {
+     "name": "Lambagad",
+     "nameHindi": "लामबगड़",
+     "lat": 30.69264,
+     "lon": 79.51324,
+     "road": "NH-7, Govindghat–Badrinath",
+     "source": "OSM hamlet node 2404066712 'Lambagad' (Nominatim). The same point is in lib/slide-news.ts. NASA events 3746 (2011) and 7311 (2015) are named Lambagad but geocoded at 30.6494–30.6509, 79.519–79.527, about 4.5 km south and near GeoNames 'Lāmbagar Chatti' (30.65417, 79.5188). The GFDRR/UDMA report and a hazard-zonation paper name Lambagad as a chronic zone.",
+     "accuracyNote": "The two sources are about 4.5 km apart, so the exact slide face is uncertain. OSM's village point is 0.08 km from the road. Treat it as the Lambagad stretch, ±2 km."
+    },
+    {
+     "name": "Munkatiya (Mundkatiya)",
+     "nameHindi": "मुनकटिया",
+     "lat": 30.65154,
+     "lon": 79.02471,
+     "road": "NH-107, Sonprayag–Gaurikund, chainage 74.590–74.650",
+     "source": "Uttarakhand PWD (10th NH Circle, Dehradun), letter of 16 May 2026, Annexure-1, 'Vulnerable Landslide Points on Rudraprayag–Gaurikund NH-107', location 46: 30°39'5.54\"N 79°1'28.94\"E. The photo geotag reads 'Mundkatiya, Lat 30.651698 Long 79.024624'. Point 45 (ch 74.366–74.471) is at 30.64950, 79.02453. PDF: cdnbbsr.s3waas.gov.in/s31e0a84051e6a4a7381473328f43c4884/uploads/2026/05/202605272077067262.pdf",
+     "accuracyNote": "Government survey point, accurate to tens of metres. The zone covers about 0.3 km (points 45–46)."
+    },
+    {
+     "name": "Tilwara slide (NH-107)",
+     "nameHindi": "तिलवाड़ा",
+     "lat": 30.34556,
+     "lon": 78.97639,
+     "road": "NH-107, Rudraprayag–Tilwara, chainage 11.447–11.690",
+     "source": "Same Uttarakhand PWD May 2026 Annexure-1, location 5: 30°20'44\"N 78°58'35\"E, with the photo geotagged Tilwara. Work was in progress.",
+     "accuracyNote": "Government survey point, accurate to tens of metres. PWD calls it a vulnerable point, not a named chronic zone."
+    },
+    {
+     "name": "Dabarkot",
+     "nameHindi": "डाबरकोट",
+     "lat": 30.90593,
+     "lon": 78.34516,
+     "road": "NH-134 (Dharasu–Janki Chatti), Barkot–Syanachatti, chainage 79.850–80.300",
+     "source": "Uttarakhand PWD May 2026 'Vulnerable Landslide Points on Dharasu–Jankichatti NH-134', location 40: 30.90592778, 78.34515556 (rockfall barrier and anchoring, work in progress). It matches OSM hamlet 'Dabarkot' node 7841148031 (30.9054, 78.34554) within about 70 m.",
+     "accuracyNote": "Two independent sources agree within 70 m. The zone is about 450 m long."
+    },
+    {
+     "name": "Nandprayag",
+     "nameHindi": "नंदप्रयाग",
+     "lat": 30.3299,
+     "lon": 79.3206,
+     "road": "NH-7, Karnaprayag–Chamoli",
+     "source": "NASA catalog in data/landslides-badrinath.json: event 8032 (2016, 1 km accuracy) and 9706 (2017, 1 death, 30.33597, 79.31958). Also named in a news item as a blockage point with Pagalnala and Patalganga.",
+     "accuracyNote": "NASA says 1 km accuracy. It sits at the Nandprayag town node (30.33188, 79.31992)."
+    },
+    {
+     "name": "Vishnuprayag",
+     "nameHindi": "विष्णुप्रयाग",
+     "lat": 30.5631,
+     "lon": 79.5765,
+     "road": "NH-7, Joshimath–Govindghat",
+     "source": "NASA catalog events 7111 (2015, 1 km accuracy) and 9802 (2017, 30.56505, 79.56163) in data/landslides-badrinath.json. OSM hamlet Vishnuprayāg is at 30.56264, 79.57915.",
+     "accuracyNote": "About 1 km accuracy."
+    },
+    {
+     "name": "Shivpuri",
+     "nameHindi": "शिवपुरी",
+     "lat": 30.135,
+     "lon": 78.3896,
+     "road": "NH-7, Rishikesh–Devprayag",
+     "source": "NASA catalog events 2378 (2010, 5 km accuracy) and 2455 (2010) in data/landslides-badrinath.json. OSM hamlet Shivpuri (node 7886624339) is at 30.13808, 78.39217, 0.4 km away.",
+     "accuracyNote": "NASA says 5 km. It agrees with the OSM village within 0.4 km. Only two events (2010), so whether it is chronic is less certain."
+    },
+    {
+     "name": "Gulabkoti",
+     "nameHindi": "गुलाबकोटी",
+     "lat": 30.50415,
+     "lon": 79.48751,
+     "road": "NH-7, Pipalkoti–Helang",
+     "source": "NASA catalog event 10073 (2017 rockfall on NH-7). OSM hamlet Gulabkoti (node 7834388275) is at 30.50463, 79.49161.",
+     "accuracyNote": "NASA says 5 km, but the OSM village is within 0.4 km. Single catalogued event."
+    },
+    {
+     "name": "Bhatwari",
+     "nameHindi": "भटवाड़ी",
+     "lat": 30.81116,
+     "lon": 78.61954,
+     "road": "NH-34 (Uttarkashi–Gangotri), Maneri–Gangnani",
+     "source": "OSM village node 342114011 (Nominatim). Its chronic sinking/slide status comes from news coverage and was not confirmed with a document in this run (web search quota ran out).",
+     "accuracyNote": "Village point only (±1 km). Low confidence that it is a chronic zone; label it 'reported' in the UI."
+    }
+   ],
+   "dhamRoutes": [
+    {
+     "dham": "Yamunotri",
+     "from": "Rishikesh",
+     "roadHead": "Janki Chatti",
+     "via": [
+      "Narendranagar",
+      "Chamba",
+      "Chinyalisaur",
+      "Dharasu",
+      "Brahmkhal",
+      "Barkot",
+      "Syanachatti",
+      "Hanuman Chatti (Yamunotri)"
+     ],
+     "note": "NH-34 to Dharasu, then NH-134 (Dharasu–Janki Chatti, named in the PWD May 2026 report). About 6 km trek from Janki Chatti; Kharsali is opposite. Chronic zone with a source: Dabarkot (PWD point 40). Via towns are OSM points in order of latitude; this exact route was not routed in this run, so check it with Valhalla before use."
+    },
+    {
+     "dham": "Yamunotri",
+     "from": "Dehradun",
+     "roadHead": "Janki Chatti",
+     "via": [
+      "Mussoorie",
+      "Nainbagh",
+      "Damta",
+      "Naugaon",
+      "Barkot",
+      "Syanachatti",
+      "Hanuman Chatti (Yamunotri)"
+     ],
+     "note": "The usual route from Dehradun via the Yamuna valley; it joins the Rishikesh route at Barkot. Not routed in this run."
+    },
+    {
+     "dham": "Gangotri",
+     "from": "Rishikesh",
+     "roadHead": "Gangotri",
+     "via": [
+      "Narendranagar",
+      "Chamba",
+      "Chinyalisaur",
+      "Dharasu",
+      "Uttarkashi",
+      "Maneri",
+      "Bhatwari",
+      "Gangnani",
+      "Harsil",
+      "Dharali",
+      "Bhaironghati"
+     ],
+     "note": "NH-34. The road reaches the Gangotri temple. Pilgrims coming from Yamunotri go Barkot → Brahmkhal → Dharasu → Uttarkashi. Dabrani and Nalupani are chronic zones known from news on this road, but no coordinates were found, so they are left out. Not routed in this run."
+    },
+    {
+     "dham": "Kedarnath",
+     "from": "Rishikesh",
+     "roadHead": "Sonprayag",
+     "via": [
+      "Devprayag",
+      "Srinagar (Garhwal)",
+      "Rudraprayag",
+      "Tilwara",
+      "Agastyamuni",
+      "Chandrapuri",
+      "Kund",
+      "Guptkashi",
+      "Phata",
+      "Sitapur"
+     ],
+     "note": "NH-7 to Rudraprayag, then NH-107 (Rudraprayag–Gaurikund). Private cars stop at Sitapur/Sonprayag, shuttles run 5 km to Gaurikund, then about 16 km of trek. Chronic zones with sources: Sirobagad, Kaliasaur, Tilwara (PWD point 5) and Munkatiya (PWD point 46, between Sonprayag and Gaurikund). Not routed in this run."
+    },
+    {
+     "dham": "Badrinath",
+     "from": "Rishikesh",
+     "roadHead": "Badrinath",
+     "via": [
+      "Shivpuri",
+      "Kaudiyala",
+      "Devprayag",
+      "Kirtinagar",
+      "Srinagar (Garhwal)",
+      "Rudraprayag",
+      "Gauchar",
+      "Karnaprayag",
+      "Langasu",
+      "Nandprayag",
+      "Chamoli",
+      "Birahi",
+      "Pipalkoti",
+      "Helang",
+      "Joshimath (Jyotirmath)",
+      "Govindghat",
+      "Pandukeshwar"
+     ],
+     "note": "NH-7. Every via town was checked against the repo's OSRM line in data/route-badrinath.json (all within 0.7 km). The road continues 3 km to Mana. Tota Ghati (between Kaudiyala and Sakni Dhar, per Down To Earth) and Khachdu Nala are chronic zones known from news, but no sourced coordinates were found, so they are left out. Dhaulachina did not geocode in Garhwal and was not verified as being on a Char Dham road."
+    },
+    {
+     "dham": "Badrinath",
+     "from": "Kedarnath (Sonprayag)",
+     "roadHead": "Badrinath",
+     "via": [
+      "Guptkashi",
+      "Kund",
+      "Ukhimath",
+      "Chopta",
+      "Mandal",
+      "Gopeshwar",
+      "Chamoli",
+      "Pipalkoti",
+      "Joshimath (Jyotirmath)",
+      "Govindghat"
+     ],
+     "note": "Link road NH-107A (Ukhimath–Chopta–Gopeshwar). The team already confirmed with Valhalla that Ukhimath–Gopeshwar works as a real detour. The longer alternative goes back via Rudraprayag and Karnaprayag. Chopta is high and snow can close it in winter."
+    }
+   ]
+  }
+ }
+]
