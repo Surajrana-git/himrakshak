@@ -105,14 +105,29 @@ export default function AuthScreen() {
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
-  const [providers, setProviders] = useState({ google: false, apple: false });
+  const [providers, setProviders] = useState({ google: false, apple: false, phone: false });
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
 
   useEffect(() => {
     enabledProviders().then(setProviders).catch(() => {});
   }, []);
 
+  // Indian mobile → +91XXXXXXXXXX; anything else is treated as an email.
+  const digits = email.replace(/[\s-]/g, "");
+  const phone = /^(\+91)?[6-9]\d{9}$/.test(digits) ? `+91${digits.slice(-10)}` : null;
   const isPhone = /^\+?\d[\d\s-]{7,}$/.test(email.trim());
-  const emailError = email && !EMAIL.test(email.trim()) ? (isPhone ? "Mobile OTP login jald aayega. Abhi email use karein / Use email for now" : "Sahi email likhein / Enter a valid email") : null;
+  const phoneOtp = mode === "signin" && isPhone;
+  const emailError =
+    email && !EMAIL.test(email.trim())
+      ? isPhone
+        ? !phone
+          ? "10 ankon ka Indian mobile number / 10-digit Indian number"
+          : !providers.phone
+            ? "Mobile OTP abhi setup nahi hua. Email use karein / Use email for now"
+            : null
+        : "Sahi email likhein / Enter a valid email"
+      : null;
   const mobileError = mobile && !/^(\+91)?[6-9]\d{9}$/.test(mobile.replace(/[\s-]/g, "")) ? "10 ankon ka mobile number / 10-digit number" : null;
   const passwordError = mode === "create" && password && password.length < 8 ? "Kam se kam 8 akshar / At least 8 characters" : null;
   const confirmError = confirm && confirm !== password ? "Password match nahi kar raha / Passwords do not match" : null;
@@ -124,8 +139,36 @@ export default function AuthScreen() {
     password.length > 0 &&
     (mode === "signin" || (name.trim() && !mobileError && password.length >= 8 && confirm === password));
 
+  async function sendOtp() {
+    if (!supabase || !phone) return;
+    setBusy(true);
+    setMessage(null);
+    const { error } = await supabase.auth.signInWithOtp({
+      phone,
+      // New numbers get an account; the consent record goes with it.
+      options: { data: { terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() } },
+    });
+    setBusy(false);
+    if (error) return setMessage({ text: `OTP nahi gaya: ${error.message}`, ok: false });
+    setOtpSent(true);
+    setMessage({ text: `${phone} par 6 ankon ka OTP bheja gaya.`, ok: true });
+  }
+
+  async function verifyOtp() {
+    if (!supabase || !phone) return;
+    setBusy(true);
+    const { error } = await supabase.auth.verifyOtp({ phone, token: otp.trim(), type: "sms" });
+    setBusy(false);
+    if (error) return setMessage({ text: `OTP galat ya purana hai: ${error.message}`, ok: false });
+    router.replace("/");
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (phoneOtp) {
+      if (!agreed || busy || !phone || !providers.phone) return;
+      return otpSent ? verifyOtp() : sendOtp();
+    }
     if (!supabase || !canSubmit) return;
     setBusy(true);
     setMessage(null);
@@ -203,10 +246,26 @@ export default function AuthScreen() {
             autoComplete="email"
           />
           {create && <Field icon="phone" label="Mobile Number" type="tel" value={mobile} onChange={setMobile} error={mobileError} autoComplete="tel" />}
-          <Field icon="lock" label="Password" type="password" value={password} onChange={setPassword} error={passwordError} autoComplete={create ? "new-password" : "current-password"} />
+          {phoneOtp && otpSent && (
+            <label className="flex flex-col gap-1">
+              <input
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="6 ankon ka OTP / Enter OTP"
+                aria-label="OTP"
+                className="min-h-13 rounded-full border border-green/40 bg-white px-5 text-center font-display text-2xl tracking-[0.4em] outline-none focus:border-green"
+              />
+              <button type="button" onClick={sendOtp} disabled={busy} className="self-end py-2 text-sm font-semibold text-green underline">
+                OTP dobara bhejein / Resend
+              </button>
+            </label>
+          )}
+          {!phoneOtp && <Field icon="lock" label="Password" type="password" value={password} onChange={setPassword} error={passwordError} autoComplete={create ? "new-password" : "current-password"} />}
           {create && <Field icon="lock" label="Confirm Password" type="password" value={confirm} onChange={setConfirm} error={confirmError} autoComplete="new-password" />}
 
-          {!create && (
+          {!create && !phoneOtp && (
             <button
               type="button"
               onClick={async () => {
@@ -241,8 +300,10 @@ export default function AuthScreen() {
           {message && <p className={`rounded-2xl p-3 text-sm ${message.ok ? "bg-mint text-green-dark" : "bg-danger/10 text-danger"}`}>{message.text}</p>}
           {!supabase && <p className="text-sm text-danger">Login server set nahi hai (Supabase keys).</p>}
 
-          <button type="submit" disabled={!canSubmit} className="min-h-14 rounded-full bg-green font-display text-xl font-semibold text-white shadow-md disabled:opacity-40">
-            {busy ? "…" : create ? "Create Account" : "Sign In"}
+          <button
+            type="submit"
+            disabled={phoneOtp ? !agreed || busy || !phone || !providers.phone || (otpSent && otp.length !== 6) : !canSubmit} className="min-h-14 rounded-full bg-green font-display text-xl font-semibold text-white shadow-md disabled:opacity-40">
+            {busy ? "…" : create ? "Create Account" : phoneOtp ? (otpSent ? "Verify OTP" : "OTP bhejein / Send OTP") : "Sign In"}
           </button>
         </form>
 
@@ -265,7 +326,9 @@ export default function AuthScreen() {
             </button>
           ))}
         </div>
-        {!providers.google && <p className="text-center text-xs text-muted">Google / Apple login abhi setup nahi hua hai.</p>}
+        {(!providers.google || !providers.apple) && (
+          <p className="text-center text-xs text-muted">{!providers.google ? "Google / Apple" : "Apple"} login abhi setup nahi hua hai.</p>
+        )}
 
         <p className="text-center">
           {create ? "Already have an account? " : "No account yet? "}
