@@ -4,10 +4,12 @@ import { getRain } from "@/lib/weather";
 import { getSlideNews } from "@/lib/slide-news";
 import { getTraffic } from "@/lib/traffic";
 import RiskView from "@/components/RiskView";
+import Splash from "@/components/Splash";
 
 export default function Page() {
   return (
     <main className="h-dvh bg-snow text-ink">
+      <Splash />
       <Suspense fallback={<p className="p-6 text-lg">Live rain data aa raha hai…</p>}>
         <LiveRisk />
       </Suspense>
