@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { useSosCalls, type SosCall } from "@/lib/sos";
 import { REPORT_KINDS, timeAgo, useReports, type Report } from "@/lib/reports";
 import { iconElement, REPORT_ICONS } from "@/lib/report-icons";
+import { googlePlaceUrl } from "@/lib/google-maps";
 
 setWorkerUrl("/maplibre-gl-worker.mjs");
 
@@ -87,6 +88,9 @@ export default function RescueDashboard() {
                     {c.accuracy_m !== null ? ` · ±${Math.round(c.accuracy_m)} m` : ""}
                   </span>
                 </button>
+                <a href={googlePlaceUrl(c.lat, c.lon)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block min-h-10 py-2 text-sm underline">
+                  Open in Google Maps
+                </a>
               </li>
             ))}
           </ul>

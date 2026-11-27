@@ -42,6 +42,20 @@ npm run build && npm start
   Supabase reports and fresh rain need a connection.
 - Changed `public/sw.js`? Bump `VERSION` in it so phones drop old caches.
 
+## Android app (Capacitor)
+
+The app opens the deployed site (routes, news and reroute run on the server).
+One-time on the phone: Settings → About phone → tap "Build number" 7 times →
+Developer options → **USB debugging** on. Plug in, tap **Allow**. Then:
+
+```bash
+scripts/android-install.sh https://<your-app>.vercel.app
+```
+
+On the same Wi-Fi without Vercel: `npm run build && npx next start -p 3001`, then
+`scripts/android-install.sh http://<laptop-ip>:3001` (phone GPS needs HTTPS, so use Vercel for the demo).
+The script needs JDK 21 in `~/.local/jdk-21` and the Android SDK in `~/Library/Android/sdk`.
+
 ## Round-by-round snapshots
 
 Each evaluation round is saved as a git tag: `round-1`, `round-2`, `round-3`.

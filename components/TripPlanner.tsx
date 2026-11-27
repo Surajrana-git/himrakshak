@@ -2,6 +2,7 @@ import { useState } from "react";
 import RouteOptionCard from "@/components/RouteOptionCard";
 import { PLACES, type Place } from "@/lib/trip";
 import type { RouteOption } from "@/lib/routes";
+import { googleDirectionsUrl } from "@/lib/google-maps";
 
 type Props = {
   from: Place;
@@ -123,6 +124,16 @@ export default function TripPlanner({ from, to, options, loading, failed, select
           <button onClick={onStart} disabled={!selected} className="min-h-14 rounded-full bg-orange font-display text-xl text-ink shadow-lg">
             Shuru karein / Start
           </button>
+          {selected && (
+            <a
+              href={googleDirectionsUrl(selected.coordinates)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-12 items-center justify-center rounded-full border-2 border-ink font-semibold"
+            >
+              Yahi rasta Google Maps mein kholein
+            </a>
+          )}
         </>
       )}
     </section>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { googlePlaceUrl } from "@/lib/google-maps";
 
 export type SosCall = {
   id: string;
@@ -41,7 +42,7 @@ export function sosText(fix: GpsFix, message: string | null): string {
     "SOS Himrakshak: madad chahiye / need help.",
     message,
     `Location: ${lat},${lon} (±${fix.accuracy} m)`,
-    `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`,
+    googlePlaceUrl(fix.lat, fix.lon),
   ]
     .filter(Boolean)
     .join("\n");

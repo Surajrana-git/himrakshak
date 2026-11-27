@@ -1,8 +1,14 @@
 // Valhalla (open source, github.com/valhalla/valhalla) on the free public OSM server: no key.
 // Unlike OSRM it can route around areas we mark as closed.
 const VALHALLA = "https://valhalla1.openstreetmap.de/route";
-// ~1 km each way: wide enough that small local lanes beside the highway cannot bypass it.
-const HALF_BOX_DEG = 0.01;
+// Up to ~1 km each way, so small lanes beside the highway cannot bypass a closure. The public
+// server allows 10 km of polygon edge in total, so boxes shrink when there are several.
+const MAX_HALF_BOX_DEG = 0.01;
+const EDGE_BUDGET_KM = 9.5;
+// Edge of a square box of half-size h degrees at ~30.5° N: 4h × 111 km × (1 + cos 30.5°) ≈ 826 h km.
+const KM_PER_HALF_DEG = 826;
+// Valhalla's "no path could be found" codes; any other 400 is our mistake, not a closed road.
+const NO_PATH_CODES = [442, 443];
 
 export type Point = { lat: number; lon: number };
 
@@ -57,19 +63,25 @@ export async function roadRoute(from: Point, to: Point, closed: Point[]): Promis
     locations: [from, to],
     costing: "auto",
     units: "kilometers",
-    exclude_polygons: closed.map(({ lat, lon }) => [
-      [lon - HALF_BOX_DEG, lat - HALF_BOX_DEG],
-      [lon + HALF_BOX_DEG, lat - HALF_BOX_DEG],
-      [lon + HALF_BOX_DEG, lat + HALF_BOX_DEG],
-      [lon - HALF_BOX_DEG, lat + HALF_BOX_DEG],
-      [lon - HALF_BOX_DEG, lat - HALF_BOX_DEG],
-    ]),
+    exclude_polygons: closed.map(({ lat, lon }) => {
+      const h = Math.min(MAX_HALF_BOX_DEG, EDGE_BUDGET_KM / closed.length / KM_PER_HALF_DEG);
+      return [
+        [lon - h, lat - h],
+        [lon + h, lat - h],
+        [lon + h, lat + h],
+        [lon - h, lat + h],
+        [lon - h, lat - h],
+      ];
+    }),
   };
   const res = await fetch(`${VALHALLA}?json=${encodeURIComponent(JSON.stringify(request))}`, {
     headers: { "User-Agent": "himrakshak-hackathon-prototype" },
   });
-  // Valhalla answers 400 with an error when there is no way around.
-  if (res.status === 400) return null;
+  if (res.status === 400) {
+    const { error_code, error }: { error_code?: number; error?: string } = await res.json();
+    if (error_code !== undefined && NO_PATH_CODES.includes(error_code)) return null;
+    throw new Error(`Valhalla: ${error ?? "bad request"}`);
+  }
   if (!res.ok) throw new Error(`Valhalla returned ${res.status}`);
   const { trip }: ValhallaResponse = await res.json();
   if (!trip) return null;
