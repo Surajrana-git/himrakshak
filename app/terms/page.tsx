@@ -10,7 +10,7 @@ export default function Page() {
     <main className="h-dvh overflow-y-auto bg-white px-6 py-8 text-ink">
       <article className="mx-auto flex max-w-xl flex-col gap-4 leading-relaxed">
         <Link href="/login" className="font-semibold text-green underline">
-          ← Wapas / Back
+          ← Back
         </Link>
         <p className="rounded-2xl bg-orange/15 p-3 text-sm">
           Draft version {TERMS_VERSION}. This is a hackathon prototype; this text has not been reviewed by a lawyer.

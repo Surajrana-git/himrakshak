@@ -341,6 +341,10 @@ export default function RiskMap({
       attributionControl: { compact: true },
     });
     mapRef.current = map;
+    // The OpenFreeMap style names a few POI icons (atm, gate…) its sprite lacks; draw nothing instead of warning.
+    map.setMissingStyleImageResolver((id) => {
+      if (!map.hasImage(id)) map.addImage(id, { width: 1, height: 1, data: new Uint8Array(4) });
+    });
 
     // Its own button is hidden (see globals.css); ours calls trigger().
     const geolocate = new GeolocateControl({
@@ -481,7 +485,11 @@ export default function RiskMap({
       setLoaded(true);
     });
 
-    return () => map.remove();
+    return () => {
+      map.remove();
+      // Next keeps this page alive in the background; when it comes back a new map starts unloaded.
+      setLoaded(false);
+    };
   }, [towns, pastSlides]);
 
   useEffect(() => {
@@ -624,9 +632,13 @@ export default function RiskMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded, focusId, fitSignal, towns]);
 
+  // Only a new tap locates; coming back to this page must not fire an old one at an unloaded map.
+  const locatedSignal = useRef(locateSignal);
   useEffect(() => {
-    if (locateSignal > 0) geolocateRef.current?.trigger();
-  }, [locateSignal]);
+    if (!loaded || locateSignal === locatedSignal.current) return;
+    locatedSignal.current = locateSignal;
+    geolocateRef.current?.trigger();
+  }, [loaded, locateSignal]);
 
   useEffect(() => {
     if (loaded && focusPoint) mapRef.current?.easeTo({ center: [focusPoint.lon, focusPoint.lat], zoom: 13, padding: viewPadding(), duration: 800 });

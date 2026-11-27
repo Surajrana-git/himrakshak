@@ -66,7 +66,6 @@ export default function ReportForm({ segments, onClose }: Props) {
         <header className="flex items-start justify-between gap-4">
           <div>
             <h2 className="font-display text-3xl">Report a road problem</h2>
-            <p className="text-muted">Report a road problem</p>
           </div>
           <button type="button" onClick={onClose} className="min-h-12 px-3 text-lg" aria-label="Close">
             ✕
