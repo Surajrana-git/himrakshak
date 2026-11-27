@@ -56,7 +56,7 @@ export default function ReportForm({ segments, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-20 flex items-end justify-center bg-ink/60 md:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-40 flex items-end justify-center bg-ink/60 md:items-center" onClick={onClose}>
       <form
         onSubmit={submit}
         onClick={(e) => e.stopPropagation()}

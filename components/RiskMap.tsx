@@ -463,6 +463,21 @@ export default function RiskMap({
           .setPopup(new Popup({ maxWidth: "260px", offset: 18 }).setDOMContent(pastSlidePopup(slide)))
           .addTo(map);
       }
+      // Junction arrow on top of everything else (filled while near a turn).
+      map.addLayer({
+        id: "junction-casing",
+        type: "line",
+        source: "junction",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#F3F1EA", "line-width": 22 },
+      });
+      map.addLayer({
+        id: "junction-body",
+        type: "line",
+        source: "junction",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#A9481A", "line-width": 14 },
+      });
       setLoaded(true);
     });
 
@@ -543,22 +558,6 @@ export default function RiskMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!loaded || !map) return;
-    if (!map.getLayer("junction-body")) {
-      map.addLayer({
-        id: "junction-casing",
-        type: "line",
-        source: "junction",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#F3F1EA", "line-width": 22 },
-      });
-      map.addLayer({
-        id: "junction-body",
-        type: "line",
-        source: "junction",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-color": "#A9481A", "line-width": 14 },
-      });
-    }
     map.getSource<GeoJSONSource>("junction")?.setData({
       type: "FeatureCollection",
       features: junctionPath ? [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: junctionPath } }] : [],
