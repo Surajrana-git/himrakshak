@@ -29,6 +29,8 @@ import SavesScreen from "@/components/SavesScreen";
 import PlacesScreen from "@/components/PlacesScreen";
 import PermissionPrompt from "@/components/PermissionPrompt";
 import NewsCard from "@/components/NewsCard";
+import AiRiskCard from "@/components/AiRiskCard";
+import type { AiRiskFeed } from "@/lib/ai-risk";
 import { isGuest, useAuth } from "@/lib/auth";
 import { useSavedPlaces } from "@/lib/saved-places";
 import lakesData from "@/data/glacial-lakes.json";
@@ -44,9 +46,9 @@ import { TRAFFIC_STYLE, trafficLevel } from "@/lib/traffic-status";
 import type route from "@/data/route-badrinath.json";
 import pastLandslides from "@/data/landslides-badrinath.json";
 
-type Props = { route: typeof route; rain: RainSeries; news: SlideNewsFeed | null; traffic: TrafficFeed | null };
+type Props = { route: typeof route; rain: RainSeries; news: SlideNewsFeed | null; traffic: TrafficFeed | null; ai: AiRiskFeed | null };
 
-export default function RiskView({ route, rain, news, traffic }: Props) {
+export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const reports = useReports();
   const [reporting, setReporting] = useState(false);
   const [storm, setStorm] = useState({ mmPerHour: 0, hours: 3 });
@@ -83,9 +85,9 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
     if (auth.ready && !auth.user && !isGuest()) router.replace("/login");
   }, [auth.ready, auth.user, router]);
 
-  // The server refreshes rain and news every hour; this pulls the new data into an open screen.
+  // The server re-scores rain risk every 30 minutes; this pulls the new data into an open screen.
   useEffect(() => {
-    const timer = setInterval(() => router.refresh(), 60 * 60 * 1000);
+    const timer = setInterval(() => router.refresh(), 30 * 60 * 1000);
     return () => clearInterval(timer);
   }, [router]);
 
@@ -400,6 +402,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
             />
           )}
           <SafeTimeCard safeHour={safeHour} safeClock={safeClock} />
+          <AiRiskCard feed={ai} segmentName={segmentName} />
           <InstallButton />
 
           {!supabase && (

@@ -28,7 +28,7 @@ export default function MapLegend({ pastSlideCount }: { pastSlideCount: number }
             <ReportIcon kind="landslide" className="h-5 w-5" />
           </span>
           <span>
-            Purane landslides · Past landslides ({pastSlideCount}, NASA record 2007–2017)
+            Past landslides ({pastSlideCount}, NASA record 2007–2017)
           </span>
         </li>
       </ul>

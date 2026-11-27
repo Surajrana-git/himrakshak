@@ -7,7 +7,7 @@ export default function LiveReports({ reports, segmentName }: Props) {
   if (reports.length === 0) return null;
   return (
     <section>
-      <h2 className="font-display text-xl">Taaza reports / Live reports</h2>
+      <h2 className="font-display text-xl">Live reports</h2>
       <ul className="mt-2 divide-y divide-ink/15">
         {reports.slice(0, 8).map((r) => (
           <li key={r.id} className="flex gap-3 py-3">
