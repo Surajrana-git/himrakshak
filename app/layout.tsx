@@ -1,19 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Oswald, Public_Sans } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import ServiceWorker from "@/components/ServiceWorker";
 import "./globals.css";
 
-const oswald = Oswald({ variable: "--font-oswald", subsets: ["latin"] });
-const publicSans = Public_Sans({ variable: "--font-public-sans", subsets: ["latin"] });
+const poppins = Poppins({ variable: "--font-poppins", subsets: ["latin"], weight: ["500", "600", "700"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Himrakshak · Route Risk",
+  title: "Himrakshak · Safest Way",
   description: "Live landslide risk for Himalayan roads. Predict. Avoid. Survive.",
   appleWebApp: { capable: true, title: "Himrakshak", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#14231F",
+  themeColor: "#0E7A3D",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -21,7 +21,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="hi" className={`${oswald.variable} ${publicSans.variable} h-full antialiased`}>
+    <html lang="hi" className={`${poppins.variable} ${inter.variable} h-full antialiased`}>
       <body className="h-full overflow-hidden font-sans">
         {children}
         <ServiceWorker />

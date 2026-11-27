@@ -67,7 +67,12 @@ type Props = {
   onSelectSegment: (id: string) => void;
   locateSignal: number;
   fitSignal: number;
+  baseMap: BaseMap;
+  northSignal: number;
+  focusPoint: { lat: number; lon: number } | null;
 };
+
+export type BaseMap = "standard" | "satellite" | "terrain";
 
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 
@@ -290,6 +295,9 @@ export default function RiskMap({
   onSelectSegment,
   locateSignal,
   fitSignal,
+  baseMap,
+  northSignal,
+  focusPoint,
 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -343,6 +351,25 @@ export default function RiskMap({
     geolocateRef.current = geolocate;
 
     map.on("load", () => {
+      // Satellite (Esri World Imagery) and terrain (OpenTopoMap): free raster layers over the base map,
+      // under all our own lines and pins. Hidden until picked in the Layers menu.
+      map.addSource("satellite", {
+        type: "raster",
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+        tileSize: 256,
+        maxzoom: 18,
+        attribution: "Imagery © Esri, Maxar, Earthstar Geographics",
+      });
+      map.addLayer({ id: "satellite", type: "raster", source: "satellite", layout: { visibility: "none" } });
+      map.addSource("terrain", {
+        type: "raster",
+        tiles: ["https://a.tile.opentopomap.org/{z}/{x}/{y}.png", "https://b.tile.opentopomap.org/{z}/{x}/{y}.png"],
+        tileSize: 256,
+        maxzoom: 17,
+        attribution: "© OpenTopoMap (CC-BY-SA)",
+      });
+      map.addLayer({ id: "terrain", type: "raster", source: "terrain", layout: { visibility: "none" } });
+
       // The detour: dark line with light dashes, drawn under the route so where it shares
       // NH-7 the risk colours stay visible and only the part that turns off shows.
       map.addSource("detour", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
@@ -601,6 +628,21 @@ export default function RiskMap({
   useEffect(() => {
     if (locateSignal > 0) geolocateRef.current?.trigger();
   }, [locateSignal]);
+
+  useEffect(() => {
+    if (loaded && focusPoint) mapRef.current?.easeTo({ center: [focusPoint.lon, focusPoint.lat], zoom: 13, padding: viewPadding(), duration: 800 });
+  }, [loaded, focusPoint]);
+
+  useEffect(() => {
+    if (northSignal > 0) mapRef.current?.easeTo({ bearing: 0, pitch: 0, duration: 500 });
+  }, [northSignal]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    map.setLayoutProperty("satellite", "visibility", baseMap === "satellite" ? "visible" : "none");
+    map.setLayoutProperty("terrain", "visibility", baseMap === "terrain" ? "visible" : "none");
+  }, [loaded, baseMap]);
 
   return <div ref={container} className="h-full w-full" aria-label="Route risk map" />;
 }

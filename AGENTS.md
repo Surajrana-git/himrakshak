@@ -96,13 +96,13 @@ segment on the route is below 70.
 
 ## UI and design rules (no generic AI look)
 
-- Colours (use these Tailwind theme names only):
-  - `ink` #14231F (dark background, main text on light)
-  - `snow` #F3F1EA (light background)
-  - `orange` #F08A3E (warning, accent) · `orange-dark` #A9481A (accent on light)
-  - `teal` #5FB3A1 (safe / OK)
-  - Risk: green = teal, medium = orange, high = #B03030 (snow text on it)
-- Fonts: **Oswald** for headings, **Public Sans** for text.
+- Design source: the team's "first draft" UI (Safest Way, green). Colours (Tailwind theme names only):
+  - `green` #0E7A3D (buttons, icons, active) · `green-dark` #0A5C2E · `mint` #E6F4EC (tiles, highlights)
+  - `white` / `snow` #F3F1EA backgrounds · `ink` #14231F text · `muted` grey secondary text
+  - `orange` #F08A3E (warning) · `teal` #5FB3A1 (safe)
+  - Risk: green = teal, medium = orange, high = `danger` #B03030 (white text on it)
+- Fonts: **Poppins** for headings (`font-display`), **Inter** for text.
+- Shapes: pill buttons and inputs, 16–24 px rounded cards, round floating buttons.
 - **Never:** purple/blue gradients, glassmorphism, emoji as icons, "Welcome to…"
   hero text, rocket emojis, lorem ipsum, stock "AI" illustrations.
 - Big tap targets (min 48px). A taxi driver must be able to use it with one hand.

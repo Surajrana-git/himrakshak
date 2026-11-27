@@ -7,9 +7,12 @@
   --color-orange-dark: #a9481a;
   --color-teal: #5fb3a1;
   --color-danger: #b03030;
-  --color-muted: #4b5a55;
-  --font-sans: var(--font-public-sans), Arial, sans-serif;
-  --font-display: var(--font-oswald), "Arial Narrow", Arial, sans-serif;
+  --color-muted: #5b6662;
+  --color-green: #0e7a3d;
+  --color-green-dark: #0a5c2e;
+  --color-mint: #e6f4ec;
+  --font-sans: var(--font-inter), Arial, sans-serif;
+  --font-display: var(--font-poppins), Arial, sans-serif;
 }
 
 /* Past-landslide pins shrink to dots when zoomed out (data-far is set in RiskMap). */
@@ -26,6 +29,17 @@
 .maplibregl-ctrl-top-left {
   display: none;
 }
+
+/* Sheets slide up, dialogs fade in, buttons give a little on press. */
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+.animate-sheet { animation: sheet-up 300ms ease-out; }
+.animate-fade { animation: fade-in 200ms ease-out; }
+button:active:not(:disabled), a:active { transform: scale(0.97); }
 
 body {
   background: var(--color-snow);
