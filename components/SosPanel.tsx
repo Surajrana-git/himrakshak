@@ -4,7 +4,7 @@ import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { getGpsFix, sendSos, sosText, type GpsFix } from "@/lib/sos";
 
-const REASONS = ["Gaadi phansi hai / Vehicle stuck", "Chot lagi hai / Injured", "Rasta band, phanse hain / Trapped by road block", "Bhooskhalan dekha / Saw a landslide"];
+const REASONS = ["Vehicle stuck", "Injured", "Trapped by a road block", "Saw a landslide"];
 const CONTACT_KEY = "himrakshak-sos-contact";
 
 type Step =
