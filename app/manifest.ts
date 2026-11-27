@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Himrakshak · Safest Way",
+    name: "Himrakshak",
     short_name: "Himrakshak",
     description: "Live landslide risk for Himalayan roads. Predict. Avoid. Survive.",
     lang: "en",

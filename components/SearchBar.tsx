@@ -20,7 +20,7 @@ function match(query: string): Place[] {
   return PLACES.filter((p) => p.name.toLowerCase().includes(q) || p.hindi.includes(query.trim())).slice(0, 6);
 }
 
-// Floating top bar: menu, "Search for Safest Way" with voice, and the green directions button.
+// Floating top bar: menu, "Search Himrakshak" with voice, and the green directions button.
 export default function SearchBar({ onMenu, onPick, onDirections }: Props) {
   const [query, setQuery] = useState("");
   const [listening, setListening] = useState(false);
@@ -56,8 +56,8 @@ export default function SearchBar({ onMenu, onPick, onDirections }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && results[0] && pick(results[0])}
-          placeholder={listening ? "Listening…" : "Search for Safest Way"}
-          aria-label="Search for Safest Way"
+          placeholder={listening ? "Listening…" : "Search Himrakshak"}
+          aria-label="Search Himrakshak"
           className="min-h-12 min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted"
         />
         {hasSpeech && (

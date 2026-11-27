@@ -222,7 +222,7 @@ export default function AuthScreen() {
         <div className="flex flex-col items-center gap-1 text-center">
           <HLogo />
           <h1 className="mt-2 font-display text-3xl font-bold">{create ? "Create Account" : "Hi, Welcome Back!"}</h1>
-          <p className="text-muted">{create ? "Join Safest Way to stay informed, prepared, and safe." : "Log in to your account"}</p>
+          <p className="text-muted">{create ? "Join Himrakshak to stay informed, prepared, and safe." : "Log in to your account"}</p>
         </div>
 
         {!create && (

@@ -8,7 +8,7 @@ const poppins = Poppins({ variable: "--font-poppins", subsets: ["latin"], weight
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Himrakshak · Safest Way",
+  title: "Himrakshak",
   description: "Live landslide risk for Himalayan roads. Predict. Avoid. Survive.",
   appleWebApp: { capable: true, title: "Himrakshak", statusBarStyle: "black-translucent" },
 };

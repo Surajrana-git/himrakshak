@@ -21,7 +21,7 @@ export default function SideMenu({ user, onLakes, onReport, onClose }: Props) {
         <div className="mb-3 rounded-2xl bg-mint p-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-full.png" alt="Himrakshak" className="mx-auto mb-2 h-24 w-24 rounded-2xl bg-white object-contain" />
-          <p className="text-sm text-muted">Safest Way</p>
+          <p className="text-center text-sm text-muted">Predict. Avoid. Survive.</p>
           <p className="mt-2 truncate text-sm font-semibold">{user ? name : "Guest (not signed in)"}</p>
         </div>
         <Link href="/sos" className={`${ROW} text-danger`}>
