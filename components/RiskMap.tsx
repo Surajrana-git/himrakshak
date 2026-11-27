@@ -639,8 +639,16 @@ export default function RiskMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!loaded || !map) return;
-    map.setLayoutProperty("satellite", "visibility", baseMap === "satellite" ? "visible" : "none");
-    map.setLayoutProperty("terrain", "visibility", baseMap === "terrain" ? "visible" : "none");
+    const apply = () => {
+      map.setLayoutProperty("satellite", "visibility", baseMap === "satellite" ? "visible" : "none");
+      map.setLayoutProperty("terrain", "visibility", baseMap === "terrain" ? "visible" : "none");
+    };
+    // Right after sign-in the page reloads while the style is still settling; changing it then throws.
+    if (map.isStyleLoaded()) apply();
+    else map.once("idle", apply);
+    return () => {
+      map.off("idle", apply);
+    };
   }, [loaded, baseMap]);
 
   return <div ref={container} className="h-full w-full" aria-label="Route risk map" />;
