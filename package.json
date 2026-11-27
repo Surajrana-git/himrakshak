@@ -10,6 +10,8 @@
     "postinstall": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs public/"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.3",
+    "@capacitor/core": "^8.6.3",
     "@supabase/supabase-js": "^2.119.2",
     "maplibre-gl": "^6.19.0",
     "next": "16.4.6",
@@ -17,6 +19,7 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.6.3",
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
