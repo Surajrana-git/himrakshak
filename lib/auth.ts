@@ -21,9 +21,10 @@ export function useAuth(): AuthState {
   return state;
 }
 
+// Guest lasts one app session: the next cold start asks to sign in again.
 export function isGuest(): boolean {
   try {
-    return localStorage.getItem(GUEST_KEY) === "1";
+    return sessionStorage.getItem(GUEST_KEY) === "1";
   } catch {
     return false;
   }
@@ -31,7 +32,7 @@ export function isGuest(): boolean {
 
 export function continueAsGuest() {
   try {
-    localStorage.setItem(GUEST_KEY, "1");
+    sessionStorage.setItem(GUEST_KEY, "1");
   } catch {}
 }
 

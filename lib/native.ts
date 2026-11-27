@@ -7,7 +7,7 @@ import { PushNotifications } from "@capacitor/push-notifications";
 import { supabase } from "@/lib/supabase";
 
 // In the Android app the site runs inside a WebView, where Google refuses to show its sign-in page.
-// So sign-in opens in Chrome (Custom Tab) and comes back on this link; add it in Supabase → URL Configuration.
+// So sign-in opens in Chrome (Custom Tab); /auth/app-return then opens the app on this link.
 export const APP_CALLBACK = "in.himrakshak.app://login-callback";
 
 export const isApp = () => Capacitor.isNativePlatform();
@@ -18,7 +18,11 @@ export async function socialSignIn(provider: "google" | "apple"): Promise<string
     const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin } });
     return error?.message ?? null;
   }
-  const { data, error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: APP_CALLBACK, skipBrowserRedirect: true } });
+  // Back to our own page first (an https/http URL Supabase already allows); it opens the app.
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: { redirectTo: `${window.location.origin}/auth/app-return`, skipBrowserRedirect: true },
+  });
   if (error || !data.url) return error?.message ?? "Could not start sign-in";
   await Browser.open({ url: data.url });
   return null;

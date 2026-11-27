@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { continueAsGuest, enabledProviders, TERMS_VERSION } from "@/lib/auth";
+import { continueAsGuest, enabledProviders, TERMS_VERSION, useAuth } from "@/lib/auth";
 import { socialSignIn } from "@/lib/native";
 
 export function HLogo({ className = "h-24 w-24" }: { className?: string }) {
@@ -109,6 +109,12 @@ export default function AuthScreen() {
   useEffect(() => {
     enabledProviders().then(setProviders).catch(() => {});
   }, []);
+
+  // Already signed in: straight to the map.
+  const { user } = useAuth();
+  useEffect(() => {
+    if (user) router.replace("/");
+  }, [user, router]);
 
   // Indian mobile → +91XXXXXXXXXX; anything else is treated as an email.
   const digits = email.replace(/[\s-]/g, "");
