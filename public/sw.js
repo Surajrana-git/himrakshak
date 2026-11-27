@@ -1,6 +1,6 @@
 // Network first, cache as fallback: in the hills the last risk map you saw is
 // still there when the signal drops. Bump VERSION to throw away old copies.
-const VERSION = "v4";
+const VERSION = "v5";
 const APP_CACHE = `himrakshak-app-${VERSION}`;
 const TILE_CACHE = `himrakshak-tiles-${VERSION}`;
 const TILE_HOST = "tiles.openfreemap.org";
@@ -36,7 +36,8 @@ async function trimTiles() {
 async function networkFirst(request, cacheName) {
   try {
     const response = await fetch(request);
-    if (response.ok) {
+    // Only whole 200 answers: the cache refuses partial (206) video chunks and that broke the splash.
+    if (response.status === 200) {
       const cache = await caches.open(cacheName);
       await cache.put(request, response.clone());
       if (cacheName === TILE_CACHE) trimTiles();
@@ -52,7 +53,8 @@ async function networkFirst(request, cacheName) {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-  if (request.method !== "GET") return;
+  // Video asks for byte ranges; let the browser handle those directly.
+  if (request.method !== "GET" || request.headers.has("range")) return;
   const url = new URL(request.url);
   if (url.hostname === self.location.hostname) event.respondWith(networkFirst(request, APP_CACHE));
   else if (url.hostname === TILE_HOST) event.respondWith(networkFirst(request, TILE_CACHE));

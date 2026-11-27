@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 // Shown once per app session (not on every reload), so drivers are not slowed down twice.
 const KEY = "himrakshak-splash-seen";
@@ -30,6 +30,12 @@ function subscribe(listener: () => void) {
 export default function Splash() {
   // The server renders it, so it is on screen from the very first paint.
   const visible = useSyncExternalStore(subscribe, () => !seen(), () => true);
+  // A stalled video (slow network) must never trap the driver on the logo.
+  useEffect(() => {
+    if (!visible) return;
+    const timer = setTimeout(dismiss, 8000);
+    return () => clearTimeout(timer);
+  }, [visible]);
   if (!visible) return null;
   return (
     <div onClick={dismiss} className="fixed inset-0 z-50 flex items-center justify-center bg-white">
