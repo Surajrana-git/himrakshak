@@ -6,7 +6,7 @@ import { getGpsFix, type GpsFix } from "@/lib/sos";
 import { googlePlaceUrl } from "@/lib/google-maps";
 import { REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
 
-type Action = "add" | "fix" | "post" | "events" | "camera" | "pin" | "digipin";
+type Action = "add" | "fix" | "post" | "events" | "camera" | "pin" | "digipin" | "satellite";
 
 const TILES: { id: Action; label: string; path: string }[] = [
   { id: "add", label: "Add a Place", path: "M12 21s6-5.4 6-10.5a6 6 0 0 0-12 0C6 15.6 12 21 12 21zM12 7.5v6M9 10.5h6" },
@@ -16,17 +16,19 @@ const TILES: { id: Action; label: string; path: string }[] = [
   { id: "camera", label: "Maps Camera", path: "M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" },
   { id: "pin", label: "Get Maps Pin", path: "M12 3a4 4 0 0 1 1 7.9V21h-2V10.9A4 4 0 0 1 12 3z" },
   { id: "digipin", label: "Digipin", path: "M12 3a5 5 0 0 1 1 9.9V21h-2v-8.1A5 5 0 0 1 12 3zM8 21h8" },
+  { id: "satellite", label: "Satellite View", path: "M4 13l5-5 4 4-5 5zM13 4l3 3M17 8l3 3M14 14a4 4 0 0 0 4 4M14 18a8 8 0 0 0 8-8" },
 ];
 
 type Props = {
   reports: Report[];
   canReport: boolean;
   onReport: () => void; // opens the camera report form (Post on Map, Maps Camera)
+  onSatellite: (lat: number, lon: number) => void; // latest satellite photo of where you are
   onClose: () => void;
 };
 
 // The "+" sheet: everything a traveller can add to or take from the map.
-export default function QuickActions({ reports, canReport, onReport, onClose }: Props) {
+export default function QuickActions({ reports, canReport, onReport, onSatellite, onClose }: Props) {
   const [open, setOpen] = useState<Action | null>(null);
   const [fix, setFix] = useState<GpsFix | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +50,11 @@ export default function QuickActions({ reports, canReport, onReport, onClose }: 
     if (id === "post" || id === "camera") {
       if (canReport) onReport();
       else setError("Reports are not available: the server is not configured.");
+      return;
+    }
+    if (id === "satellite") {
+      const f = await locate();
+      if (f) onSatellite(f.lat, f.lon);
       return;
     }
     setOpen(id);

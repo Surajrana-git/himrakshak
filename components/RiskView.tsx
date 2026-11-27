@@ -30,6 +30,7 @@ import PlacesScreen from "@/components/PlacesScreen";
 import PermissionPrompt from "@/components/PermissionPrompt";
 import NewsCard from "@/components/NewsCard";
 import AiRiskCard from "@/components/AiRiskCard";
+import SatelliteView from "@/components/SatelliteView";
 import type { AiRiskFeed } from "@/lib/ai-risk";
 import { isGuest, useAuth } from "@/lib/auth";
 import { useSavedPlaces } from "@/lib/saved-places";
@@ -68,6 +69,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const [plusOpen, setPlusOpen] = useState(false);
   const [shareNote, setShareNote] = useState<string | null>(null);
   const [listening, setListening] = useState(false);
+  const [satellite, setSatellite] = useState<{ title: string; lat: number; lon: number } | null>(null);
   const auth = useAuth();
   const saved = useSavedPlaces(auth.user?.id ?? null);
   const [lakeId, setLakeId] = useState<string | null>(null);
@@ -496,8 +498,25 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
               onShow={() => setDetourSignal((n) => n + 1)}
             />
           )}
+          {closures.length > 0 && (
+            <button
+              onClick={() => setSatellite({ title: `Road closed: ${segmentName(closures[0].segmentId)}`, lat: closures[0].lat, lon: closures[0].lon })}
+              className="-mt-3 min-h-12 rounded-full border-2 border-green font-semibold text-green"
+            >
+              See the closed spot from satellite
+            </button>
+          )}
           <SafeTimeCard safeHour={safeHour} safeClock={safeClock} />
-          <AiRiskCard feed={ai} segmentName={segmentName} />
+          <AiRiskCard
+            feed={ai}
+            segmentName={segmentName}
+            onSatellite={(id) => {
+              const seg = route.segments.find((s) => s.id === id);
+              if (!seg) return;
+              const [lon, lat] = seg.coordinates[Math.floor(seg.coordinates.length / 2)];
+              setSatellite({ title: segmentName(id), lat, lon });
+            }}
+          />
           <InstallButton />
 
           {!supabase && (
@@ -547,7 +566,13 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
         />
       )}
       {trip.stage === "idle" && plusOpen && (
-        <QuickActions reports={reports} canReport={Boolean(supabase)} onReport={() => setReporting(true)} onClose={() => setPlusOpen(false)} />
+        <QuickActions
+          reports={reports}
+          canReport={Boolean(supabase)}
+          onReport={() => setReporting(true)}
+          onSatellite={(lat, lon) => setSatellite({ title: "Where you are", lat, lon })}
+          onClose={() => setPlusOpen(false)}
+        />
       )}
       {trip.stage === "idle" && !plusOpen && tab === "saves" && (
         <SavesScreen
@@ -588,6 +613,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
         />
       )}
       {layersOpen && <LayersMenu base={baseMap} data={layer} onBase={setBaseMap} onData={setLayer} onClose={() => setLayersOpen(false)} />}
+      {satellite && <SatelliteView {...satellite} onClose={() => setSatellite(null)} />}
       <PermissionPrompt />
       {reporting && <ReportForm segments={route.segments} onClose={() => setReporting(false)} />}
     </div>

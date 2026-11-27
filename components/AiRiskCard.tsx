@@ -1,7 +1,7 @@
 import type { AiDay, AiRiskFeed } from "@/lib/ai-risk";
 import model from "@/data/landslide-model.json";
 
-type Props = { feed: AiRiskFeed | null; segmentName: (id: string) => string };
+type Props = { feed: AiRiskFeed | null; segmentName: (id: string) => string; onSatellite: (segmentId: string) => void };
 
 const CHIP: Record<AiDay["level"], { className: string; label: string }> = {
   low: { className: "bg-teal text-ink", label: "Low" },
@@ -19,7 +19,7 @@ function Chip({ day }: { day: AiDay }) {
 }
 
 // Second opinion from a model trained on real slides on this road. Shown next to, not instead of, the main risk.
-export default function AiRiskCard({ feed, segmentName }: Props) {
+export default function AiRiskCard({ feed, segmentName, onSatellite }: Props) {
   const test = model.evaluation;
   return (
     <section className="rounded-2xl bg-mint p-4">
@@ -39,7 +39,11 @@ export default function AiRiskCard({ feed, segmentName }: Props) {
           <tbody>
             {feed.stretches.map((s) => (
               <tr key={s.segmentId} className="border-t border-ink/10">
-                <td className="py-1.5 pr-2">{segmentName(s.segmentId)}</td>
+                <td className="py-1.5 pr-2">
+                  <button onClick={() => onSatellite(s.segmentId)} className="min-h-10 text-left underline decoration-green/40 underline-offset-2">
+                    {segmentName(s.segmentId)}
+                  </button>
+                </td>
                 <td className="py-1.5">
                   <Chip day={s.today} />
                 </td>
@@ -51,7 +55,8 @@ export default function AiRiskCard({ feed, segmentName }: Props) {
           </tbody>
         </table>
       )}
-      <p className="mt-3 text-xs text-muted">
+      <p className="mt-2 text-xs text-green-dark">Tap a stretch to see its latest real satellite photo.</p>
+      <p className="mt-2 text-xs text-muted">
         Method: NASA LHASA 7-day rainfall index plus a model trained on 2010–2014 slides on this road. Tested on 2015–2017: AUC {test.testAuc}; &ldquo;High&rdquo;
         flagged {test.testSlidesFlaggedHigh} slide days, &ldquo;Medium or High&rdquo; {test.testSlidesFlaggedMediumOrHigh}. The number is how this day&apos;s rain ranks against past days (0–100). A
         guide, not a guarantee.
