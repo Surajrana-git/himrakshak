@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8" />
+<title>Himrakshak UI/UX and Flows v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Public+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  :root {
+    --ink: #14231f; --snow: #f3f1ea; --orange: #f08a3e; --orange-dark: #a9481a;
+    --teal: #5fb3a1; --danger: #b03030; --muted: #4b5a55;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ddd; font-family: "Public Sans", "Noto Sans Devanagari", sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 297mm; height: 210mm; background: var(--snow); padding: 12mm 14mm; position: relative; overflow: hidden; page-break-after: always; }
+  .page.dark { background: var(--ink); color: var(--snow); }
+  h1, h2, h3, .disp { font-family: "Oswald", "Noto Sans Devanagari", sans-serif; font-weight: 500; letter-spacing: .01em; }
+  h1 { font-size: 54px; margin: 0; line-height: 1.02; }
+  h2 { font-size: 30px; margin: 0 0 2mm; }
+  h3 { font-size: 17px; margin: 0 0 1.5mm; }
+  p, li { font-size: 11.5px; line-height: 1.45; margin: 0 0 1.5mm; }
+  .eyebrow { font-family: "Oswald"; text-transform: uppercase; letter-spacing: .25em; font-size: 11px; color: var(--orange-dark); }
+  .dark .eyebrow { color: var(--orange); }
+  .foot { position: absolute; bottom: 7mm; left: 14mm; right: 14mm; display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); }
+  .dark .foot { color: #9fb0aa; }
+  .row { display: flex; gap: 7mm; align-items: flex-start; }
+  .col { flex: 1; }
+  .chev { background: repeating-linear-gradient(135deg, var(--ink) 0 8px, var(--orange) 8px 16px); }
+  .tag { display: inline-block; border-radius: 99px; padding: 2px 8px; font-size: 10px; font-weight: 700; }
+  .note { border-left: 4px solid var(--orange); padding: 2mm 3mm; background: rgba(240,138,62,.12); font-size: 11px; }
+  table { border-collapse: collapse; width: 100%; font-size: 10.5px; }
+  th, td { text-align: left; padding: 1.6mm 2mm; border-bottom: 1px solid rgba(20,35,31,.15); vertical-align: top; }
+  th { font-family: "Oswald"; font-weight: 500; font-size: 11px; letter-spacing: .05em; }
+
+  /* phone mockups */
+  .screens { display: flex; gap: 6mm; justify-content: space-between; }
+  .shot { width: 78mm; }
+  .shot .cap { margin-top: 2mm; }
+  .shot .cap b { font-family: "Oswald"; font-weight: 500; font-size: 14px; display: block; }
+  .phone { width: 78mm; height: 150mm; border: 7px solid var(--ink); border-radius: 30px; overflow: hidden; position: relative; background: #e9e6da; font-size: 10px; }
+  .map { position: absolute; inset: 0; }
+  .map svg { width: 100%; height: 100%; display: block; }
+  .pill { position: absolute; left: 8px; right: 8px; top: 10px; height: 40px; border-radius: 99px; background: var(--snow); box-shadow: 0 3px 10px rgba(0,0,0,.18); display: flex; align-items: center; gap: 7px; padding: 0 6px; }
+  .logo { width: 30px; height: 30px; border-radius: 50%; background: var(--ink); position: relative; overflow: hidden; flex-shrink: 0; }
+  .logo::before { content: ""; position: absolute; left: 4px; right: 4px; bottom: 9px; height: 13px; background: var(--snow); clip-path: polygon(0 100%, 35% 10%, 50% 45%, 68% 0, 100% 100%); }
+  .logo::after { content: ""; position: absolute; left: 5px; right: 4px; bottom: 6px; height: 3px; border-radius: 3px; background: var(--orange); }
+  .pill .t { font-family: "Oswald", "Noto Sans Devanagari"; font-size: 14px; line-height: 1; }
+  .pill .s { font-size: 8.5px; color: var(--muted); }
+  .chip { border-radius: 99px; padding: 3px 8px; font-size: 9px; font-weight: 700; }
+  .layers { position: absolute; left: 8px; top: 56px; background: var(--snow); border-radius: 99px; padding: 3px; display: flex; gap: 2px; box-shadow: 0 3px 10px rgba(0,0,0,.15); }
+  .layers span { padding: 4px 8px; border-radius: 99px; font-size: 8.5px; font-weight: 700; }
+  .layers .on { background: var(--ink); color: var(--snow); }
+  .rail { position: absolute; right: 8px; top: 92px; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+  .rbtn { width: 30px; height: 30px; border-radius: 50%; background: var(--snow); box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+  .sos { width: 36px; height: 36px; border-radius: 50%; background: var(--danger); color: var(--snow); border: 3px solid var(--snow); font-family: "Oswald"; font-size: 11px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(0,0,0,.25); }
+  .rep { width: 42px; height: 42px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 10px rgba(0,0,0,.25); font-size: 7px; font-weight: 700; flex-direction: column; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--snow); border-radius: 22px 22px 0 0; box-shadow: 0 -6px 18px rgba(20,35,31,.2); padding: 8px 10px 12px; }
+  .grab { width: 34px; height: 4px; background: rgba(20,35,31,.25); border-radius: 4px; margin: 0 auto 7px; }
+  .card { border-radius: 14px; padding: 8px 10px; margin-bottom: 6px; }
+  .big { font-family: "Oswald", "Noto Sans Devanagari"; font-size: 19px; line-height: 1.1; }
+  .mid { font-family: "Oswald", "Noto Sans Devanagari"; font-size: 14px; line-height: 1.15; }
+  .small { font-size: 8.5px; }
+  .mut { color: var(--muted); }
+  .btn { border-radius: 99px; text-align: center; padding: 9px; font-family: "Oswald", "Noto Sans Devanagari"; font-size: 13px; }
+  .opt { border: 2.5px solid rgba(20,35,31,.15); border-radius: 13px; padding: 6px 8px; margin-bottom: 5px; background: var(--snow); }
+  .opt.sel { border-color: var(--ink); }
+  .strip { display: flex; height: 6px; border-radius: 4px; overflow: hidden; margin: 4px 0 3px; }
+  .milestone { width: 112px; border-radius: 40px 40px 8px 8px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,.3); text-align: center; }
+  .milestone .cap { background: var(--orange); font-family: "Oswald"; font-size: 10px; padding: 5px 0 2px; color: var(--ink); }
+  .milestone .body { background: var(--snow); padding: 4px 4px 6px; color: var(--ink); }
+  .hud { position: absolute; left: 0; right: 0; top: 0; background: var(--ink); color: var(--snow); padding: 10px 10px 8px; display: flex; gap: 8px; align-items: center; }
+  .bar { position: absolute; left: 0; right: 0; bottom: 0; background: var(--ink); color: var(--snow); padding: 9px 10px 12px; }
+  .demo { position: absolute; left: 0; right: 0; height: 18px; display: flex; align-items: center; justify-content: center; }
+  .demo span { background: var(--snow); color: var(--ink); font-size: 7.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; }
+  .alert { position: absolute; left: 7px; right: 7px; border-radius: 18px; padding: 9px 10px; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+  .count { height: 10px; border-radius: 6px; overflow: hidden; background: rgba(243,241,234,.25); margin-top: 6px; }
+  .plate { width: 0; height: 0; display: inline-block; }
+  .tile { border: 2px solid rgba(20,35,31,.18); border-radius: 12px; height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8.5px; font-weight: 700; gap: 2px; }
+  .tri { width: 22px; height: 19px; background: var(--danger); clip-path: polygon(50% 0, 100% 100%, 0 100%); position: relative; }
+  .tri.o { background: var(--orange); }
+  .tri.t { background: var(--teal); }
+  .flow { display: flex; align-items: center; gap: 3mm; flex-wrap: wrap; }
+  .node { border: 2px solid var(--ink); border-radius: 10px; padding: 2.5mm 3mm; font-size: 10.5px; background: var(--snow); }
+  .node b { font-family: "Oswald"; font-weight: 500; font-size: 13px; display: block; }
+  .node.hot { border-color: var(--danger); }
+  .node.warm { border-color: var(--orange); }
+  .arrow { font-family: "Oswald"; font-size: 18px; color: var(--orange-dark); }
+  .swatch { height: 22mm; border-radius: 10px; padding: 2.5mm; font-size: 10px; display: flex; flex-direction: column; justify-content: flex-end; }
+  /* Chrome prints soft shadows as grey boxes in PDFs, so print uses hairline borders instead. */
+  @media print {
+    * { box-shadow: none !important; }
+    .pill, .layers, .rbtn, .sos, .rep, .alert, .milestone { outline: 1px solid rgba(20,35,31,.25); }
+  }
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<section class="page dark">
+  <div class="chev" style="position:absolute;left:0;right:0;top:0;height:9mm"></div>
+  <div style="margin-top:22mm" class="row">
+    <div class="col" style="flex:1.3">
+      <p class="eyebrow">UI / UX + Flow system · v1 for the design team</p>
+      <h1 style="font-size:78px">Himrakshak</h1>
+      <p class="disp" style="font-size:26px;margin:2mm 0 6mm">Predict. Avoid. Survive. · पहाड़ में जल्दी नहीं, सलामती ज़रूरी</p>
+      <p style="font-size:13px;max-width:150mm">A Google-Maps-style navigation app for Char Dham pilgrim roads that knows about landslides. It shows the safest and fastest road, warns the driver while he drives, reroutes around closures and keeps SOS one tap away, even with no signal.</p>
+      <div class="note" style="margin-top:6mm;color:var(--snow);max-width:150mm">
+        <b>For Gautam (design):</b> every screen here is a working layout taken from the code and the redesign spec. Please redraw, improve and send back your version.
+        The last page lists exactly what to return. Rules that cannot change: palette, fonts, Hindi first, tap targets of 48 px or more, no fake data, and DEMO always labelled.
+      </div>
+    </div>
+    <div class="col" style="flex:1">
+      <table style="color:var(--snow)">
+        <tr><th>Page</th><th>What</th></tr>
+        <tr><td>2</td><td>Design language: palette, type, signature elements</td></tr>
+        <tr><td>3</td><td>App map and the main flow</td></tr>
+        <tr><td>4</td><td>Screens: Home · Search · Route options</td></tr>
+        <tr><td>5</td><td>Screens: Navigation · Jam alert (5 s) · Landslide alert (12 s)</td></tr>
+        <tr><td>6</td><td>Screens: No other road · Report · SOS</td></tr>
+        <tr><td>7</td><td>Screens: Traffic layer · Lakes (Predict) · Offline</td></tr>
+        <tr><td>8</td><td>Desktop: Rescue desk and the /status proof page</td></tr>
+        <tr><td>9</td><td>Alert rules, timings and states</td></tr>
+        <tr><td>10</td><td>Hindi copy deck</td></tr>
+        <tr><td>11</td><td>Components checklist and what to send back</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="foot"><span>Team Elite Zero Division · Algonex 1.0 · Maya Devi University, Dehradun</span><span>27 Nov 2026 · source: docs/design/ui-ux.html</span></div>
+</section>
+
+<!-- 2 DESIGN LANGUAGE -->
+<section class="page">
+  <p class="eyebrow">Design language</p>
+  <h2>“Milestone and Chevron”: everything comes from the Garhwal road, not from an app template</h2>
+  <div class="row" style="margin-top:4mm">
+    <div class="col">
+      <h3>Palette (only these, Tailwind names)</h3>
+      <div class="row" style="gap:3mm">
+        <div class="col swatch" style="background:var(--ink);color:var(--snow)"><b>ink</b>#14231F<br>chrome, nav HUD</div>
+        <div class="col swatch" style="background:var(--snow);border:1px solid #ccc"><b>snow</b>#F3F1EA<br>sheets</div>
+        <div class="col swatch" style="background:var(--orange)"><b>orange</b>#F08A3E<br>report, jam</div>
+      </div>
+      <div class="row" style="gap:3mm;margin-top:3mm">
+        <div class="col swatch" style="background:var(--orange-dark);color:var(--snow)"><b>orange-dark</b>#A9481A<br>accent text</div>
+        <div class="col swatch" style="background:var(--teal)"><b>teal</b>#5FB3A1<br>low risk, clear</div>
+        <div class="col swatch" style="background:var(--danger);color:var(--snow)"><b>danger</b>#B03030<br>high, closed, SOS</div>
+        <div class="col swatch" style="background:var(--muted);color:var(--snow)"><b>muted</b>#4B5A55<br>2nd text, no data</div>
+      </div>
+      <p style="margin-top:3mm">Every colour also says its word: <b>कम खतरा Low · मध्यम खतरा Medium · ज़्यादा खतरा High · बंद Closed · जाम Jam · धीमा Slow · साफ़ Clear · जानकारी नहीं No data</b>.</p>
+      <h3 style="margin-top:4mm">Type</h3>
+      <p><span class="disp" style="font-size:20px">OSWALD — HEADINGS, KM, CLOCKS, COUNTDOWN</span><br>Public Sans for body text. Devanagari uses the phone's system font (Noto Sans Devanagari in this PDF). Each driver string has two lines: Hindi big on top, English small below.</p>
+      <h3 style="margin-top:3mm">Never</h3>
+      <p>Purple or blue gradients, glass or blur, emoji as icons, “Welcome to…”, hero text, stock or AI art, lorem ipsum, colour without a word.</p>
+    </div>
+    <div class="col">
+      <h3>Signature elements</h3>
+      <div class="row" style="gap:5mm;align-items:center">
+        <div class="milestone"><div class="cap">NH 7</div><div class="body"><div class="mid">श्रीनगर</div><div class="small">SRINAGAR</div><div class="disp" style="font-size:16px">23 km</div></div></div>
+        <p class="col"><b>1. Milestone (km stone).</b> An orange cap with the NH number and a snow body with the town (Hindi big, English small) and km. Used for the next town in navigation, route card heads and the ahead list.</p>
+      </div>
+      <div class="row" style="gap:5mm;align-items:center;margin-top:3mm">
+        <div style="display:flex;gap:4px"><div class="tri"></div><div class="tri o"></div><div style="background:var(--ink);color:var(--snow);font-family:Oswald;font-size:10px;padding:3px 6px;border-radius:4px">बंद · CLOSED</div></div>
+        <p class="col"><b>2. Hazard plate.</b> A road-sign triangle with our own line icon (landslide, rockfall, blocked, water, jam, clear). A closed road is an ink plate “बंद · CLOSED”. The same plate is used on pins, alerts and the legend.</p>
+      </div>
+      <div class="row" style="gap:5mm;align-items:center;margin-top:3mm">
+        <div class="chev" style="width:112px;height:16px;border-radius:4px"></div>
+        <p class="col"><b>3. BRO chevrons.</b> Ink and orange stripes, used in only two places: the countdown strip in alerts, and the border of every DEMO, REPLAY or SIMULATION control, so judges see honesty at a glance.</p>
+      </div>
+      <h3 style="margin-top:4mm">Ergonomics (taxi driver, one thumb)</h3>
+      <ul style="padding-left:4mm;margin:0">
+        <li>Tap targets are at least 48 px; primary actions are 64 px. Everything important sits in the bottom 60% of the screen.</li>
+        <li>Right rail: SOS (56, danger) above Report (64, orange). These are always there, also while navigating.</li>
+        <li>Two modes: <b>planning</b> is a snow sheet over a light map; <b>driving</b> is an ink HUD (milestone on top, bar at the bottom).</li>
+        <li>Mobile first at 375 px. On desktop the sheet becomes a 400 px left panel.</li>
+        <li>Motion is CSS only (150–250 ms). The countdown strip drains left to right.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>2 · Design language</span></div>
+</section>
+
+<!-- 3 APP MAP + FLOW -->
+<section class="page">
+  <p class="eyebrow">App map and flow system</p>
+  <h2>One map app, four side pages. The core loop: plan → drive → get warned → reroute or stop.</h2>
+  <h3 style="margin-top:4mm">Main flow (driver)</h3>
+  <div class="flow" style="flex-wrap:nowrap;gap:2mm">
+    <div class="node"><b>Home</b>Live risk map · कहाँ जाना है?</div><span class="arrow">→</span>
+    <div class="node"><b>Search</b>From (GPS / town) · To (4 dhams + towns)</div><span class="arrow">→</span>
+    <div class="node"><b>Route options</b>सबसे सुरक्षित / सबसे तेज़ · km · time · risk strip</div><span class="arrow">→</span>
+    <div class="node"><b>Start</b>GPS, or DEMO drive if GPS is not on the route</div><span class="arrow">→</span>
+    <div class="node"><b>Navigation</b>Milestone HUD · ETA · hazards ahead</div>
+  </div>
+  <div class="flow" style="margin-top:4mm;padding-left:96mm">
+    <span class="arrow">↳</span>
+    <div class="node warm"><b>Jam ahead · 5 s</b>Faster road? Switch / Stay. Timeout = stay</div>
+    <div class="node hot"><b>Landslide / closed · 12 s</b>Safest · Fastest · Wait. Timeout = safest</div>
+    <div class="node hot"><b>No other road</b>Stop at the last safe town · alert on reopen</div>
+    <span class="arrow">→</span>
+    <div class="node" style="border-color:var(--teal)"><b>Arrived</b>पहुँच गए</div>
+  </div>
+  <div class="row" style="margin-top:7mm">
+    <div class="col">
+      <h3>Side pages</h3>
+      <table>
+        <tr><th>Route</th><th>Who</th><th>Purpose</th></tr>
+        <tr><td>/report</td><td>Driver, judge (QR)</td><td>Report a hazard with a photo in 2 taps; it appears live on every map</td></tr>
+        <tr><td>/sos</td><td>Anyone in trouble</td><td>Hold 2 s → GPS to rescue desk; offline → SMS with location; 112 / 108</td></tr>
+        <tr><td>/dashboard</td><td>Rescue room (English)</td><td>Live map of SOS, closures and reports</td></tr>
+        <tr><td>/status</td><td>Judges</td><td>सबूत · Proof: live data sources, formula worked on a real stretch, offline matrix</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <h3>Map layers (radio under the search pill)</h3>
+      <table>
+        <tr><th>Layer</th><th>Shows</th></tr>
+        <tr><td>खतरा · Risk</td><td>Each stretch coloured by risk = rain × slope × past landslides; time scrubber now → +12 h</td></tr>
+        <tr><td>ट्रैफिक · Traffic</td><td>Clear / Slow / Jam / Closed / No data, from driver jam reports (+ TomTom if a key is set)</td></tr>
+        <tr><td>झील · Lakes</td><td>Real glacial lakes with growth bars (Vasudhara Tal 0.14 → 0.59 km², Balbala)</td></tr>
+      </table>
+      <p style="margin-top:3mm">Always on the map: driver report pins (photo heads), बंद plates, NASA past landslides (dots when zoomed out), news pins (town level).</p>
+    </div>
+  </div>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>3 · App map and flow</span></div>
+</section>
+
+<!-- 4 SCREENS: HOME SEARCH OPTIONS -->
+<section class="page">
+  <p class="eyebrow">Screens · planning mode (snow sheet over light map)</p>
+  <div class="screens" style="margin-top:3mm">
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="home"></div>
+        <div class="pill"><div class="logo"></div><div style="flex:1"><div class="t">कहाँ जाना है?</div><div class="s">Where to? · safe route, live khatra</div></div><span class="chip" style="background:var(--teal)">Low risk</span></div>
+        <div class="layers"><span class="on">खतरा · Risk</span><span>ट्रैफिक</span><span>झील</span></div>
+        <div class="rail"><div class="sos">SOS</div><div class="rbtn"></div><div class="rbtn"></div></div>
+        <div class="rep" style="position:absolute;right:8px;bottom:262px">▲<br>रिपोर्ट</div>
+        <div class="sheet" style="height:250px">
+          <div class="grab"></div>
+          <div class="mid">आज का हाल · Today</div>
+          <div style="display:flex;gap:4px;margin:5px 0"><span class="chip" style="background:var(--ink);color:var(--snow)">अभी</span><span class="chip" style="border:1.5px solid #bbb">+3 घंटे</span><span class="chip" style="border:1.5px solid #bbb">+6</span><span class="chip" style="border:1.5px solid #bbb">+9</span><span class="chip" style="border:1.5px solid #bbb">+12</span></div>
+          <div class="card" style="background:var(--teal)"><div class="small" style="letter-spacing:.15em">BADRINATH · बदरीनाथ</div><div class="big">अभी निकल सकते हैं</div><div class="small">Safe to leave now · 0 closures</div></div>
+          <div class="card" style="background:var(--orange)"><div class="small" style="letter-spacing:.15em">KEDARNATH · केदारनाथ</div><div class="big">16:00 के बाद निकलें</div><div class="small">Leave after 16:00 · मध्यम खतरा</div></div>
+          <div class="card" style="border:1.5px dashed #aaa"><div class="small mut">गंगोत्री · यमुनोत्री — जल्द · coming</div></div>
+        </div>
+      </div>
+      <div class="cap"><b>1 · Home</b><p>Search pill on top, layer radio, right rail (SOS above Report). The sheet answers “kab niklein?” per dham with the time scrubber. Tap a stretch → StretchCard showing how the score was made (rain × slope × history, with sources).</p></div>
+    </div>
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="dim"></div>
+        <div class="sheet" style="top:0;border-radius:0;padding-top:16px">
+          <div style="display:flex;gap:6px;align-items:center"><div class="rbtn" style="box-shadow:none;background:rgba(20,35,31,.1)"></div><div style="flex:1;border:2px solid var(--ink);border-radius:12px;padding:7px" class="mid">badri|</div></div>
+          <div class="small mut" style="margin:6px 0 2px">Kahan se · From</div>
+          <div class="opt" style="display:flex;justify-content:space-between"><span><b>मेरी लोकेशन</b> · My location</span><span class="small" style="color:var(--orange-dark)">बदलें</span></div>
+          <div class="note small" style="margin:4px 0">आप चारधाम सड़क से 38 km दूर हैं। देहरादून से शुरू करें?</div>
+          <div class="small mut" style="margin:6px 0 4px">Char Dham</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
+            <div class="milestone" style="width:auto"><div class="cap">NH 7</div><div class="body"><div class="mid">बदरीनाथ</div><div class="small">BADRINATH</div></div></div>
+            <div class="milestone" style="width:auto"><div class="cap">NH 107</div><div class="body"><div class="mid">केदारनाथ</div><div class="small">KEDARNATH</div></div></div>
+            <div class="milestone" style="width:auto;opacity:.45"><div class="cap">NH 34</div><div class="body"><div class="mid">गंगोत्री</div><div class="small">जल्द · soon</div></div></div>
+            <div class="milestone" style="width:auto;opacity:.45"><div class="cap">NH 134</div><div class="body"><div class="mid">यमुनोत्री</div><div class="small">जल्द · soon</div></div></div>
+          </div>
+          <div class="small mut" style="margin:7px 0 3px">Results</div>
+          <div class="opt"><b>बदरीनाथ धाम</b> · Badrinath <span class="mut small">· badri, बद्री</span></div>
+          <div class="opt"><b>बद्रीनाथ हाईवे — जोशीमठ</b> · Joshimath</div>
+        </div>
+      </div>
+      <div class="cap"><b>2 · Search</b><p>Full-height panel, input autofocused. Search works offline over our own place list (Hindi, English and aliases). Honest note when GPS is far from the road. Kedarnath routes to Sonprayag, with a note about the trek.</p></div>
+    </div>
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="options"></div>
+        <div class="pill"><div class="logo"></div><div style="flex:1"><div class="t">ऋषिकेश → बदरीनाथ</div><div class="s">Rasta chunein · Choose a route</div></div></div>
+        <div class="sheet" style="height:330px">
+          <div class="grab"></div>
+          <div style="display:flex;gap:4px;margin-bottom:5px"><span class="chip" style="background:var(--ink);color:var(--snow)">अभी</span><span class="chip" style="border:1.5px solid #bbb">+2 घं</span><span class="chip" style="border:1.5px solid #bbb">+4 घं</span><span class="chip" style="border:1.5px solid #bbb">सुरक्षित समय</span></div>
+          <div class="opt sel"><span class="chip" style="background:var(--teal)">सबसे सुरक्षित · SAFEST</span> <span class="chip" style="background:var(--ink);color:var(--snow)">सबसे तेज़ · FASTEST</span>
+            <div class="big" style="margin-top:3px">7 घं 18 मि · 296 km</div><div class="small mut">via NH 7 · बिना रुके अनुमान</div>
+            <div class="strip"><span style="flex:72;background:var(--teal)"></span><span style="flex:36;background:var(--teal)"></span><span style="flex:34;background:var(--orange)"></span><span style="flex:24;background:var(--teal)"></span><span style="flex:130;background:var(--teal)"></span></div>
+            <div class="small">सबसे ज़्यादा: मध्यम खतरा — श्रीनगर–रुद्रप्रयाग, 11:40 पर</div></div>
+          <div class="opt"><div class="big">11 घं 30 मि · 368 km</div><div class="small mut">via NH 34 → Narendranagar → NH 707A (Tehri)</div>
+            <div class="strip"><span style="flex:1;background:var(--teal)"></span></div><div class="small">कम खतरा · Low risk</div></div>
+          <div class="btn" style="background:var(--ink);color:var(--snow);margin-top:6px">शुरू करें · Start</div>
+        </div>
+      </div>
+      <div class="cap"><b>3 · Route options</b><p>Up to 3 real roads. SAFEST is preselected. The risk strip is drawn to km scale and coloured at the hour you reach each stretch. Selected route solid on the map, others dashed. If only one road exists: “कोई दूसरी सड़क नहीं”.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>4 · Planning screens</span></div>
+</section>
+
+<!-- 5 NAV + ALERTS -->
+<section class="page">
+  <p class="eyebrow">Screens · driving mode (ink HUD)</p>
+  <div class="screens" style="margin-top:3mm">
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="nav"></div>
+        <div class="hud"><div class="milestone" style="width:92px"><div class="cap">NH 7</div><div class="body"><div class="mid">श्रीनगर</div><div class="small">SRINAGAR · 23 km</div></div></div><div style="flex:1"><div class="disp" style="font-size:18px">14:20</div><div class="small" style="opacity:.8">आगे: सिरोबगड़ 31 km · ज़्यादा खतरा</div><div class="small" style="opacity:.6">Ahead: Sirobagad · High risk</div></div></div>
+        <div class="demo chev" style="top:84px"><span>डेमो यात्रा — असली GPS नहीं · DEMO DRIVE</span></div>
+        <div class="rail" style="top:116px"><div class="sos">SOS</div></div>
+        <div class="bar"><div style="display:flex;justify-content:space-between;align-items:flex-end"><div><div class="disp" style="font-size:20px">पहुँचेंगे 18:40</div><div class="small" style="opacity:.75">284 km बाकी · Arrive 18:40</div></div><div style="display:flex;gap:5px"><div class="rbtn" style="background:var(--muted)"></div><div class="btn" style="background:var(--snow);color:var(--ink);padding:6px 10px;font-size:11px">रोकें · End</div></div></div>
+        <div style="display:flex;gap:4px;margin-top:6px"><span class="chip chev" style="color:var(--snow)">1×</span><span class="chip" style="border:1.5px solid #888">60×</span><span class="chip" style="border:1.5px solid #888">300×</span><span class="chip" style="border:1.5px dashed #888">डेमो: आगे जाम</span><span class="chip" style="border:1.5px dashed #888">डेमो: आगे बंद</span></div></div>
+      </div>
+      <div class="cap"><b>4 · Navigation</b><p>Next town as a Milestone with arrival clock; one line for the next hazard. Map follows the car. A chevron DEMO ribbon whenever the position is simulated (the venue is not on the route). Swipe up = ahead list.</p></div>
+    </div>
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="nav"></div>
+        <div class="hud"><div class="milestone" style="width:92px"><div class="cap">NH 7</div><div class="body"><div class="mid">रुद्रप्रयाग</div><div class="small">12 km</div></div></div><div class="disp" style="font-size:18px">15:05</div></div>
+        <div class="alert" style="top:96px;background:var(--orange)">
+          <div class="small" style="letter-spacing:.15em;font-weight:700">TRAFFIC JAM AHEAD · 6 KM</div>
+          <div class="big">आगे जाम · ~30 मिनट</div>
+          <div class="small">दूसरा रास्ता: 22 मिनट बचेंगे, खतरा उतना ही</div>
+          <div class="btn" style="background:var(--ink);color:var(--snow);margin-top:6px">बदलें (−22 मिनट) · Switch</div>
+          <div class="btn" style="background:var(--snow);margin-top:5px">इसी रास्ते पर · Stay</div>
+          <div class="count"><div class="chev" style="width:60%;height:100%"></div></div>
+          <div class="small" style="margin-top:3px">3 s · जवाब न देने पर इसी रास्ते पर रहेंगे</div>
+        </div>
+        <div class="bar"><div class="disp" style="font-size:18px">पहुँचेंगे 18:40</div></div>
+      </div>
+      <div class="cap"><b>5 · Jam alert · 5 s</b><p>Orange. Offer a switch only if it saves 10 minutes or more and is not riskier. On timeout, stay. With no faster road, show it as information only. One spoken Hindi line. Rule: safety switches automatically, time never does.</p></div>
+    </div>
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="nav"></div>
+        <div class="alert" style="top:14px;bottom:14px;background:var(--danger);color:var(--snow)">
+          <div style="display:flex;gap:7px;align-items:center"><div class="tri" style="background:var(--snow)"></div><div><div class="small" style="letter-spacing:.15em;font-weight:700">LANDSLIDE AHEAD · 18 KM</div><div class="big">आगे रास्ता बंद — सिरोबगड़</div></div></div>
+          <div class="small" style="margin:4px 0">2 ड्राइवरों ने बताया, 18 मिनट पहले · Confirmed by 2 drivers</div>
+          <div class="opt sel" style="color:var(--ink);border-color:var(--snow);border-width:3px"><span class="chip" style="background:var(--teal)">सबसे सुरक्षित · SAFEST</span><div class="mid">10 घं 36 मि · 359 km</div><div class="small mut">via पौड़ी → खिर्सू रोड</div></div>
+          <div class="opt" style="color:var(--ink)"><span class="chip" style="background:var(--ink);color:var(--snow)">सबसे तेज़ · FASTEST</span><div class="mid">8 घं 42 मि · 349 km</div><div class="small mut">via टिहरी NH 707A</div></div>
+          <div class="opt" style="color:var(--ink)"><div class="mid">रुकें: श्रीनगर में</div><div class="small mut">रास्ता खुलने तक · Wait until it reopens</div></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px"><div class="disp" style="font-size:40px;line-height:1">7</div><div style="flex:1"><div class="count" style="height:12px"><div class="chev" style="width:58%;height:100%"></div></div><div class="small" style="margin-top:3px">12 सेकंड में सबसे सुरक्षित रास्ता अपने-आप</div></div></div>
+          <div class="small" style="text-decoration:underline;margin-top:4px">मेरा रास्ता रखें · Keep my route</div>
+        </div>
+      </div>
+      <div class="cap"><b>6 · Landslide / closed · 12 s</b><p>Danger sheet with the hazard plate, the report photo if any, and evidence (“2 drivers, 18 min ago”). Choices: SAFEST (preselected), FASTEST (if different), WAIT. Big countdown number plus a draining chevron strip. Timeout = SAFEST, with toast and voice.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>5 · Driving and alerts</span></div>
+</section>
+
+<!-- 6 NO BYPASS, REPORT, SOS -->
+<section class="page">
+  <p class="eyebrow">Screens · when there is no road, reporting, and SOS</p>
+  <div class="screens" style="margin-top:3mm">
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="nav"></div>
+        <div class="hud"><div class="milestone" style="width:92px"><div class="cap">NH 7</div><div class="body"><div class="mid">जोशीमठ</div><div class="small">0 km</div></div></div><div class="small" style="opacity:.8">रुके हुए · Halted</div></div>
+        <div class="sheet" style="background:var(--danger);color:var(--snow);height:250px">
+          <div class="grab" style="background:rgba(243,241,234,.4)"></div>
+          <div style="background:var(--ink);display:inline-block;padding:3px 8px;border-radius:4px;font-family:Oswald;font-size:11px">बंद · CLOSED</div>
+          <div class="big" style="margin-top:5px">कोई दूसरी सड़क नहीं — जोशीमठ में रुकें</div>
+          <div class="small" style="opacity:.85">No other road. Stop at Joshimath.</div>
+          <div class="card" style="background:rgba(243,241,234,.15);margin-top:7px"><div class="small">रास्ता खुलते ही बताएँगे · We'll alert you when it reopens</div></div>
+          <div class="btn" style="background:var(--snow);color:var(--ink);margin-top:6px">आस-पास रुकने की जगह</div>
+          <div class="btn" style="border:2px solid var(--snow);margin-top:5px">SOS · 112</div>
+        </div>
+      </div>
+      <div class="cap"><b>7 · No other road</b><p>Chamoli → Badrinath has one road. WAIT becomes the default. The destination is kept. When a driver reports “रास्ता खुला”, a 5 s “Road reopened” alert offers to continue.</p></div>
+    </div>
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="dim"></div>
+        <div class="sheet" style="height:430px">
+          <div class="grab"></div>
+          <div class="mid">क्या दिखा? · What did you see?</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:6px 0">
+            <div class="tile" style="border-color:var(--danger);background:rgba(176,48,48,.08)"><div class="tri"></div>भूस्खलन</div>
+            <div class="tile"><div class="tri"></div>पत्थर गिर रहे</div>
+            <div class="tile"><div class="tri"></div>रास्ता बंद</div>
+            <div class="tile"><div class="tri"></div>पानी / नाला</div>
+            <div class="tile"><div class="tri o"></div>ट्रैफिक जाम</div>
+            <div class="tile"><div class="tri t"></div>रास्ता खुला</div>
+          </div>
+          <div class="mid">कहाँ? · Where?</div>
+          <div class="opt small">जगह: आपकी GPS — श्रीनगर से 6 km आगे (NH-7)</div>
+          <div class="btn" style="border:2px dashed var(--ink);margin:6px 0">फ़ोटो लें · Take photo</div>
+          <div class="small mut">चेहरे और नंबर प्लेट फ़ोटो में न लें</div>
+          <div class="btn" style="background:var(--orange);margin-top:6px">भेजें · Send</div>
+          <div class="small" style="margin-top:4px">एक और ड्राइवर पुष्टि करे तो रास्ता ‘बंद’ माना जाएगा</div>
+        </div>
+      </div>
+      <div class="cap"><b>8 · Report (2 taps + photo)</b><p>Six big hazard tiles, then place (GPS, map crosshair, or known spots on /report), optional photo (back camera, compressed), Send. Offline → saved and sent later. Draw the camera as an icon in your version; this mockup uses text.</p></div>
+    </div>
+    <div class="shot">
+      <div class="phone" style="background:var(--snow)">
+        <div style="padding:14px 12px">
+          <div style="display:flex;gap:7px;align-items:center"><div class="rbtn" style="box-shadow:none;background:rgba(20,35,31,.1)"></div><div><div class="big">SOS · मदद</div><div class="small mut">बिना इंटरनेट के भी (SMS से)</div></div></div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin:8px 0"><span class="chip" style="border:1.5px solid var(--danger);background:rgba(176,48,48,.1)">दुर्घटना · Accident</span><span class="chip" style="border:1.5px solid #bbb">मलबे में फँसे</span><span class="chip" style="border:1.5px solid #bbb">बीमार · Medical</span><span class="chip" style="border:1.5px solid #bbb">अन्य</span></div>
+          <div style="width:150px;height:150px;border-radius:50%;margin:8px auto;background:var(--danger);color:var(--snow);display:flex;flex-direction:column;align-items:center;justify-content:center;border:9px solid rgba(176,48,48,.3);box-shadow:0 0 0 5px var(--snow),0 0 0 9px var(--danger)"><div class="disp" style="font-size:44px;line-height:1">SOS</div><div class="small">2 सेकंड दबाए रखें</div></div>
+          <div class="card" style="background:var(--teal)"><div class="mid">मदद का संदेश पहुँच गया (14:32)</div><div class="small">रेस्क्यू डेस्क को आपकी जगह दिख रही है</div></div>
+          <div class="btn" style="background:var(--ink);color:var(--snow)">SMS भेजें (लोकेशन के साथ)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px"><div class="btn" style="border:2px solid var(--danger);color:var(--danger)">112 · कॉल</div><div class="btn" style="border:2px solid var(--danger);color:var(--danger)">108 · Ambulance</div></div>
+        </div>
+      </div>
+      <div class="cap"><b>9 · SOS</b><p>Hold 2 s (a ring fills, preventing pocket presses). Online → rescue desk; offline → the SMS app opens with coordinates and a map link to a saved family number. 112 and 108 always visible. Works from the cached page with no signal.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>6 · Edge, report, SOS</span></div>
+</section>
+
+<!-- 7 TRAFFIC LAKES OFFLINE -->
+<section class="page">
+  <p class="eyebrow">Screens · layers and offline</p>
+  <div class="screens" style="margin-top:3mm">
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="traffic"></div>
+        <div class="pill"><div class="logo"></div><div style="flex:1"><div class="t">कहाँ जाना है?</div><div class="s">Where to?</div></div></div>
+        <div class="layers"><span>खतरा</span><span class="on">ट्रैफिक · Traffic</span><span>झील</span></div>
+        <div class="sheet" style="height:200px"><div class="grab"></div>
+          <div class="mid">रास्ते का हाल · Traffic</div>
+          <div class="opt small" style="display:flex;justify-content:space-between"><span>ऋषिकेश → देवप्रयाग</span><span class="chip" style="background:var(--teal)">साफ़ · Clear</span></div>
+          <div class="opt small" style="display:flex;justify-content:space-between"><span>श्रीनगर → रुद्रप्रयाग</span><span class="chip" style="background:var(--danger);color:var(--snow)">जाम · Jam</span></div>
+          <div class="opt small" style="display:flex;justify-content:space-between"><span>रुद्रप्रयाग → गौचर</span><span class="chip" style="background:var(--muted);color:var(--snow)">जानकारी नहीं</span></div>
+          <div class="small mut">Live speed only with a TomTom key; otherwise driver “जाम” reports.</div>
+        </div>
+      </div>
+      <div class="cap"><b>10 · Traffic layer</b><p>Same road, coloured by traffic like Google Maps. “No data” is grey and says so, never guessed. Jam pins are orange plates.</p></div>
+    </div>
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="lakes"></div>
+        <div class="layers" style="top:12px"><span>खतरा</span><span>ट्रैफिक</span><span class="on">झील · Lakes</span></div>
+        <div class="sheet" style="height:300px"><div class="grab"></div>
+          <div class="small" style="letter-spacing:.15em;color:var(--orange-dark);font-weight:700">PREDICT · ग्लेशियर झील</div>
+          <div class="big">वसुधारा ताल · Vasudhara Tal</div>
+          <div class="small mut">Dhauliganga basin, Chamoli · above the Badrinath road area</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;height:90px;margin:8px 0;border-bottom:1.5px solid var(--ink)">
+            <div style="flex:1;text-align:center"><div class="small">0.14</div><div style="height:20px;background:var(--teal)"></div><div class="small">1968</div></div>
+            <div style="flex:1;text-align:center"><div class="small">0.16</div><div style="height:24px;background:var(--teal)"></div><div class="small">1994</div></div>
+            <div style="flex:1;text-align:center"><div class="small">0.20</div><div style="height:30px;background:var(--orange)"></div><div class="small">2001</div></div>
+            <div style="flex:1;text-align:center"><div class="small">0.54</div><div style="height:66px;background:var(--danger)"></div><div class="small">2011</div></div>
+            <div style="flex:1;text-align:center"><div class="small">0.59</div><div style="height:72px;background:var(--danger)"></div><div class="small">2021</div></div>
+          </div>
+          <div class="small">km² · ~4× in ~50 years. Source line under the chart (papers / NRSC). Numbers only from cited sources.</div>
+        </div>
+      </div>
+      <div class="cap"><b>11 · Lakes (Predict)</b><p>Real lakes only: Vasudhara Tal, Balbala Lake (with numbers), Chorabari Tal (location only, no area found). A bar per year with the number written on it. No invented danger zones.</p></div>
+    </div>
+    <div class="shot">
+      <div class="phone">
+        <div class="map" data-map="home"></div>
+        <div class="pill"><div class="logo"></div><div style="flex:1"><div class="t">कहाँ जाना है?</div><div class="s">Where to?</div></div></div>
+        <div style="position:absolute;left:8px;right:8px;top:56px;background:var(--ink);color:var(--snow);border-radius:14px;padding:6px 9px" class="small">ऑफ़लाइन — आखिरी सेव डेटा (14:05) · Offline, last saved data</div>
+        <div class="sheet" style="height:210px"><div class="grab"></div>
+          <div class="mid">बिना नेटवर्क के क्या चलता है</div>
+          <table style="font-size:8.5px"><tr><td>✔ नक्शा (cache), खोज, रास्ते</td></tr><tr><td>✔ अलर्ट (cached data), डेमो यात्रा</td></tr><tr><td>✔ रिपोर्ट outbox, SMS SOS, 112</td></tr><tr><td class="mut">✘ नई बारिश, खबरें, live reports</td></tr></table>
+        </div>
+      </div>
+      <div class="cap"><b>12 · Offline</b><p>An ink banner with the time of the last saved data. Everything safety-related keeps working. The offline.html fallback also contains the SMS SOS. (Use icons instead of ✔ ✘ in the final design.)</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>7 · Layers and offline</span></div>
+</section>
+
+<!-- 8 DESKTOP -->
+<section class="page">
+  <p class="eyebrow">Desktop pages (English is fine here)</p>
+  <div class="row" style="margin-top:3mm">
+    <div class="col">
+      <div style="border:6px solid var(--ink);border-radius:12px;height:118mm;display:flex;overflow:hidden">
+        <div style="width:38%;background:var(--ink);color:var(--snow);padding:10px">
+          <div class="eyebrow" style="color:var(--orange)">Rescue room</div>
+          <div class="big" style="font-size:20px">Live SOS and road reports</div>
+          <div style="display:flex;gap:5px;margin:7px 0"><div class="card" style="background:var(--danger);flex:1;margin:0"><div class="big">3</div><div class="small">Open SOS 24 h</div></div><div class="card" style="background:var(--muted);flex:1;margin:0"><div class="big">1</div><div class="small">Closed roads</div></div><div class="card" style="background:var(--muted);flex:1;margin:0"><div class="big">12</div><div class="small">Reports 12 h</div></div></div>
+          <span class="chip" style="background:var(--teal);color:var(--ink)">Live · realtime</span>
+          <div class="card" style="background:var(--danger);margin-top:7px"><b class="small">Trapped</b><div class="small">4 min ago · 30.2412, 78.9006 · ±20 m · Open in Maps</div></div>
+          <div class="card" style="background:var(--danger)"><b class="small">Accident</b><div class="small">22 min ago · 30.5550, 79.5650 · ±35 m</div></div>
+        </div>
+        <div style="flex:1;position:relative"><div class="map" data-map="desk"></div></div>
+      </div>
+      <p style="margin-top:2mm"><b>/dashboard · Rescue desk.</b> Counters, a live badge (realtime, or polling every 10 s), the SOS list (newest first, tap → map zooms), confirmed closures with driver count and photo, and reports. Read-only for the prototype.</p>
+    </div>
+    <div class="col">
+      <div style="border:6px solid var(--ink);border-radius:12px;height:118mm;padding:10px;background:var(--snow)">
+        <div class="eyebrow">सबूत · Proof</div>
+        <div class="big" style="font-size:20px">Is everything real and live?</div>
+        <table style="margin-top:4px">
+          <tr><th>Source</th><th>State</th><th>Age</th></tr>
+          <tr><td>Open-Meteo rain</td><td><span class="chip" style="background:var(--teal)">OK</span></td><td>4 min</td></tr>
+          <tr><td>Google News</td><td><span class="chip" style="background:var(--teal)">OK · 23 items</span></td><td>41 min</td></tr>
+          <tr><td>Supabase</td><td><span class="chip" style="background:var(--danger);color:var(--snow)">keys missing</span></td><td>—</td></tr>
+          <tr><td>TomTom traffic</td><td><span class="chip" style="background:var(--muted);color:var(--snow)">off (no key)</span></td><td>—</td></tr>
+          <tr><td>Road graph</td><td>20 towns · 22 stretches</td><td>built 26 Nov</td></tr>
+        </table>
+        <div class="card" style="background:rgba(20,35,31,.06);margin-top:6px"><div class="mid">Formula, live, worst stretch now</div><div class="small">rain 28 × slope 1.93 × history 1.8 = 97 → ज़्यादा खतरा (High). Rain: Open-Meteo · slope: Copernicus DEM · history: NASA 2007–2017.</div></div>
+        <div class="small mut">Plus: the free-API budget table, the offline matrix, and honest limits (NASA ends 2017, news is town-level, DEM is 90 m).</div>
+      </div>
+      <p style="margin-top:2mm"><b>/status · Proof page.</b> This is the Eval-1 architecture slide shown live, and the pre-flight check 30 minutes before each demo. (The example numbers show the format; the page prints computed values.)</p>
+    </div>
+  </div>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>8 · Desktop</span></div>
+</section>
+
+<!-- 9 ALERT RULES -->
+<section class="page">
+  <p class="eyebrow">Flow system · alert rules (what fires, when, for how long)</p>
+  <h2>Safety switches the route by itself. Time never does.</h2>
+  <table style="margin-top:3mm">
+    <tr><th>Alert</th><th>Trigger</th><th>Shows</th><th>Duration</th><th>No answer</th><th>Voice</th></tr>
+    <tr><td><b style="color:var(--danger)">Landslide / closed</b></td><td>2+ different phones report a block within 1 km in 12 h (no later “clear”), or a stretch ahead is High risk at the hour you reach it, or DEMO</td><td>Plate, photo, evidence, SAFEST / FASTEST / WAIT, big countdown</td><td>12 s</td><td>SAFEST (or WAIT if there is no other road)</td><td>“सावधान। आगे इकतीस किलोमीटर पर रास्ता बंद है।”</td></tr>
+    <tr><td><b style="color:var(--orange-dark)">Jam</b></td><td>Driver jam report (last 2 h, within 300 m of the route ahead), TomTom slow (key only), or DEMO</td><td>Delay (from reporter / TomTom / “unknown”), switch only if it saves ≥10 min and is not riskier</td><td>5 s</td><td>Stay on the route</td><td>One line</td></tr>
+    <tr><td><b>Unconfirmed report</b></td><td>Only 1 phone reported a block ahead</td><td>Toast with photo link, no buttons, no reroute</td><td>6 s</td><td>Disappears</td><td>No</td></tr>
+    <tr><td><b style="color:var(--teal)">Road reopened</b></td><td>“रास्ता खुला” after the latest block, while halted</td><td>“रास्ता खुल गया” + आगे चलें</td><td>5 s</td><td>Stay halted, show Resume</td><td>One line</td></tr>
+  </table>
+  <div class="row" style="margin-top:5mm">
+    <div class="col">
+      <h3>Trip states</h3>
+      <div class="flow">
+        <div class="node"><b>idle</b>home map</div><span class="arrow">→</span>
+        <div class="node"><b>plan</b>search + options</div><span class="arrow">→</span>
+        <div class="node"><b>nav</b>driving</div><span class="arrow">⇄</span>
+        <div class="node hot"><b>alert</b>car paused</div><span class="arrow">→</span>
+        <div class="node hot"><b>halted</b>no other road</div><span class="arrow">/</span>
+        <div class="node" style="border-color:var(--teal)"><b>arrived</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:4mm">
+    <div class="col note">Each hazard alerts <b>once per trip</b>. The countdown starts only after the new routes have loaded, so the driver always sees the choices. While an alert is open, the demo car pauses.</div>
+    <div class="col note">DEMO is always visible: a chevron ribbon on the screen and chevron borders on demo buttons. The venue (Dehradun) is not on the route, so the demo drive is honest about being a simulation.</div>
+  </div>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>9 · Alert rules</span></div>
+</section>
+
+<!-- 10 COPY -->
+<section class="page">
+  <p class="eyebrow">Hindi copy deck (Hindi first, English below)</p>
+  <div class="row" style="margin-top:2mm">
+    <div class="col">
+      <table>
+        <tr><th>Moment</th><th>Copy</th></tr>
+        <tr><td>Search pill</td><td>कहाँ जाना है? · Where to?</td></tr>
+        <tr><td>Safe now</td><td>अभी निकल सकते हैं · Safe to leave now</td></tr>
+        <tr><td>Wait</td><td>16:00 के बाद निकलें · Leave after 16:00</td></tr>
+        <tr><td>No window</td><td>अगले 12 घंटे यात्रा न करें · Avoid travel for 12 h</td></tr>
+        <tr><td>Estimate</td><td>बिना रुके अनुमान · non-stop estimate</td></tr>
+        <tr><td>Start</td><td>शुरू करें · Start</td></tr>
+        <tr><td>Danger title</td><td>आगे रास्ता बंद · Road closed ahead — &lt;spot&gt; · &lt;n&gt; km आगे</td></tr>
+        <tr><td>Rain danger</td><td>आगे भूस्खलन का ज़्यादा खतरा · High landslide risk ahead</td></tr>
+        <tr><td>Countdown</td><td>12 सेकंड में सबसे सुरक्षित रास्ता अपने-आप चुना जाएगा</td></tr>
+        <tr><td>Auto picked</td><td>सबसे सुरक्षित रास्ता चुना गया · Safest route selected</td></tr>
+        <tr><td>No bypass</td><td>कोई दूसरी सड़क नहीं — &lt;town&gt; में रुकें</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <table>
+        <tr><th>Moment</th><th>Copy</th></tr>
+        <tr><td>Keep</td><td>मेरा रास्ता रखें · Keep my route</td></tr>
+        <tr><td>Jam</td><td>आगे जाम · Jam ahead — बदलें (−22 मिनट) / इसी रास्ते पर</td></tr>
+        <tr><td>Demo drive</td><td>डेमो यात्रा — असली GPS नहीं · DEMO DRIVE — not real GPS</td></tr>
+        <tr><td>Off route</td><td>आप रास्ते पर नहीं हैं (&lt;n&gt; km दूर)। डेमो यात्रा चलाएँ?</td></tr>
+        <tr><td>Offline</td><td>ऑफ़लाइन — आखिरी सेव डेटा (&lt;hh:mm&gt;)</td></tr>
+        <tr><td>Report sent</td><td>भेज दिया — सबके नक्शे पर दिख रहा है</td></tr>
+        <tr><td>Confirm needed</td><td>एक और ड्राइवर पुष्टि करे तो रास्ता ‘बंद’ माना जाएगा</td></tr>
+        <tr><td>SOS sent</td><td>मदद का संदेश पहुँच गया (14:32)</td></tr>
+        <tr><td>SOS offline</td><td>इंटरनेट नहीं — SMS से भेजें · No internet: send by SMS</td></tr>
+        <tr><td>Call</td><td>112 पर कॉल करें · Call 112</td></tr>
+        <tr><td>Arrived</td><td>पहुँच गए · पहाड़ में जल्दी नहीं, सलामती ज़रूरी</td></tr>
+      </table>
+    </div>
+  </div>
+  <p class="note" style="margin-top:4mm">Voice lines are Devanagari only and short, with a “आवाज़ टेस्ट करें · Test voice” button. With no Hindi voice on the phone the alert still shows text and vibrates. Garhwali is not claimed.</p>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>10 · Copy</span></div>
+</section>
+
+<!-- 11 CHECKLIST + RETURN -->
+<section class="page dark">
+  <p class="eyebrow">Components and what to send back</p>
+  <div class="row" style="margin-top:3mm">
+    <div class="col">
+      <h3>Components to design (the code already has a version of the ticked ones)</h3>
+      <table style="color:var(--snow)">
+        <tr><th>Component</th><th>Used on</th></tr>
+        <tr><td>✔ Search pill + layer radio</td><td>Home, all map screens</td></tr>
+        <tr><td>Milestone (km stone)</td><td>Nav HUD, route cards, search, ahead list</td></tr>
+        <tr><td>Hazard plate + 7 line icons (incl. lake)</td><td>Pins, alerts, legend, report tiles</td></tr>
+        <tr><td>✔ Route option card + risk strip</td><td>Options, landslide alert</td></tr>
+        <tr><td>✔ Alert sheet (jam / danger) + chevron countdown</td><td>Navigation</td></tr>
+        <tr><td>DemoTag (chevron ribbon / border)</td><td>Every simulated control</td></tr>
+        <tr><td>✔ Report pin with photo head · बंद plate · jam plate · car marker</td><td>Map</td></tr>
+        <tr><td>DhamBoard row + time scrubber</td><td>Home sheet</td></tr>
+        <tr><td>StretchCard (formula explainer)</td><td>Tap on a stretch</td></tr>
+        <tr><td>✔ SOS hold button (ring fill)</td><td>/sos</td></tr>
+        <tr><td>Lake card with year bars</td><td>Lakes layer</td></tr>
+        <tr><td>✔ Install button (Android / iPhone steps)</td><td>Home sheet</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <h3>Please send back (Gautam)</h3>
+      <ol style="padding-left:5mm">
+        <li>Redrawn versions of screens 1–12 (Figma, Penpot or PNG at 375 px), with your changes marked.</li>
+        <li>The 7 line icons as SVG (24 × 24, stroke 2.2, round caps): landslide, rockfall, road blocked, water, jam, clear, glacial lake.</li>
+        <li>Your Milestone and hazard plate exact sizes, and whether the chevron is 45° 8 px stripes.</li>
+        <li>Map style choices: route line widths, how options vs the selected route look, pin sizes at zoom 8 / 11 / 14.</li>
+        <li>Any copy you would change (Hindi first), especially alert titles; keep them short enough to read in 2 seconds.</li>
+        <li>Your answer to: should the landslide alert cover the full screen (as drawn) or leave the map visible above it?</li>
+        <li>App icon and splash: keep the mountain + orange road, or a new mark?</li>
+      </ol>
+      <div class="note" style="color:var(--snow);margin-top:4mm"><b>Cannot change:</b> the 7 colours, Oswald + Public Sans, Hindi first, 48 px tap targets, every colour also written in words, no fake data, DEMO always labelled, no emoji icons, nothing that looks AI-generated.</div>
+      <p style="margin-top:4mm">Send it to Suraj. The code follows your version screen by screen, in the build order: search → options → navigation → alerts → report → SOS → lakes → status.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Himrakshak · UI/UX v1</span><span>11 · Components and hand-back</span></div>
+</section>
+
+<script>
+// One stylised map for every mockup (not a real map): contours, the NH-7 line and pins.
+const variants = {
+  home: { route: [["#5fb3a1", 6], ["#f08a3e", 6]], pins: true },
+  dim: { route: [["#5fb3a1", 6]], dim: true },
+  options: { route: [["#5fb3a1", 6]], alt: true },
+  nav: { route: [["#5fb3a1", 7]], car: true, halo: true },
+  traffic: { route: [["#5fb3a1", 6], ["#b03030", 6]], pins: false },
+  lakes: { route: [["#5fb3a1", 4]], lakes: true },
+  desk: { route: [["#5fb3a1", 4]], sos: true },
+};
+document.querySelectorAll(".map").forEach((el) => {
+  const v = variants[el.dataset.map] || variants.home;
+  let s = '<svg viewBox="0 0 300 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">';
+  s += '<rect width="300" height="600" fill="#e9e6da"/>';
+  for (let i = 0; i < 9; i++) s += `<path d="M-20 ${70 + i * 62} C 60 ${30 + i * 62}, 140 ${120 + i * 62}, 320 ${50 + i * 62}" fill="none" stroke="#14231f" stroke-opacity=".07" stroke-width="1.2"/>`;
+  s += '<path d="M0 520 C 60 470 40 420 90 400" fill="none" stroke="#9ec9e6" stroke-width="5" stroke-opacity=".7"/>';
+  if (v.alt) s += '<path d="M40 470 C 30 380 80 300 60 220 C 50 160 120 120 200 90" fill="none" stroke="#4b5a55" stroke-width="5" stroke-dasharray="7 6" stroke-opacity=".7"/>';
+  if (v.halo) s += '<path d="M40 470 C 90 430 110 390 140 340 C 170 290 150 240 190 200 C 230 160 220 120 250 70" fill="none" stroke="#a9481a" stroke-width="15" stroke-linecap="round"/>';
+  s += '<path d="M40 470 C 90 430 110 390 140 340 C 170 290 150 240 190 200 C 230 160 220 120 250 70" fill="none" stroke="#14231f" stroke-width="10" stroke-linecap="round"/>';
+  s += `<path d="M40 470 C 90 430 110 390 140 340" fill="none" stroke="${v.route[0][0]}" stroke-width="${v.route[0][1]}" stroke-linecap="round"/>`;
+  s += `<path d="M140 340 C 170 290 150 240 190 200" fill="none" stroke="${(v.route[1] || v.route[0])[0]}" stroke-width="${v.route[0][1]}" stroke-linecap="round"/>`;
+  s += `<path d="M190 200 C 230 160 220 120 250 70" fill="none" stroke="${v.route[0][0]}" stroke-width="${v.route[0][1]}" stroke-linecap="round"/>`;
+  for (const [x, y] of [[40, 470], [140, 340], [190, 200], [250, 70]]) s += `<circle cx="${x}" cy="${y}" r="5" fill="#f3f1ea" stroke="#14231f" stroke-width="3"/>`;
+  if (v.pins) {
+    s += '<g transform="translate(150 285)"><circle r="14" fill="#b03030" stroke="#f3f1ea" stroke-width="3"/><path d="M-7 5 L0 -7 L7 5 Z" fill="none" stroke="#f3f1ea" stroke-width="2"/></g>';
+    s += '<g transform="translate(212 150)"><circle r="11" fill="#14231f" stroke="#f3f1ea" stroke-width="2"/><path d="M-5 4 L0 -5 L5 4 Z" fill="none" stroke="#f08a3e" stroke-width="2"/></g>';
+    s += '<g transform="translate(95 420)"><circle r="12" fill="#f3f1ea" stroke="#b03030" stroke-width="3"/><text x="9" y="-8" font-size="10" font-family="Oswald" fill="#14231f">2</text></g>';
+  }
+  if (v.car) s += '<g transform="translate(118 375)"><circle r="12" fill="#14231f" stroke="#f3f1ea" stroke-width="4"/><circle r="4" fill="#f08a3e"/></g>';
+  if (v.lakes) for (const [x, y] of [[262, 50], [228, 38]]) s += `<g transform="translate(${x} ${y})"><ellipse rx="12" ry="8" fill="#9ec9e6" stroke="#14231f" stroke-width="2"/></g>`;
+  if (v.sos) for (const [x, y] of [[170, 300], [230, 130]]) s += `<g transform="translate(${x} ${y})"><circle r="16" fill="#b03030" stroke="#f3f1ea" stroke-width="3"/><text text-anchor="middle" y="4" font-size="10" font-family="Oswald" fill="#f3f1ea">SOS</text></g>`;
+  if (v.dim) s += '<rect width="300" height="600" fill="#14231f" fill-opacity=".35"/>';
+  el.innerHTML = s + "</svg>";
+});
+</script>
+</body>
+</html>
