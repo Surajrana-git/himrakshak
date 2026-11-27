@@ -107,6 +107,7 @@ export default function AuthScreen() {
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const [providers, setProviders] = useState({ google: false, apple: false, phone: false });
   const [otpSent, setOtpSent] = useState(false);
+  const [soonNote, setSoonNote] = useState<string | null>(null);
   const [otp, setOtp] = useState("");
 
   useEffect(() => {
@@ -196,6 +197,11 @@ export default function AuthScreen() {
   }
 
   async function social(provider: "google" | "apple") {
+    if (!providers[provider]) {
+      return setSoonNote(
+        `${provider === "apple" ? "Apple ID" : "Google"} login jald aa raha hai / Coming soon. Abhi ${provider === "apple" ? "Gmail (Google)" : "email"} ya mobile number se login karein.`,
+      );
+    }
     const error = await socialSignIn(provider);
     if (error) setMessage({ text: error, ok: false });
   }
@@ -317,17 +323,18 @@ export default function AuthScreen() {
             <button
               key={p}
               onClick={() => social(p)}
-              disabled={!providers[p]}
-              title={providers[p] ? undefined : "Abhi chalu nahi hai / Not set up yet"}
-              className="flex min-h-13 items-center justify-center gap-3 rounded-full border-2 border-green bg-white font-semibold text-green disabled:opacity-40"
+              className="flex min-h-13 items-center justify-center gap-2 rounded-full border-2 border-green bg-white font-semibold text-green"
             >
               {p === "google" ? <GoogleMark /> : <AppleMark />}
               {create ? (p === "google" ? "Google" : "Apple") : `Continue with ${p === "google" ? "Google" : "Apple"}`}
+              {!providers[p] && <span className="rounded-full bg-mint px-2 py-0.5 text-xs text-green-dark">Jald</span>}
             </button>
           ))}
         </div>
-        {(!providers.google || !providers.apple) && (
-          <p className="text-center text-xs text-muted">{!providers.google ? "Google / Apple" : "Apple"} login abhi setup nahi hua hai.</p>
+        {soonNote && (
+          <p role="status" className="animate-fade rounded-2xl bg-mint p-3 text-center text-sm text-green-dark">
+            {soonNote}
+          </p>
         )}
 
         <p className="text-center">
