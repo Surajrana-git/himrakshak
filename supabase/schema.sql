@@ -68,3 +68,16 @@ alter table public.saved_places enable row level security;
 
 create policy "own saved places" on public.saved_places
   for all to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- Phones that agreed to push alerts (Android app, Firebase Cloud Messaging token).
+-- Anyone can register their own phone; nobody can read the list except the server (service key).
+create table if not exists public.push_tokens (
+  token text primary key,
+  user_id uuid references auth.users on delete cascade,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.push_tokens enable row level security;
+
+create policy "register a phone" on public.push_tokens for insert to anon, authenticated with check (true);
+create policy "refresh a phone" on public.push_tokens for update to anon, authenticated using (true) with check (true);

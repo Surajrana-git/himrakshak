@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import ServiceWorker from "@/components/ServiceWorker";
+import NativeBridge from "@/components/NativeBridge";
 import "./globals.css";
 
 const poppins = Poppins({ variable: "--font-poppins", subsets: ["latin"], weight: ["500", "600", "700"] });
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="h-full overflow-hidden font-sans">
         {children}
         <ServiceWorker />
+        <NativeBridge />
       </body>
     </html>
   );

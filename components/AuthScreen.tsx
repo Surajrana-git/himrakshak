@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { continueAsGuest, enabledProviders, TERMS_VERSION } from "@/lib/auth";
+import { socialSignIn } from "@/lib/native";
 
 export function HLogo({ className = "h-20 w-20" }: { className?: string }) {
   return (
@@ -152,9 +153,8 @@ export default function AuthScreen() {
   }
 
   async function social(provider: "google" | "apple") {
-    if (!supabase) return;
-    const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin } });
-    if (error) setMessage({ text: error.message, ok: false });
+    const error = await socialSignIn(provider);
+    if (error) setMessage({ text: error, ok: false });
   }
 
   function guest() {
