@@ -18,6 +18,7 @@ import TripPlanner from "@/components/TripPlanner";
 import NavPanel from "@/components/NavPanel";
 import NavAlert from "@/components/NavAlert";
 import LakeCard from "@/components/LakeCard";
+import ReportIcon from "@/components/ReportIcon";
 import lakesData from "@/data/glacial-lakes.json";
 import { nearestPlace, useTrip, type Hazard } from "@/lib/trip";
 import { confirmedBlocks, recentJams, useReports } from "@/lib/reports";
@@ -196,6 +197,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
             {worstStyle.label}
           </span>
         </div>
+        {trip.stage !== "nav" && (
         <div role="radiogroup" aria-label="Map layer" className="pointer-events-auto flex self-start rounded-full bg-snow p-1 shadow-lg">
           {(
             [
@@ -215,6 +217,27 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
             </button>
           ))}
         </div>
+        )}
+        {trip.stage === "nav" && !trip.arrived && (
+          <div
+            role="status"
+            className={`pointer-events-auto flex items-center gap-3 rounded-2xl p-3 shadow-lg ${
+              trip.ahead ? (trip.ahead.hazard.kind === "jam" ? "bg-orange text-ink" : "bg-danger text-snow") : "bg-ink text-snow"
+            }`}
+          >
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-snow text-ink">
+              <ReportIcon kind={trip.ahead ? (trip.ahead.hazard.kind === "jam" ? "jam" : "road_blocked") : "clear"} className="h-8 w-8" />
+            </span>
+            <span className="min-w-0">
+              <span className="block font-display text-2xl leading-tight">
+                {trip.ahead ? `${trip.ahead.kmAhead} km आगे ${trip.ahead.hazard.kind === "jam" ? "जाम" : "रास्ता बंद"}` : "आगे रास्ता साफ़"}
+              </span>
+              <span className="block text-sm opacity-80">
+                {trip.ahead ? (trip.ahead.hazard.kind === "jam" ? "Traffic jam ahead" : "Road closed ahead") : "No reported hazard on your route"}
+              </span>
+            </span>
+          </div>
+        )}
         {!online && (
           <p className="pointer-events-auto rounded-full bg-ink px-4 py-2 text-sm text-snow shadow-lg">
             Offline: aakhri saved map dikh raha hai / showing last saved data

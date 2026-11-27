@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import RouteOptionCard from "@/components/RouteOptionCard";
+import ReportIcon from "@/components/ReportIcon";
 import type { TripAlert } from "@/lib/trip";
 import type { RouteOption } from "@/lib/routes";
 
@@ -60,10 +61,17 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
 
   return (
     <div role="alertdialog" aria-live="assertive" className={`rounded-3xl p-4 shadow-2xl ${isJam ? "bg-orange text-ink" : "bg-danger text-snow"}`}>
-      <p className="font-display text-xs uppercase tracking-[0.2em]">
-        {isJam ? "Aage jaam / Traffic jam ahead" : "Aage bhooskhalan / Landslide ahead"} · {alert.kmAhead} km
-      </p>
-      <p className="mt-1 font-display text-3xl leading-tight">{isJam ? "आगे जाम है" : "रास्ता बंद है"}</p>
+      <div className="flex items-center gap-3">
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-snow text-ink">
+          <ReportIcon kind={isJam ? "jam" : "landslide"} className="h-9 w-9" />
+        </span>
+        <div>
+          <p className="font-display text-xs uppercase tracking-[0.2em]">
+            {isJam ? "Traffic jam ahead" : "Landslide ahead"} · {alert.kmAhead} km
+          </p>
+          <p className="font-display text-3xl leading-tight">{isJam ? "आगे जाम है" : "रास्ता बंद है"}</p>
+        </div>
+      </div>
 
       {!ready && <p className="mt-2">Doosra rasta dhoondh rahe hain…</p>}
       {alert.failed && <p className="mt-2">Naya rasta abhi nahi mil raha (routing server).</p>}
@@ -104,7 +112,7 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
             <div className="h-full bg-snow transition-[width] duration-1000 ease-linear" style={{ width: `${(left / seconds) * 100}%` }} />
           </div>
           <p className="text-xs">
-            {left} s · {isJam ? "jawab na dene par isi raste pe rahenge" : safest ? "jawab na dene par sabse surakshit rasta chuna jaayega" : ""}
+            {left} s{isJam ? " · jawab na dene par isi raste pe rahenge" : safest ? " · jawab na dene par sabse surakshit rasta chuna jaayega" : ""}
           </p>
         </div>
       )}

@@ -63,22 +63,24 @@ function nearestIndex(coordinates: number[][], p: Point): { index: number; km: n
   return best;
 }
 
-// The first not-yet-handled hazard on the route within 30 km ahead of the car.
-function firstHazardAhead(
+// The nearest not-yet-handled hazard on the route ahead of the car, within maxKm.
+function nearestHazardAhead(
   coordinates: number[][],
   cum: number[],
   carIndex: number,
   hazards: Hazard[],
   handled: Set<string>,
+  maxKm: number,
 ): { hazard: Hazard; kmAhead: number } | null {
+  let best: { hazard: Hazard; kmAhead: number } | null = null;
   for (const hazard of hazards) {
     if (handled.has(hazard.id)) continue;
     const near = nearestIndex(coordinates, hazard);
     if (near.km > ON_ROUTE_KM || near.index <= carIndex) continue;
     const kmAhead = cum[near.index] - cum[carIndex];
-    if (kmAhead <= ALERT_WITHIN_KM) return { hazard, kmAhead: Math.max(1, Math.round(kmAhead)) };
+    if (kmAhead <= maxKm && (!best || kmAhead < best.kmAhead)) best = { hazard, kmAhead };
   }
-  return null;
+  return best && { ...best, kmAhead: Math.max(1, Math.round(best.kmAhead)) };
 }
 
 export function nearestPlace(p: Point): Place {
@@ -129,7 +131,9 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
   const car = active ? { lat: active.coordinates[carIndex][1], lon: active.coordinates[carIndex][0] } : null;
   const arrived = active !== null && progressKm >= totalKm;
 
-  const pending = active && !arrived && !halted ? firstHazardAhead(active.coordinates, cum, carIndex, hazards, handled) : null;
+  const pending = active && !arrived && !halted ? nearestHazardAhead(active.coordinates, cum, carIndex, hazards, handled, ALERT_WITHIN_KM) : null;
+  // For the top banner: anything still ahead on this route, however far.
+  const ahead = active && !arrived ? nearestHazardAhead(active.coordinates, cum, carIndex, hazards, new Set(), Infinity) : null;
 
   const paused = pending !== null || arrived || halted;
 
@@ -204,6 +208,7 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
     remainingKm: Math.max(0, Math.round(totalKm - progressKm)),
     remainingHours: active && totalKm > 0 ? Math.max(0, Math.round(active.hours * (1 - progressKm / totalKm) * 10) / 10) : 0,
     demoHazards,
+    ahead,
     alert,
     setFrom,
     setTo,
