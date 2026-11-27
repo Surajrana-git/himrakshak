@@ -13,6 +13,7 @@ import {
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { RiskLevel } from "@/lib/risk";
+import type { Turn } from "@/lib/trip";
 import { REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
 import { iconElement, LAKE_ICON, REPORT_ICONS } from "@/lib/report-icons";
 import type { SlideNews } from "@/lib/slide-news";
@@ -56,6 +57,8 @@ type Props = {
   tripLines: { id: string; coordinates: number[][]; selected: boolean }[];
   fitLine: number[][] | null;
   car: { lat: number; lon: number } | null;
+  // Within ~600 m of a turn: tilt into a 3D view along the road and draw the arrow through the junction.
+  junction: Turn | null;
   lakes: { id: string; name: string; lat: number; lon: number }[];
   onSelectLake: (id: string) => void;
   towns: { name: string; lat: number; lon: number }[];
@@ -252,6 +255,12 @@ function carPin(): HTMLElement {
   return pin;
 }
 
+function arrowHeadPin(): HTMLElement {
+  const pin = document.createElement("div");
+  pin.innerHTML = '<svg viewBox="0 0 24 24" width="44" height="44"><path d="M12 2 22 22 12 17 2 22z" fill="#A9481A" stroke="#F3F1EA" stroke-width="2" stroke-linejoin="round"/></svg>';
+  return pin;
+}
+
 function pastSlidePin(slide: PastSlide): HTMLElement {
   const pin = document.createElement("button");
   pin.type = "button";
@@ -272,6 +281,7 @@ export default function RiskMap({
   tripLines,
   fitLine,
   car,
+  junction,
   lakes,
   onSelectLake,
   towns,
@@ -289,6 +299,7 @@ export default function RiskMap({
   const closureMarkers = useRef<Marker[]>([]);
   const jamMarkers = useRef<Marker[]>([]);
   const carMarker = useRef<Marker | null>(null);
+  const arrowHead = useRef<Marker | null>(null);
   const lakeMarkers = useRef<Marker[]>([]);
   const onSelectLakeRef = useRef(onSelectLake);
   const onSelectRef = useRef(onSelectSegment);
@@ -349,6 +360,9 @@ export default function RiskMap({
         layout: { "line-join": "round" },
         paint: { "line-color": "#F3F1EA", "line-width": 3, "line-dasharray": [2, 2] },
       });
+
+      // Junction arrow: white casing, orange-dark body, drawn on top of everything in the 3D view.
+      map.addSource("junction", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
 
       // Trip lines sit under the risk colours too: options are faint, the chosen one is bold.
       map.addSource("trip", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
@@ -476,6 +490,10 @@ export default function RiskMap({
 
   // While driving the camera follows the car, like turn-by-turn apps.
   const carLat = car?.lat;
+  const junctionBearing = junction ? Math.round(junction.bearing) : undefined;
+  const junctionPath = junction?.path ?? null;
+  // The path is a new array every render; only redraw when the points really change.
+  const junctionKey = junctionPath?.flat().join() ?? "";
   const carLon = car?.lon;
   useEffect(() => {
     const map = mapRef.current;
@@ -487,8 +505,49 @@ export default function RiskMap({
     }
     if (!carMarker.current) carMarker.current = new Marker({ element: carPin() }).setLngLat([carLon, carLat]).addTo(map);
     carMarker.current.setLngLat([carLon, carLat]);
-    map.easeTo({ center: [carLon, carLat], zoom: Math.max(map.getZoom(), 10), padding: viewPadding(), duration: 380 });
-  }, [loaded, carLat, carLon]);
+    if (junctionBearing !== undefined) {
+      // Real OSM geometry and 3D buildings (OpenFreeMap), tilted along the direction of travel.
+      map.easeTo({ center: [carLon, carLat], zoom: 17, pitch: 60, bearing: junctionBearing, padding: viewPadding(), duration: 380 });
+    } else {
+      map.easeTo({ center: [carLon, carLat], zoom: Math.max(Math.min(map.getZoom(), 14), 10), pitch: 0, bearing: 0, padding: viewPadding(), duration: 380 });
+    }
+  }, [loaded, carLat, carLon, junctionBearing]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    if (!map.getLayer("junction-body")) {
+      map.addLayer({
+        id: "junction-casing",
+        type: "line",
+        source: "junction",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#F3F1EA", "line-width": 22 },
+      });
+      map.addLayer({
+        id: "junction-body",
+        type: "line",
+        source: "junction",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#A9481A", "line-width": 14 },
+      });
+    }
+    map.getSource<GeoJSONSource>("junction")?.setData({
+      type: "FeatureCollection",
+      features: junctionPath ? [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: junctionPath } }] : [],
+    });
+    arrowHead.current?.remove();
+    arrowHead.current = null;
+    if (junctionPath && junctionPath.length > 1) {
+      const end = junctionPath[junctionPath.length - 1];
+      const prev = junctionPath[junctionPath.length - 2];
+      const rotation = (Math.atan2(end[0] - prev[0], end[1] - prev[1]) * 180) / Math.PI;
+      arrowHead.current = new Marker({ element: arrowHeadPin(), rotation, rotationAlignment: "map", pitchAlignment: "map" })
+        .setLngLat(end as [number, number])
+        .addTo(map);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, junctionKey]);
 
   useEffect(() => {
     const map = mapRef.current;

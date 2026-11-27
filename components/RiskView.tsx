@@ -16,6 +16,7 @@ import RerouteCard from "@/components/RerouteCard";
 import ClosureSimulator from "@/components/ClosureSimulator";
 import TripPlanner from "@/components/TripPlanner";
 import NavPanel from "@/components/NavPanel";
+import TurnBanner from "@/components/TurnBanner";
 import NavAlert from "@/components/NavAlert";
 import LakeCard from "@/components/LakeCard";
 import ReportIcon from "@/components/ReportIcon";
@@ -158,6 +159,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
           tripLines={tripLines}
           fitLine={trip.stage === "plan" ? (trip.selected?.coordinates ?? null) : layer === "lakes" ? lakeLine : null}
           car={trip.stage === "nav" ? trip.car : null}
+          junction={trip.stage === "nav" ? trip.junction : null}
           lakes={layer === "lakes" ? lakesData.lakes : NO_LAKES}
           onSelectLake={(id) => {
             setLakeId(id);
@@ -218,6 +220,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
           ))}
         </div>
         )}
+        {trip.stage === "nav" && trip.turn && <TurnBanner turn={trip.turn} />}
         {trip.stage === "nav" && !trip.arrived && (
           <div
             role="status"

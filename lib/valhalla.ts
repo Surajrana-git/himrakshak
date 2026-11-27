@@ -12,12 +12,25 @@ const NO_PATH_CODES = [442, 443];
 
 export type Point = { lat: number; lon: number };
 
-export type RoadRoute = { coordinates: number[][]; km: number; hours: number; roads: string[] };
+// One turn instruction from Valhalla (narrated in Hindi), pinned to where it happens on the road.
+export type Maneuver = { type: number; text: string; lon: number; lat: number; bearing: number | null; exit: number | null };
+
+export type RoadRoute = { coordinates: number[][]; km: number; hours: number; roads: string[]; maneuvers: Maneuver[] };
 
 type ValhallaResponse = {
   trip?: {
     summary: { length: number; time: number };
-    legs: { shape: string; maneuvers: { street_names?: string[] }[] }[];
+    legs: {
+      shape: string;
+      maneuvers: {
+        type: number;
+        instruction: string;
+        begin_shape_index: number;
+        bearing_after?: number;
+        roundabout_exit_count?: number;
+        street_names?: string[];
+      }[];
+    }[];
   };
 };
 
@@ -63,6 +76,7 @@ export async function roadRoute(from: Point, to: Point, closed: Point[]): Promis
     locations: [from, to],
     costing: "auto",
     units: "kilometers",
+    language: "hi-IN",
     exclude_polygons: closed.map(({ lat, lon }) => {
       const h = Math.min(MAX_HALF_BOX_DEG, EDGE_BUDGET_KM / closed.length / KM_PER_HALF_DEG);
       return [
@@ -90,8 +104,17 @@ export async function roadRoute(from: Point, to: Point, closed: Point[]): Promis
   for (const m of trip.legs[0].maneuvers) {
     for (const name of m.street_names ?? []) if (!roads.includes(name)) roads.push(name);
   }
+  const shape = decodePolyline6(trip.legs[0].shape);
+  // Valhalla type 8 is "continue straight": not a decision point, so no junction guidance.
+  const maneuvers = trip.legs[0].maneuvers
+    .filter((m) => m.type !== 8 && m.type !== 1)
+    .map((m) => {
+      const [lon, lat] = shape[m.begin_shape_index];
+      return { type: m.type, text: m.instruction, lon, lat, bearing: m.bearing_after ?? null, exit: m.roundabout_exit_count ?? null };
+    });
   return {
-    coordinates: thin(trip.legs.flatMap((leg) => decodePolyline6(leg.shape))),
+    coordinates: thin(shape),
+    maneuvers,
     km: Math.round(trip.summary.length),
     hours: Math.round((trip.summary.time / 3600) * 10) / 10,
     roads: roads.slice(0, 6),

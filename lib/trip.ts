@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import placesData from "@/data/places.json";
 import { distanceKm } from "@/lib/geo";
 import type { RouteOption, Storm } from "@/lib/routes";
-import type { Point } from "@/lib/valhalla";
+import type { Maneuver, Point } from "@/lib/valhalla";
 
 export type Place = { name: string; hindi: string; lat: number; lon: number; dham: boolean };
 export type Hazard = { id: string; kind: "closure" | "jam"; lat: number; lon: number };
@@ -15,6 +15,9 @@ export type TripAlert = {
   failed: boolean;
 };
 
+// The next turn on the route, with the road around it for the 3D junction view.
+export type Turn = { maneuver: Maneuver; metres: number; bearing: number; path: number[][] };
+
 export const PLACES: Place[] = placesData.places;
 
 const ALERT_WITHIN_KM = 30; // heads-up distance, like a maps app
@@ -23,6 +26,18 @@ const GPS_ON_ROUTE_KM = 2;
 // Demo drive: 1 km every 0.4 s, so a 300 km trip plays in about 2 minutes.
 const DEMO_KM_PER_TICK = 1;
 const DEMO_TICK_MS = 400;
+// Near a turn the demo slows to 50 m a tick, so the junction view can be seen.
+const DEMO_SLOW_KM = 0.05;
+const SLOW_WITHIN_M = 1500;
+const JUNCTION_VIEW_M = 600;
+
+function bearingDeg([lon0, lat0]: number[], [lon1, lat1]: number[]): number {
+  const y = Math.sin(((lon1 - lon0) * Math.PI) / 180) * Math.cos((lat1 * Math.PI) / 180);
+  const x =
+    Math.cos((lat0 * Math.PI) / 180) * Math.sin((lat1 * Math.PI) / 180) -
+    Math.sin((lat0 * Math.PI) / 180) * Math.cos((lat1 * Math.PI) / 180) * Math.cos(((lon1 - lon0) * Math.PI) / 180);
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+}
 
 type Fetched = { key: string; options: RouteOption[] | null; failed: boolean };
 
@@ -135,14 +150,32 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
   // For the top banner: anything still ahead on this route, however far.
   const ahead = active && !arrived ? nearestHazardAhead(active.coordinates, cum, carIndex, hazards, new Set(), Infinity) : null;
 
+  const maneuvers = useMemo(
+    () => (active ? active.maneuvers.map((m) => ({ maneuver: m, index: nearestIndex(active.coordinates, m).index })) : []),
+    [active],
+  );
+  const nextTurn = active && !arrived ? maneuvers.find((m) => m.index > carIndex) : undefined;
+  const turn: Turn | null =
+    active && nextTurn
+      ? {
+          maneuver: nextTurn.maneuver,
+          metres: Math.round((cum[nextTurn.index] - progressKm) * 1000),
+          bearing: bearingDeg(active.coordinates[carIndex], active.coordinates[Math.min(carIndex + 1, active.coordinates.length - 1)]),
+          // From the car through the junction and a little beyond, so the arrow shows the exit.
+          path: active.coordinates.slice(carIndex, Math.min(nextTurn.index + 3, active.coordinates.length)),
+        }
+      : null;
+  const slow = turn !== null && turn.metres < SLOW_WITHIN_M;
+
   const paused = pending !== null || arrived || halted;
 
   // Demo drive (clearly labelled in the UI): only when GPS is not on the route.
   useEffect(() => {
     if (stage !== "nav" || gps || paused) return;
-    const timer = setInterval(() => setProgressKm((km) => km + DEMO_KM_PER_TICK), DEMO_TICK_MS);
+    const step = slow ? DEMO_SLOW_KM : DEMO_KM_PER_TICK;
+    const timer = setInterval(() => setProgressKm((km) => km + step), DEMO_TICK_MS);
     return () => clearInterval(timer);
-  }, [stage, gps, paused]);
+  }, [stage, gps, paused, slow]);
 
   // Real GPS takes over as soon as the phone is actually on the route.
   useEffect(() => {
@@ -209,6 +242,8 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
     remainingHours: active && totalKm > 0 ? Math.max(0, Math.round(active.hours * (1 - progressKm / totalKm) * 10) / 10) : 0,
     demoHazards,
     ahead,
+    turn,
+    junction: turn !== null && turn.metres <= JUNCTION_VIEW_M ? turn : null,
     alert,
     setFrom,
     setTo,
