@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import RiskMap, { type BaseMap, type MapSegment } from "@/components/RiskMap";
@@ -33,6 +33,7 @@ import AiRiskCard from "@/components/AiRiskCard";
 import type { AiRiskFeed } from "@/lib/ai-risk";
 import { isGuest, useAuth } from "@/lib/auth";
 import { useSavedPlaces } from "@/lib/saved-places";
+import { canListen, listen, parseCommand, say } from "@/lib/voice";
 import lakesData from "@/data/glacial-lakes.json";
 import { nearestPlace, useTrip, type Hazard } from "@/lib/trip";
 import { confirmedBlocks, recentJams, useReports } from "@/lib/reports";
@@ -66,6 +67,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const [tab, setTab] = useState<Tab>("home");
   const [plusOpen, setPlusOpen] = useState(false);
   const [shareNote, setShareNote] = useState<string | null>(null);
+  const [listening, setListening] = useState(false);
   const auth = useAuth();
   const saved = useSavedPlaces(auth.user?.id ?? null);
   const [lakeId, setLakeId] = useState<string | null>(null);
@@ -116,13 +118,42 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   }, [reports, demoClosedId, route.segments]);
   const closureKey = closures.map((c) => `${c.lat.toFixed(4)},${c.lon.toFixed(4)}`).join(";");
 
-  // Hazards the trip watches for: closed spots, and jams drivers reported in the last 2 hours.
+  const segmentName = (id: string) => {
+    const s = route.segments.find((x) => x.id === id);
+    return s ? `${s.from} → ${s.to}` : id;
+  };
+
+  // Stretches the AI check rates High today (re-scored every 30 min on the server).
+  const aiHigh = useMemo(() => (ai?.stretches ?? []).filter((s) => s.today.level === "high").map((s) => s.segmentId), [ai]);
+
+  // Hazards the trip watches for: closed spots, jams drivers reported in the last 2 hours,
+  // and the middle of each stretch the AI check rates High today.
   const knownHazards = useMemo(() => {
     const list: Hazard[] = closures.map((c) => ({ id: `closure-${c.lat.toFixed(3)},${c.lon.toFixed(3)}`, kind: "closure", lat: c.lat, lon: c.lon }));
     for (const r of recentJams(reports)) list.push({ id: r.id, kind: "jam", lat: r.lat, lon: r.lon });
+    for (const id of aiHigh) {
+      const seg = route.segments.find((s) => s.id === id);
+      if (!seg) continue;
+      const [lon, lat] = seg.coordinates[Math.floor(seg.coordinates.length / 2)];
+      list.push({ id: `ai-${id}-${ai?.updatedAt.slice(0, 10)}`, kind: "ai", lat, lon });
+    }
     return list;
-  }, [closures, reports]);
+  }, [closures, reports, aiHigh, ai, route.segments]);
   const trip = useTrip(knownHazards, storm);
+
+  // Phone/browser notification once per day per stretch, if the user allowed notifications.
+  const aiKey = aiHigh.join(",");
+  useEffect(() => {
+    if (!aiKey || !("Notification" in window) || Notification.permission !== "granted") return;
+    for (const id of aiKey.split(",")) {
+      new Notification("Himrakshak: high landslide risk today", {
+        body: `${segmentName(id)}: heavy rain makes slides likely. Check the safest route before you leave.`,
+        tag: `ai-${id}-${new Date().toISOString().slice(0, 10)}`,
+      });
+    }
+    // Only a new set of High stretches should notify, not every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiKey]);
   const mapClosures = useMemo(
     () => [...closures, ...trip.demoHazards.filter((h) => h.kind === "closure")],
     [closures, trip.demoHazards],
@@ -163,10 +194,58 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
     return { ...s, display: { color: t.color, text: t.text, label: `${t.label}${speed}` } };
   });
 
-  const segmentName = (id: string) => {
-    const s = route.segments.find((x) => x.id === id);
-    return s ? `${s.from} → ${s.to}` : id;
-  };
+  function note(text: string) {
+    setShareNote(text);
+    setTimeout(() => setShareNote(null), 3500);
+  }
+
+  // "Go to Kedarnath", "start", "save route", "SOS", "report", "stop".
+  async function voiceCommand() {
+    if (listening) return;
+    setListening(true);
+    let heard = "";
+    try {
+      heard = await listen();
+    } catch (e) {
+      note(e instanceof Error ? e.message : "Voice is not available");
+      setListening(false);
+      return;
+    }
+    setListening(false);
+    if (!heard) return note("Didn't catch that. Try: go to Badrinath");
+    const cmd = parseCommand(heard);
+    if (cmd.type === "go") {
+      setTab("home");
+      setPlusOpen(false);
+      trip.setTo(cmd.place);
+      trip.openPlanner();
+      say(`Finding the safest route to ${cmd.place.name}`);
+      note(`"${heard}" → route to ${cmd.place.name}`);
+    } else if (cmd.type === "start") {
+      if (trip.stage === "plan" && trip.selected) {
+        trip.start();
+        say("Starting navigation");
+      } else say("Say where you want to go first, for example, go to Badrinath");
+    } else if (cmd.type === "save") {
+      if (!auth.user) return say("Please sign in to save routes");
+      if (!trip.to) return say("Choose a destination first");
+      const error = await saved.save({ list_name: "Routes", name: `${trip.from.name} → ${trip.to.name}`, lat: trip.to.lat, lon: trip.to.lon });
+      say(error ? "Could not save the route" : "Route saved");
+      note(error ? `Could not save: ${error}` : `Saved: ${trip.from.name} → ${trip.to.name}`);
+    } else if (cmd.type === "sos") {
+      router.push("/sos");
+    } else if (cmd.type === "report") {
+      setReporting(true);
+      say("What do you see on the road?");
+    } else if (cmd.type === "stop") {
+      if (trip.stage === "idle") return say("No trip is running");
+      trip.close();
+      say("Trip ended");
+    } else {
+      say("Sorry, I did not understand. Try: go to Badrinath");
+      note(`Heard "${cmd.heard}". Try: go to Badrinath, start, save route, SOS`);
+    }
+  }
 
   function selectSegment(id: string | null) {
     setFocusId(id);
@@ -215,6 +294,8 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
               trip.openPlanner();
             }}
             onDirections={trip.openPlanner}
+            onVoice={voiceCommand}
+            listening={listening}
           />
         ) : (
         <div className="pointer-events-auto flex min-h-14 items-center gap-3 rounded-full bg-white py-2 pr-2 pl-2 shadow-lg">
@@ -242,23 +323,33 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
             Badrinath highway: {worstStyle.label}
           </span>
         )}
+        {trip.stage === "idle" && aiHigh.length > 0 && (
+          <button
+            onClick={() => setSheetOpen(true)}
+            role="alert"
+            className="pointer-events-auto flex items-center gap-2 self-start rounded-2xl bg-danger px-3 py-2 text-left text-sm font-semibold text-white shadow-md"
+          >
+            <ReportIcon kind="landslide" className="h-5 w-5 shrink-0" />
+            AI warning: high slide risk today on {aiHigh.map(segmentName).join(", ")}
+          </button>
+        )}
         {trip.stage === "nav" && trip.turn && <TurnBanner turn={trip.turn} />}
         {trip.stage === "nav" && !trip.arrived && (
           <div
             role="status"
             className={`pointer-events-auto flex items-center gap-3 rounded-2xl p-3 shadow-lg ${
-              trip.ahead ? (trip.ahead.hazard.kind === "jam" ? "bg-orange text-ink" : "bg-danger text-snow") : "bg-ink text-snow"
+              trip.ahead ? (trip.ahead.hazard.kind === "closure" ? "bg-danger text-snow" : "bg-orange text-ink") : "bg-ink text-snow"
             }`}
           >
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-snow text-ink">
-              <ReportIcon kind={trip.ahead ? (trip.ahead.hazard.kind === "jam" ? "jam" : "road_blocked") : "clear"} className="h-8 w-8" />
+              <ReportIcon kind={trip.ahead ? HAZARD_ICON[trip.ahead.hazard.kind] : "clear"} className="h-8 w-8" />
             </span>
             <span className="min-w-0">
               <span className="block font-display text-2xl leading-tight">
-                {trip.ahead ? `${trip.ahead.hazard.kind === "jam" ? "Jam" : "Road closed"} in ${trip.ahead.kmAhead} km` : "Road ahead is clear"}
+                {trip.ahead ? `${HAZARD_TEXT[trip.ahead.hazard.kind]} in ${trip.ahead.kmAhead} km` : "Road ahead is clear"}
               </span>
               <span className="block text-sm opacity-80">
-                {trip.ahead ? "Reported by drivers" : "No reported hazard on your route"}
+                {trip.ahead ? (trip.ahead.hazard.kind === "ai" ? "AI check: heavy rain, slides likely" : "Reported by drivers") : "No reported hazard on your route"}
               </span>
             </span>
           </div>
@@ -328,6 +419,10 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
         </MapButton>
       </div>
+      {/* Voice also works while planning or driving, when the search bar is hidden. */}
+      {trip.stage !== "idle" && (
+        <VoiceButton listening={listening} onClick={voiceCommand} />
+      )}
       {shareNote && (
         <p role="status" className="animate-fade absolute top-[132px] left-3 z-30 rounded-full bg-ink px-4 py-2 text-sm text-white">
           {shareNote}
@@ -499,9 +594,31 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   );
 }
 
+const HAZARD_ICON = { jam: "jam", ai: "landslide", closure: "road_blocked" } as const;
+const HAZARD_TEXT = { jam: "Jam", ai: "High slide risk", closure: "Road closed" } as const;
+
 // Stable empty list so the map doesn't redraw news pins on every render.
 const NO_NEWS: SlideNewsFeed["items"] = [];
 const NO_LAKES: typeof lakesData.lakes = [];
+
+function VoiceButton({ listening, onClick }: { listening: boolean; onClick: () => void }) {
+  // Hidden where there is no recogniser (some browsers); the server renders without it.
+  const available = useSyncExternalStore(noSubscribe, canListen, () => false);
+  if (!available) return null;
+  return (
+    <button
+      onClick={onClick}
+      aria-label="Voice command"
+      className={`absolute right-3 bottom-[46dvh] z-20 flex h-14 w-14 items-center justify-center rounded-full shadow-xl ${listening ? "bg-danger text-white" : "bg-green text-white"}`}
+    >
+      <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden>
+        <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-2.1a7 7 0 0 0 6-6.9z" />
+      </svg>
+    </button>
+  );
+}
+
+const noSubscribe = () => () => {};
 
 function MapButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
   return (

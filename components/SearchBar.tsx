@@ -1,16 +1,10 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
+import { canListen } from "@/lib/voice";
 import { PLACES, type Place } from "@/lib/trip";
 
-type Props = { onMenu: () => void; onPick: (place: Place) => void; onDirections: () => void };
-
-// Chrome's built-in speech API (no key). Missing on some browsers, so the mic hides there.
-type Recognition = { lang: string; onresult: (e: { results: { 0: { transcript: string } }[] }) => void; onend: () => void; start: () => void };
-function speechRecognition(): (new () => Recognition) | null {
-  const w = window as unknown as { SpeechRecognition?: new () => Recognition; webkitSpeechRecognition?: new () => Recognition };
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
-}
+type Props = { onMenu: () => void; onPick: (place: Place) => void; onDirections: () => void; onVoice: () => void; listening: boolean };
 
 const noSubscribe = () => () => {};
 
@@ -21,23 +15,11 @@ function match(query: string): Place[] {
 }
 
 // Floating top bar: menu, "Search Himrakshak" with voice, and the green directions button.
-export default function SearchBar({ onMenu, onPick, onDirections }: Props) {
+export default function SearchBar({ onMenu, onPick, onDirections, onVoice, listening }: Props) {
   const [query, setQuery] = useState("");
-  const [listening, setListening] = useState(false);
   const results = match(query);
   // Only known in the browser; the server renders without the mic so hydration matches.
-  const hasSpeech = useSyncExternalStore(noSubscribe, () => speechRecognition() !== null, () => false);
-
-  function listen() {
-    const Speech = speechRecognition();
-    if (!Speech) return;
-    const rec = new Speech();
-    rec.lang = "en-IN";
-    rec.onresult = (e) => setQuery(e.results[0][0].transcript);
-    rec.onend = () => setListening(false);
-    setListening(true);
-    rec.start();
-  }
+  const hasSpeech = useSyncExternalStore(noSubscribe, canListen, () => false);
 
   function pick(place: Place) {
     setQuery("");
@@ -61,7 +43,7 @@ export default function SearchBar({ onMenu, onPick, onDirections }: Props) {
           className="min-h-12 min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted"
         />
         {hasSpeech && (
-          <button onClick={listen} aria-label="Voice search" className={`flex h-12 w-10 shrink-0 items-center justify-center ${listening ? "text-danger" : ""}`}>
+          <button onClick={onVoice} aria-label="Voice command" className={`flex h-12 w-10 shrink-0 items-center justify-center ${listening ? "text-danger" : ""}`}>
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
               <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-2.1a7 7 0 0 0 6-6.9z" />
             </svg>

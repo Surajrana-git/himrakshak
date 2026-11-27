@@ -9,7 +9,7 @@ type Props = {
   arrived: boolean;
   halted: boolean;
   stopPlace: string;
-  onDemo: (kind: "jam" | "closure") => void;
+  onDemo: (kind: "jam" | "ai" | "closure") => void;
   onReport: (() => void) | null;
   onStop: () => void;
 };
@@ -94,12 +94,15 @@ export default function NavPanel({ destination, remainingKm, remainingHours, gps
       </p>
 
       {!halted && (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <button onClick={() => onDemo("jam")} className="min-h-12 rounded-xl border-2 border-dashed border-ink/40 px-2 text-sm font-semibold">
-            Demo: jam ahead
+            Demo: jam
+          </button>
+          <button onClick={() => onDemo("ai")} className="min-h-12 rounded-xl border-2 border-dashed border-ink/40 px-2 text-sm font-semibold">
+            Demo: AI risk
           </button>
           <button onClick={() => onDemo("closure")} className="min-h-12 rounded-xl border-2 border-dashed border-ink/40 px-2 text-sm font-semibold">
-            Demo: landslide ahead
+            Demo: landslide
           </button>
         </div>
       )}

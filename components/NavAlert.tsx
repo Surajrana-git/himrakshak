@@ -12,7 +12,8 @@ type Props = {
 };
 
 // Jam: a short heads-up, staying on the route is the default.
-// Landslide: longer, and when time runs out the safest way around is taken.
+// Landslide (road closed): longer, and when time runs out the safest way around is taken.
+// AI warning (road open, slides likely): longer, safer routes offered, staying is the default.
 const JAM_SECONDS = 5;
 const CLOSURE_SECONDS = 12;
 
@@ -25,7 +26,10 @@ function speak(text: string) {
 }
 
 export default function NavAlert({ alert, current, stopPlace, onResolve }: Props) {
-  const isJam = alert.hazard.kind === "jam";
+  const kind = alert.hazard.kind;
+  const isJam = kind === "jam";
+  // Jam and AI warnings leave the road open, so doing nothing keeps the driver on it.
+  const soft = kind !== "closure";
   const seconds = isJam ? JAM_SECONDS : CLOSURE_SECONDS;
   const ready = alert.options !== null || alert.failed;
   const options = alert.options ?? [];
@@ -41,8 +45,14 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
   }
 
   useEffect(() => {
-    speak(isJam ? `Traffic jam ${alert.kmAhead} kilometres ahead.` : `Warning. Landslide ${alert.kmAhead} kilometres ahead. The road is closed.`);
-  }, [isJam, alert.kmAhead]);
+    speak(
+      kind === "jam"
+        ? `Traffic jam ${alert.kmAhead} kilometres ahead.`
+        : kind === "ai"
+          ? `Caution. High landslide risk ${alert.kmAhead} kilometres ahead after heavy rain. A safer route may be available.`
+          : `Warning. Landslide ${alert.kmAhead} kilometres ahead. The road is closed.`,
+    );
+  }, [kind, alert.kmAhead]);
 
   // The countdown starts once the new routes are in, so the driver always sees the choices.
   useEffect(() => {
@@ -54,25 +64,26 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
   useEffect(() => {
     if (left > 0) return;
     // No answer: jam → stay on this road; landslide → safest way around, or stop if there is none.
-    resolve(isJam ? null : safest);
+    resolve(soft ? null : safest);
   });
 
   const noWayAround = ready && options.length === 0;
 
   return (
-    <div role="alertdialog" aria-live="assertive" className={`rounded-3xl p-4 shadow-2xl ${isJam ? "bg-orange text-ink" : "bg-danger text-snow"}`}>
+    <div role="alertdialog" aria-live="assertive" className={`rounded-3xl p-4 shadow-2xl ${soft ? "bg-orange text-ink" : "bg-danger text-snow"}`}>
       <div className="flex items-center gap-3">
         <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-snow text-ink">
           <ReportIcon kind={isJam ? "jam" : "landslide"} className="h-9 w-9" />
         </span>
         <div>
           <p className="font-display text-xs uppercase tracking-[0.2em]">
-            {isJam ? "Traffic jam ahead" : "Landslide ahead"} · {alert.kmAhead} km
+            {isJam ? "Traffic jam ahead" : kind === "ai" ? "AI landslide warning" : "Landslide ahead"} · {alert.kmAhead} km
           </p>
-          <p className="font-display text-3xl leading-tight">{isJam ? "Jam ahead" : "Road closed"}</p>
+          <p className="font-display text-3xl leading-tight">{isJam ? "Jam ahead" : kind === "ai" ? "High risk ahead" : "Road closed"}</p>
         </div>
       </div>
 
+      {kind === "ai" && <p className="mt-2">Heavy rain makes slides likely on this stretch today. The road is still open.</p>}
       {!ready && <p className="mt-2">Finding another route…</p>}
       {alert.failed && <p className="mt-2">Cannot find a new route right now (routing server).</p>}
 
@@ -81,9 +92,9 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
           Other route: {fastest.hours} h · {fastest.km} km. Current: {current.hours} h · {current.km} km (plus jam delay).
         </p>
       )}
-      {isJam && noWayAround && <p className="mt-2">No other route. Drive slowly and carefully.</p>}
+      {soft && noWayAround && <p className="mt-2">No other route. Drive slowly and watch for falling rocks.</p>}
 
-      {!isJam && noWayAround && (
+      {kind === "closure" && noWayAround && (
         <p className="mt-2">
           There is no other route. Do not go ahead: stop at {stopPlace} and wait for the road to reopen.
         </p>
@@ -105,14 +116,14 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
               Take other route
             </button>
           )}
-          <button onClick={() => resolve(isJam ? null : safest)} className="min-h-12 rounded-full bg-snow font-semibold text-ink">
-            {isJam ? "Stay on this route" : safest ? "Take the safest route" : "OK, I will stop"}
+          <button onClick={() => resolve(soft ? null : safest)} className="min-h-12 rounded-full bg-snow font-semibold text-ink">
+            {soft ? "Stay on this route" : safest ? "Take the safest route" : "OK, I will stop"}
           </button>
           <div className="h-1.5 overflow-hidden rounded-full bg-ink/20" aria-hidden>
             <div className="h-full bg-snow transition-[width] duration-1000 ease-linear" style={{ width: `${(left / seconds) * 100}%` }} />
           </div>
           <p className="text-xs">
-            {left} s{isJam ? " · no answer keeps this route" : safest ? " · no answer picks the safest route" : ""}
+            {left} s{soft ? " · no answer keeps this route" : safest ? " · no answer picks the safest route" : ""}
           </p>
         </div>
       )}

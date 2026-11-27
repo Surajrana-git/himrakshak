@@ -7,7 +7,8 @@ import type { RouteOption, Storm } from "@/lib/routes";
 import type { Maneuver, Point } from "@/lib/valhalla";
 
 export type Place = { name: string; hindi: string; lat: number; lon: number; dham: boolean };
-export type Hazard = { id: string; kind: "closure" | "jam"; lat: number; lon: number };
+// "ai": the AI check rates the stretch High today; the road is open but slides are likely.
+export type Hazard = { id: string; kind: "closure" | "jam" | "ai"; lat: number; lon: number };
 export type TripAlert = {
   hazard: Hazard;
   kmAhead: number;
@@ -20,7 +21,9 @@ export type Turn = { maneuver: Maneuver; metres: number; bearing: number; path: 
 
 export const PLACES: Place[] = placesData.places;
 
-const ALERT_WITHIN_KM = 30; // heads-up distance, like a maps app
+const ALERT_WITHIN_KM = 30;
+// Demo hazards: a jam 12 km ahead, an AI warning 15 km ahead, a landslide 18 km ahead.
+const DEMO_KM_AHEAD: Record<Hazard["kind"], number> = { jam: 12, ai: 15, closure: 18 }; // heads-up distance, like a maps app
 const ON_ROUTE_KM = 1; // a hazard further than this from the line is on another road
 const GPS_ON_ROUTE_KM = 2;
 // Demo drive: 1 km every 0.4 s, so a 300 km trip plays in about 2 minutes.
@@ -198,7 +201,7 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
   const pendingId = pending?.hazard.id ?? "";
   useEffect(() => {
     if (!pending || !to || !car) return;
-    const avoid = pending.hazard.kind === "jam" ? [...closed, pending.hazard] : closed;
+    const avoid = pending.hazard.kind === "closure" ? closed : [...closed, pending.hazard];
     let stale = false;
     fetchOptions(car, to, avoid, storm)
       .then((options) => !stale && setAlertFetch({ key: pendingId, options, failed: false }))
@@ -273,7 +276,7 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
     // Demo only: drop a jam 12 km or a landslide 18 km ahead of the car.
     demoHazard: (kind: Hazard["kind"]) => {
       if (!active) return;
-      const [lon, lat] = active.coordinates[indexAtKm(cum, progressKm + (kind === "jam" ? 12 : 18))];
+      const [lon, lat] = active.coordinates[indexAtKm(cum, progressKm + DEMO_KM_AHEAD[kind])];
       setDemoHazards((list) => [...list, { id: `demo-${kind}-${list.length}`, kind, lat, lon }]);
     },
   };
