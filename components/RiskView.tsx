@@ -17,6 +17,8 @@ import ClosureSimulator from "@/components/ClosureSimulator";
 import TripPlanner from "@/components/TripPlanner";
 import NavPanel from "@/components/NavPanel";
 import NavAlert from "@/components/NavAlert";
+import LakeCard from "@/components/LakeCard";
+import lakesData from "@/data/glacial-lakes.json";
 import { nearestPlace, useTrip, type Hazard } from "@/lib/trip";
 import { confirmedBlocks, recentJams, useReports } from "@/lib/reports";
 import { supabase } from "@/lib/supabase";
@@ -40,7 +42,14 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
   const [locateSignal, setLocateSignal] = useState(0);
   const [fitSignal, setFitSignal] = useState(0);
   const [demoClosedId, setDemoClosedId] = useState<string | null>(null);
-  const [layer, setLayer] = useState<"risk" | "traffic">("risk");
+  const [layer, setLayer] = useState<"risk" | "traffic" | "lakes">("risk");
+  const [lakeId, setLakeId] = useState<string | null>(null);
+  const selectedLake = lakesData.lakes.find((l) => l.id === lakeId) ?? null;
+  // Fit the camera to the lake and the road below it, so the link to the route is visible.
+  const lakeLine = useMemo(
+    () => (selectedLake ? [[selectedLake.lon, selectedLake.lat], [selectedLake.roadPoint.lon, selectedLake.roadPoint.lat]] : null),
+    [selectedLake],
+  );
   const [detourSignal, setDetourSignal] = useState(0);
   const [detourResult, setDetourResult] = useState<{ key: string; detour: Detour | null; failed: boolean } | null>(null);
   const online = useOnline();
@@ -114,7 +123,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
 
   // Google-Maps-style layer switch: the same road coloured by landslide risk or by traffic.
   const segments: MapSegment[] = scored.map((s, i) => {
-    if (layer === "risk") {
+    if (layer !== "traffic") {
       const r = RISK_STYLE[s.level];
       return { ...s, display: { color: r.color, text: r.text, label: `${r.hindi} · ${r.label} · ${s.score}` } };
     }
@@ -146,8 +155,13 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
           detour={closureKey && trip.stage === "idle" ? detourLine : null}
           detourSignal={detourSignal}
           tripLines={tripLines}
-          fitLine={trip.stage === "plan" ? (trip.selected?.coordinates ?? null) : null}
+          fitLine={trip.stage === "plan" ? (trip.selected?.coordinates ?? null) : layer === "lakes" ? lakeLine : null}
           car={trip.stage === "nav" ? trip.car : null}
+          lakes={layer === "lakes" ? lakesData.lakes : NO_LAKES}
+          onSelectLake={(id) => {
+            setLakeId(id);
+            setSheetOpen(true);
+          }}
           towns={route.towns}
           reports={reports}
           focusId={focusId}
@@ -187,6 +201,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
             [
               ["risk", "खतरा · Risk"],
               ["traffic", "ट्रैफिक · Traffic"],
+              ["lakes", "झील · Lakes"],
             ] as const
           ).map(([value, label]) => (
             <button
@@ -194,7 +209,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
               role="radio"
               aria-checked={layer === value}
               onClick={() => setLayer(value)}
-              className={`min-h-10 rounded-full px-4 text-sm font-semibold ${layer === value ? "bg-ink text-snow" : "text-ink"}`}
+              className={`min-h-10 rounded-full px-3 text-sm font-semibold ${layer === value ? "bg-ink text-snow" : "text-ink"}`}
             >
               {label}
             </button>
@@ -307,6 +322,14 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
               onStop={trip.close}
             />
           )}
+          {trip.stage === "idle" && layer === "lakes" && (
+            <section className="flex flex-col gap-3">
+              <h2 className="font-display text-xl">Glacier jheel · Glacial lakes above the roads</h2>
+              {lakesData.lakes.map((lake) => (
+                <LakeCard key={lake.id} lake={lake} selected={lake.id === lakeId} onSelect={() => setLakeId(lake.id === lakeId ? null : lake.id)} />
+              ))}
+            </section>
+          )}
           {trip.stage === "idle" && (
           <>
           {closures.length > 0 && (
@@ -357,6 +380,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
 
 // Stable empty list so the map doesn't redraw news pins on every render.
 const NO_NEWS: SlideNewsFeed["items"] = [];
+const NO_LAKES: typeof lakesData.lakes = [];
 
 function MapButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
   return (

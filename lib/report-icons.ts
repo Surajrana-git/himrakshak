@@ -16,6 +16,9 @@ export const REPORT_ICONS: Record<ReportKind, string[]> = {
   clear: ["M5 12.5l4.5 4.5L19 7.5"],
 };
 
+// A lake held back by a moraine wall, for the Predict layer.
+export const LAKE_ICON = ["M3 15c2.5-1.5 4.5-1.5 7 0s4.5 1.5 7 0 3-1 4 0", "M5 11c2-4 4-6 7-6s5 2 7 6", "M4 19h16"];
+
 // For map pins and popups, which are plain DOM (MapLibre markers), not React.
 export function iconElement(paths: string[], sizePx: number): SVGSVGElement {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");

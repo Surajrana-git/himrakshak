@@ -1,0 +1,74 @@
+{
+ "note": "Only numbers stated by the cited sources. Areas for each lake come from ONE source (never mixed). Satellite estimates; watch only, not a flood warning.",
+ "lakes": [
+  {
+   "id": "vasudhara",
+   "name": "Vasudhara Tal",
+   "hindi": "वसुधारा ताल",
+   "lat": 30.90106,
+   "lon": 79.75438,
+   "elevationM": 4677,
+   "status": "growing",
+   "areas": [
+    { "year": 1972, "km2": 0.137 },
+    { "year": 1994, "km2": 0.158 },
+    { "year": 2001, "km2": 0.198 },
+    { "year": 2011, "km2": 0.536 },
+    { "year": 2023, "km2": 0.572 }
+   ],
+   "areaSource": "Pandey A. (2026), Open Geosciences 18(1), Table 1 (lake L55). The paper's text gives 0.622 km² for 2023.",
+   "growth": "50 साल में ~4 गुना · about 4× in 50 years; +171% in 2001–2011 alone.",
+   "fieldNote": "USDMA field team, Oct 2026: about 900 m × 600 m, 38.5 m deep, no big change in size recently.",
+   "risk": "NDMA Category A (the only one in Chamoli). Held back only by moraine. USDMA installed the state's first sensor early-warning system here in 2026.",
+   "downstream": "रैकाणा → धौलीगंगा → मलारी, रैणी, तपोवन → विष्णुप्रयाग (NH-7, जोशीमठ के पास)",
+   "roadPoint": { "lat": 30.5631, "lon": 79.5765 },
+   "stretchIds": ["pipalkoti-joshimath", "joshimath-badrinath"],
+   "sources": [
+    "https://doi.org/10.1515/geo-2025-0974",
+    "https://usdma.uk.gov.in/14-sep-2026-usdma-successfully-completes-first-phase-of-early-warning-system-installation-at-vasundhara-tal/"
+   ]
+  },
+  {
+   "id": "balbala",
+   "name": "Balbala Lake",
+   "hindi": "बालबाला झील",
+   "lat": 30.9759,
+   "lon": 79.45892,
+   "elevationM": 5550,
+   "status": "growing",
+   "areas": [
+    { "year": 1980, "km2": 0.023 },
+    { "year": 1994, "km2": 0.084 },
+    { "year": 2001, "km2": 0.116 },
+    { "year": 2011, "km2": 0.16 },
+    { "year": 2023, "km2": 0.198 }
+   ],
+   "areaSource": "Pandey A. (2026), Open Geosciences 18(1), section 4.1 and Table 1. Named in this one paper only.",
+   "growth": "1980 के आसपास बनी, 2023 तक ~8.6 गुना · formed around 1980, about 8.6× bigger by 2023.",
+   "fieldNote": "Checked in the field on 9 Oct 2019 (the only lake the paper visited).",
+   "risk": "GLOF susceptibility 0.855 (very high): ice calves into it, rockfall and debris land in it, the moraine outlet is unstable.",
+   "downstream": "माणा → बदरीनाथ की ओर (पेपर के अनुसार बदरीनाथ की तरफ़)",
+   "roadPoint": { "lat": 30.7433, "lon": 79.4938 },
+   "stretchIds": ["joshimath-badrinath"],
+   "sources": ["https://doi.org/10.1515/geo-2025-0974"]
+  },
+  {
+   "id": "chorabari",
+   "name": "Chorabari Tal (Gandhi Sarovar)",
+   "hindi": "चोराबाड़ी ताल (गांधी सरोवर)",
+   "lat": 30.7475,
+   "lon": 79.06083,
+   "elevationM": 3960,
+   "status": "history",
+   "areas": [],
+   "areaSource": "No source gives an area in km². Before 2013: about 400 m × 200 m, 15–20 m deep (Dobhal et al. 2013, Current Science 105(2)).",
+   "growth": "16–17 जून 2013 को टूटी, 5–10 मिनट में खाली; फिर नहीं भरी · burst in June 2013, drained in 5–10 minutes, never refilled.",
+   "fieldNote": "Today a flat area of boulders with a small stream.",
+   "risk": "What a lake outburst does to a Char Dham road: the 2013 flood wiped out Kedarnath town and the Kedarnath–Gaurikund route.",
+   "downstream": "केदारनाथ → रामबाड़ा → गौरीकुंड → सोनप्रयाग → रुद्रप्रयाग (NH-7)",
+   "roadPoint": { "lat": 30.6534, "lon": 79.0268 },
+   "stretchIds": [],
+   "sources": ["https://www.currentscience.ac.in/Volumes/105/02/0171.pdf", "https://en.wikipedia.org/wiki/Chorabari_Lake"]
+  }
+ ]
+}

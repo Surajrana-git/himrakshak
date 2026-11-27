@@ -14,7 +14,7 @@ import {
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { RiskLevel } from "@/lib/risk";
 import { REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
-import { iconElement, REPORT_ICONS } from "@/lib/report-icons";
+import { iconElement, LAKE_ICON, REPORT_ICONS } from "@/lib/report-icons";
 import type { SlideNews } from "@/lib/slide-news";
 
 // The bundler can't find MapLibre's worker next to its own chunk, so we serve a copy
@@ -56,6 +56,8 @@ type Props = {
   tripLines: { id: string; coordinates: number[][]; selected: boolean }[];
   fitLine: number[][] | null;
   car: { lat: number; lon: number } | null;
+  lakes: { id: string; name: string; lat: number; lon: number }[];
+  onSelectLake: (id: string) => void;
   towns: { name: string; lat: number; lon: number }[];
   reports: Report[];
   focusId: string | null;
@@ -230,6 +232,15 @@ function jamPin(): HTMLElement {
   return pin;
 }
 
+function lakePin(name: string): HTMLElement {
+  const pin = document.createElement("button");
+  pin.type = "button";
+  pin.setAttribute("aria-label", `Glacial lake: ${name}`);
+  pin.className = "flex h-11 w-11 items-center justify-center rounded-full border-[3px] border-snow bg-ink text-snow shadow-lg";
+  pin.append(iconElement(LAKE_ICON, 24));
+  return pin;
+}
+
 function carPin(): HTMLElement {
   const pin = document.createElement("div");
   pin.setAttribute("role", "img");
@@ -261,6 +272,8 @@ export default function RiskMap({
   tripLines,
   fitLine,
   car,
+  lakes,
+  onSelectLake,
   towns,
   reports,
   focusId,
@@ -276,12 +289,26 @@ export default function RiskMap({
   const closureMarkers = useRef<Marker[]>([]);
   const jamMarkers = useRef<Marker[]>([]);
   const carMarker = useRef<Marker | null>(null);
+  const lakeMarkers = useRef<Marker[]>([]);
+  const onSelectLakeRef = useRef(onSelectLake);
   const onSelectRef = useRef(onSelectSegment);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     onSelectRef.current = onSelectSegment;
-  }, [onSelectSegment]);
+    onSelectLakeRef.current = onSelectLake;
+  }, [onSelectSegment, onSelectLake]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    lakeMarkers.current.forEach((m) => m.remove());
+    lakeMarkers.current = lakes.map((lake) => {
+      const pin = lakePin(lake.name);
+      pin.addEventListener("click", () => onSelectLakeRef.current(lake.id));
+      return new Marker({ element: pin }).setLngLat([lake.lon, lake.lat]).addTo(map);
+    });
+  }, [loaded, lakes]);
 
   useEffect(() => {
     if (!container.current) return;
