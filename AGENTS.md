@@ -106,7 +106,7 @@ segment on the route is below 70.
 - **Never:** purple/blue gradients, glassmorphism, emoji as icons, "Welcome to…"
   hero text, rocket emojis, lorem ipsum, stock "AI" illustrations.
 - Big tap targets (min 48px). A taxi driver must be able to use it with one hand.
-- Hindi first where text is shown to drivers; English is fine for the dashboard.
+- All app text and voice in plain English (team decision, 27 Nov). Short words a driver understands at a glance: "Road closed", not "Band".
 - Every colour meaning must also be written in words ("High risk"), never colour alone.
 - Mobile first: design for a 375px wide phone, then desktop.
 

@@ -14,7 +14,7 @@ export default function TripTimeline({ segments, focusId, onSelect }: Props) {
   return (
     <section>
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-xl">Aapka safar / Your trip</h2>
+        <h2 className="font-display text-xl">Your trip</h2>
         <p className="text-sm text-muted">{totalKm} km</p>
       </div>
       <ol className="mt-3">

@@ -1,9 +1,9 @@
 export type Tab = "home" | "saves" | "places";
 
 const TABS: { id: Tab; label: string; path: string }[] = [
-  { id: "home", label: "Home · होम", path: "M3 11 12 3l9 8v10h-6v-6H9v6H3z" },
-  { id: "saves", label: "Saves · सेव", path: "M6 3h12v18l-6-4-6 4z" },
-  { id: "places", label: "Places · जगहें", path: "M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" },
+  { id: "home", label: "Home", path: "M3 11 12 3l9 8v10h-6v-6H9v6H3z" },
+  { id: "saves", label: "Saves", path: "M6 3h12v18l-6-4-6 4z" },
+  { id: "places", label: "Places", path: "M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" },
 ];
 
 // Floating green pill with Home / Saves / Places, and the round + (× while the quick sheet is open).
@@ -27,7 +27,7 @@ export default function BottomNav({ tab, plusOpen, onTab, onPlus }: { tab: Tab; 
       </div>
       <button
         onClick={onPlus}
-        aria-label={plusOpen ? "Band karein / Close" : "Aur kaam / Quick actions"}
+        aria-label={plusOpen ? "Close" : "Quick actions"}
         aria-expanded={plusOpen}
         className={`pointer-events-auto flex h-16 w-16 shrink-0 items-center justify-center rounded-full shadow-xl ${plusOpen ? "bg-white text-ink" : "bg-green text-white"}`}
       >

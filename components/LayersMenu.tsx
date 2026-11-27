@@ -10,9 +10,9 @@ const BASES: [BaseMap, string][] = [
   ["terrain", "Terrain"],
 ];
 const DATA: [DataLayer, string][] = [
-  ["risk", "खतरा · Risk"],
-  ["traffic", "ट्रैफिक · Traffic"],
-  ["lakes", "झील · Lakes"],
+  ["risk", "Risk"],
+  ["traffic", "Traffic"],
+  ["lakes", "Lakes"],
 ];
 
 function Choice<T extends string>({ title, items, value, onPick }: { title: string; items: [T, string][]; value: T; onPick: (v: T) => void }) {

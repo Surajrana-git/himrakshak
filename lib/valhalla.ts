@@ -12,7 +12,7 @@ const NO_PATH_CODES = [442, 443];
 
 export type Point = { lat: number; lon: number };
 
-// One turn instruction from Valhalla (narrated in Hindi), pinned to where it happens on the road.
+// One turn instruction from Valhalla , pinned to where it happens on the road.
 export type Maneuver = { type: number; text: string; lon: number; lat: number; bearing: number | null; exit: number | null };
 
 export type RoadRoute = { coordinates: number[][]; km: number; hours: number; roads: string[]; maneuvers: Maneuver[] };
@@ -76,7 +76,7 @@ export async function roadRoute(from: Point, to: Point, closed: Point[]): Promis
     locations: [from, to],
     costing: "auto",
     units: "kilometers",
-    language: "hi-IN",
+    language: "en-US",
     exclude_polygons: closed.map(({ lat, lon }) => {
       const h = Math.min(MAX_HALF_BOX_DEG, EDGE_BUDGET_KM / closed.length / KM_PER_HALF_DEG);
       return [

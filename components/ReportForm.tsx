@@ -23,20 +23,20 @@ export default function ReportForm({ segments, onClose }: Props) {
   const [error, setError] = useState("");
 
   function useMyLocation() {
-    setGpsNote("Location dhoondh rahe hain…");
+    setGpsNote("Finding your location…");
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         const nearest = nearestSegment(coords.latitude, coords.longitude, segments);
         if (nearest.km <= ON_ROUTE_KM) {
           setSegmentId(nearest.id);
           setGps({ lat: coords.latitude, lon: coords.longitude });
-          setGpsNote("Aapki location se hissa chun liya.");
+          setGpsNote("Stretch picked from your location.");
         } else {
           setGps(null);
-          setGpsNote(`Aap route se ${Math.round(nearest.km)} km door hain. Neeche se hissa chunein.`);
+          setGpsNote(`You are ${Math.round(nearest.km)} km from the route. Pick the stretch below.`);
         }
       },
-      () => setGpsNote("Location nahi mili. Neeche se hissa chunein."),
+      () => setGpsNote("Could not get your location. Pick the stretch below."),
       { enableHighAccuracy: true, timeout: 10000 },
     );
   }
@@ -50,7 +50,7 @@ export default function ReportForm({ segments, onClose }: Props) {
       await createReport({ segment_id: segmentId, kind, note: note.trim() || null, lat: point.lat, lon: point.lon, photo });
       onClose();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Report nahi gayi");
+      setError(e instanceof Error ? e.message : "Report was not sent");
       setStatus("error");
     }
   }
@@ -65,7 +65,7 @@ export default function ReportForm({ segments, onClose }: Props) {
       >
         <header className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-display text-3xl">Rasta report karein</h2>
+            <h2 className="font-display text-3xl">Report a road problem</h2>
             <p className="text-muted">Report a road problem</p>
           </div>
           <button type="button" onClick={onClose} className="min-h-12 px-3 text-lg" aria-label="Close">
@@ -74,9 +74,9 @@ export default function ReportForm({ segments, onClose }: Props) {
         </header>
 
         <fieldset className="flex flex-col gap-2">
-          <legend className="font-semibold">Kahan? / Where</legend>
+          <legend className="font-semibold">Where</legend>
           <button type="button" onClick={useMyLocation} className="min-h-12 border-2 border-ink px-4 font-semibold">
-            Meri location use karein
+            Use my location
           </button>
           {gpsNote && <p className="text-sm text-muted">{gpsNote}</p>}
           <select
@@ -96,7 +96,7 @@ export default function ReportForm({ segments, onClose }: Props) {
         </fieldset>
 
         <fieldset className="flex flex-col gap-2">
-          <legend className="font-semibold">Kya hua? / What happened</legend>
+          <legend className="font-semibold">What happened</legend>
           {/* Waze-style report menu: big round colour buttons, one tap per hazard. */}
           <div className="grid grid-cols-3 gap-x-2 gap-y-3">
             {(Object.keys(REPORT_KINDS) as ReportKind[]).map((k) => (
@@ -109,8 +109,7 @@ export default function ReportForm({ segments, onClose }: Props) {
                 >
                   <ReportIcon kind={k} className="h-10 w-10" />
                 </span>
-                <span className="text-sm leading-tight font-semibold">{REPORT_KINDS[k].hindi}</span>
-                <span className="text-xs leading-tight text-muted">{REPORT_KINDS[k].label}</span>
+                <span className="text-sm leading-tight font-semibold">{REPORT_KINDS[k].label}</span>
               </label>
             ))}
           </div>
@@ -129,18 +128,18 @@ export default function ReportForm({ segments, onClose }: Props) {
             <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden>
               <path fillRule="evenodd" d="M8.5 4h7l1.5 2.5H20a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h3zM12 9a4 4 0 1 0 0 8a4 4 0 1 0 0-8zM12 11a2 2 0 1 1 0 4a2 2 0 1 1 0-4z" />
             </svg>
-            {photo ? `Photo li gayi: ${photo.name}` : "Photo lein / Take photo"}
+            {photo ? `Photo added: ${photo.name}` : "Take photo"}
           </span>
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="font-semibold">Kuch aur? (optional)</span>
+          <span className="font-semibold">Anything else? (optional)</span>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             maxLength={280}
             rows={2}
-            placeholder="Jaise: km 42 ke paas, ek lane khuli hai"
+            placeholder="E.g. near km 42, one lane open"
             className="border-2 border-ink/30 bg-white p-3"
           />
         </label>
@@ -152,7 +151,7 @@ export default function ReportForm({ segments, onClose }: Props) {
           disabled={status === "sending"}
           className="min-h-14 bg-ink px-4 font-display text-xl tracking-wide text-snow disabled:opacity-60"
         >
-          {status === "sending" ? "Bhej rahe hain…" : "Report bhejein"}
+          {status === "sending" ? "Sending…" : "Send report"}
         </button>
       </form>
     </div>

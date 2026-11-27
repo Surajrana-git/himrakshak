@@ -11,27 +11,27 @@ type Props = {
 export default function RerouteCard({ closedNames, detour, failed, onShow }: Props) {
   return (
     <section className="rounded-2xl bg-danger p-4 text-snow">
-      <p className="font-display text-xs uppercase tracking-[0.2em]">Rasta band / Road closed</p>
+      <p className="font-display text-xs uppercase tracking-[0.2em]">Road closed</p>
       <p className="mt-1 font-display text-2xl leading-tight">{closedNames.join(", ")}</p>
 
-      {failed && <p className="mt-2 text-sm">Naya rasta abhi nahi mil raha (routing server). Thodi der baad try karein.</p>}
-      {!failed && !detour && <p className="mt-2 text-sm">Doosra rasta dhoondh rahe hain…</p>}
+      {failed && <p className="mt-2 text-sm">Cannot find a new route right now (routing server). Try again shortly.</p>}
+      {!failed && !detour && <p className="mt-2 text-sm">Finding another route…</p>}
       {detour && !detour.found && (
         <p className="mt-2 text-sm">
-          Koi doosra rasta nahi hai. Rasta khulne ka intezaar karein, ya pichhle surakshit town mein rukein.
+          There is no other route. Wait for the road to reopen, or stop at the last safe town.
         </p>
       )}
       {detour?.found && (
         <>
           <p className="mt-2">
-            Naya rasta / Detour: <span className="font-semibold">{detour.roads.join(" → ")}</span>
+            Detour: <span className="font-semibold">{detour.roads.join(" → ")}</span>
           </p>
           <p className="mt-1 text-sm">
-            {detour.km} km ({signed(detour.km - detour.normalKm)} km) · {detour.hours} ghante (
-            {signed(Math.round((detour.hours - detour.normalHours) * 10) / 10)} ghante)
+            {detour.km} km ({signed(detour.km - detour.normalKm)} km) · {detour.hours} h (
+            {signed(Math.round((detour.hours - detour.normalHours) * 10) / 10)} h)
           </p>
           <button onClick={onShow} className="mt-3 min-h-12 w-full rounded-full bg-snow px-4 font-semibold text-ink">
-            Naya rasta map pe dekhein
+            Show detour on map
           </button>
         </>
       )}

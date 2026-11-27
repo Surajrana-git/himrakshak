@@ -1,12 +1,12 @@
 // Network first, cache as fallback: in the hills the last risk map you saw is
 // still there when the signal drops. Bump VERSION to throw away old copies.
-const VERSION = "v3";
+const VERSION = "v4";
 const APP_CACHE = `himrakshak-app-${VERSION}`;
 const TILE_CACHE = `himrakshak-tiles-${VERSION}`;
 const TILE_HOST = "tiles.openfreemap.org";
 // Enough tiles for the whole route at the zoom levels people use; stops the phone filling up.
 const MAX_TILES = 2500;
-const PRECACHE = ["/", "/sos", "/offline.html", "/icon.svg", "/icon-192.png", "/maplibre-gl-worker.mjs"];
+const PRECACHE = ["/", "/sos", "/offline.html", "/logo-mark.png", "/icon-192.png", "/maplibre-gl-worker.mjs"];
 
 self.addEventListener("install", (event) => {
   // One failed file must not block install, so add them one by one.

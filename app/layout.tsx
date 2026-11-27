@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // The Android app (Capacitor) adds safe-area styles to <html> before React loads.
-    <html lang="hi" suppressHydrationWarning className={`${poppins.variable} ${inter.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${poppins.variable} ${inter.variable} h-full antialiased`}>
       <body className="h-full overflow-hidden font-sans">
         {children}
         <ServiceWorker />

@@ -8,13 +8,13 @@ export type ReportKind = "landslide" | "rockfall" | "road_blocked" | "water" | "
 
 // `fill`/`ring`: full Tailwind class names (Tailwind only finds classes written out in full).
 const DANGER = { fill: "bg-danger text-snow", ring: "border-danger", tail: "bg-danger" };
-export const REPORT_KINDS: Record<ReportKind, { hindi: string; label: string; fill: string; ring: string; tail: string }> = {
-  landslide: { hindi: "भूस्खलन", label: "Landslide", ...DANGER },
-  rockfall: { hindi: "पत्थर गिर रहे", label: "Rockfall", ...DANGER },
-  road_blocked: { hindi: "रास्ता बंद", label: "Road blocked", ...DANGER },
-  water: { hindi: "पानी / नाला", label: "Water on road", ...DANGER },
-  jam: { hindi: "ट्रैफिक जाम", label: "Traffic jam", fill: "bg-orange text-ink", ring: "border-orange", tail: "bg-orange" },
-  clear: { hindi: "रास्ता खुला", label: "Road clear", fill: "bg-teal text-ink", ring: "border-teal", tail: "bg-teal" },
+export const REPORT_KINDS: Record<ReportKind, { label: string; fill: string; ring: string; tail: string }> = {
+  landslide: { label: "Landslide", ...DANGER },
+  rockfall: { label: "Rockfall", ...DANGER },
+  road_blocked: { label: "Road blocked", ...DANGER },
+  water: { label: "Water on road", ...DANGER },
+  jam: { label: "Traffic jam", fill: "bg-orange text-ink", ring: "border-orange", tail: "bg-orange" },
+  clear: { label: "Road clear", fill: "bg-teal text-ink", ring: "border-teal", tail: "bg-teal" },
 };
 
 export type Report = {
@@ -124,7 +124,7 @@ export function recentJams(reports: Report[]): Report[] {
 
 export function timeAgo(iso: string): string {
   const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
-  if (minutes < 1) return "abhi";
-  if (minutes < 60) return `${minutes} min pehle`;
-  return `${Math.round(minutes / 60)} ghante pehle`;
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  return `${Math.round(minutes / 60)} h ago`;
 }

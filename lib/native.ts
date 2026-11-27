@@ -13,13 +13,13 @@ export const APP_CALLBACK = "in.himrakshak.app://login-callback";
 export const isApp = () => Capacitor.isNativePlatform();
 
 export async function socialSignIn(provider: "google" | "apple"): Promise<string | null> {
-  if (!supabase) return "Login server set nahi hai";
+  if (!supabase) return "Sign-in is not available: the server is not configured";
   if (!isApp()) {
     const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin } });
     return error?.message ?? null;
   }
   const { data, error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: APP_CALLBACK, skipBrowserRedirect: true } });
-  if (error || !data.url) return error?.message ?? "Login link nahi bana";
+  if (error || !data.url) return error?.message ?? "Could not start sign-in";
   await Browser.open({ url: data.url });
   return null;
 }

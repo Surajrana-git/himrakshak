@@ -18,13 +18,13 @@ export function useSavedPlaces(userId: string | null) {
       .select("id, list_name, name, lat, lon")
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
-        setError(error ? `Saved places nahi mile: ${error.message}` : null);
+        setError(error ? `Could not load saved places: ${error.message}` : null);
         setPlaces(data ?? []);
       });
   }, [userId, version]);
 
   const save = useCallback(async (place: Omit<SavedPlace, "id">) => {
-    if (!supabase) return "Server set nahi hai";
+    if (!supabase) return "The server is not configured";
     const { error } = await supabase.from("saved_places").insert(place);
     setVersion((v) => v + 1);
     return error ? error.message : null;

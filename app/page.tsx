@@ -10,7 +10,7 @@ export default function Page() {
   return (
     <main className="h-dvh bg-snow text-ink">
       <Splash />
-      <Suspense fallback={<p className="p-6 text-lg">Live rain data aa raha hai…</p>}>
+      <Suspense fallback={<p className="p-6 text-lg">Loading live rain data…</p>}>
         <LiveRisk />
       </Suspense>
     </main>
@@ -26,7 +26,7 @@ async function LiveRisk() {
   if (!rain) {
     return (
       <p className="p-6 text-lg">
-        Weather data abhi nahi mil raha (Open-Meteo). Internet check karke page reload karein.
+        Weather data is unavailable right now (Open-Meteo). Check your internet and reload the page.
       </p>
     );
   }

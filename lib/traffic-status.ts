@@ -4,12 +4,12 @@ import type { Report } from "@/lib/reports";
 export type TrafficLevel = "clear" | "slow" | "jam" | "closed" | "unknown";
 
 // Same colours as risk, so the map stays one visual language; words say which layer it is.
-export const TRAFFIC_STYLE: Record<TrafficLevel, { color: string; text: string; label: string; hindi: string }> = {
-  clear: { color: "#5FB3A1", text: "#14231F", label: "Clear", hindi: "रास्ता साफ" },
-  slow: { color: "#F08A3E", text: "#14231F", label: "Slow", hindi: "धीमा" },
-  jam: { color: "#B03030", text: "#F3F1EA", label: "Jam", hindi: "जाम" },
-  closed: { color: "#14231F", text: "#F3F1EA", label: "Closed", hindi: "बंद" },
-  unknown: { color: "#4B5A55", text: "#F3F1EA", label: "No data", hindi: "जानकारी नहीं" },
+export const TRAFFIC_STYLE: Record<TrafficLevel, { color: string; text: string; label: string }> = {
+  clear: { color: "#5FB3A1", text: "#14231F", label: "Clear" },
+  slow: { color: "#F08A3E", text: "#14231F", label: "Slow" },
+  jam: { color: "#B03030", text: "#F3F1EA", label: "Jam" },
+  closed: { color: "#14231F", text: "#F3F1EA", label: "Closed" },
+  unknown: { color: "#4B5A55", text: "#F3F1EA", label: "No data" },
 };
 
 const DRIVER_HOURS = 2;

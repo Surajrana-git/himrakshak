@@ -39,7 +39,7 @@ export default function QuickActions({ reports, canReport, onReport, onClose }: 
       setFix(f);
       return f;
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Location nahi mili");
+      setError(e instanceof Error ? e.message : "Could not get your location");
       return null;
     }
   }
@@ -47,7 +47,7 @@ export default function QuickActions({ reports, canReport, onReport, onClose }: 
   async function tap(id: Action) {
     if (id === "post" || id === "camera") {
       if (canReport) onReport();
-      else setError("Report server set nahi hai (Supabase keys).");
+      else setError("Reports are not available: the server is not configured.");
       return;
     }
     setOpen(id);
@@ -72,7 +72,7 @@ export default function QuickActions({ reports, canReport, onReport, onClose }: 
 
   return (
     <section className="animate-sheet absolute inset-x-0 bottom-0 z-20 flex max-h-[70dvh] flex-col rounded-t-3xl bg-white pb-28 shadow-[0_-8px_24px_rgba(20,35,31,0.18)]" aria-label="Quick actions">
-      <button onClick={onClose} aria-label="Band karein / Close" className="flex min-h-10 shrink-0 items-center justify-center">
+      <button onClick={onClose} aria-label="Close" className="flex min-h-10 shrink-0 items-center justify-center">
         <span className="h-1.5 w-12 rounded-full bg-ink/25" />
       </button>
       <div className="overflow-y-auto px-4">
@@ -93,26 +93,26 @@ export default function QuickActions({ reports, canReport, onReport, onClose }: 
           </ul>
         ) : (
           <button onClick={() => setOpen(null)} className="mb-3 min-h-10 font-semibold text-green">
-            ← Sab options / All actions
+            ← All actions
           </button>
         )}
 
         {(open === "add" || open === "fix") && (
           <p className="mt-4 rounded-2xl bg-mint p-3 text-sm">
-            {open === "add" ? "Nayi jagah OpenStreetMap par note ke roop mein jodi jaati hai" : "Galat sadak ya jagah OpenStreetMap editor mein theek hoti hai"} — wahi map yahan dikhta hai, isliye sudhaar sabko milta hai. Naya tab khula hai.
+            {open === "add" ? "New places are added to OpenStreetMap as a note" : "Wrong roads or places are fixed in the OpenStreetMap editor"}. This app uses that map, so the fix reaches everyone. It opened in a new tab.
           </p>
         )}
 
         {open === "events" && (
           <section>
-            <h2 className="font-display text-lg font-semibold">Posted events · पिछले 48 घंटे</h2>
-            {reports.length === 0 && <p className="mt-1 text-sm text-muted">Abhi koi report nahi aayi.</p>}
+            <h2 className="font-display text-lg font-semibold">Posted events · last 48 hours</h2>
+            {reports.length === 0 && <p className="mt-1 text-sm text-muted">No reports yet.</p>}
             <ul className="mt-2 flex flex-col divide-y divide-ink/10">
               {reports.slice(0, 30).map((r) => (
                 <li key={r.id} className="flex items-center gap-3 py-2 text-sm">
                   <span className={`h-3 w-3 shrink-0 rounded-full ${REPORT_KINDS[r.kind].fill}`} />
                   <span className="min-w-0 flex-1">
-                    <b>{REPORT_KINDS[r.kind].hindi} · {REPORT_KINDS[r.kind].label}</b> · {timeAgo(r.created_at)}
+                    <b>{REPORT_KINDS[r.kind].label}</b> · {timeAgo(r.created_at)}
                     {r.note ? <span className="block truncate text-muted">{r.note}</span> : null}
                   </span>
                   {r.photo_url && (
@@ -128,19 +128,19 @@ export default function QuickActions({ reports, canReport, onReport, onClose }: 
 
         {(open === "pin" || open === "digipin") && (
           <section className="flex flex-col gap-3">
-            <h2 className="font-display text-lg font-semibold">{open === "pin" ? "Meri location ka pin / Your pin" : "DIGIPIN (India Post)"}</h2>
-            {!fix && !error && <p className="text-sm text-muted">Location dhoondh rahe hain…</p>}
+            <h2 className="font-display text-lg font-semibold">{open === "pin" ? "Your location pin" : "DIGIPIN (India Post)"}</h2>
+            {!fix && !error && <p className="text-sm text-muted">Finding your location…</p>}
             {fix && (
               <>
                 <p className="rounded-2xl bg-mint p-4 text-center font-display text-2xl font-semibold tracking-wide text-green-dark">
-                  {open === "pin" ? `${fix.lat.toFixed(5)}, ${fix.lon.toFixed(5)}` : (code ?? "India ke bahar")}
+                  {open === "pin" ? `${fix.lat.toFixed(5)}, ${fix.lon.toFixed(5)}` : (code ?? "Outside India")}
                 </p>
-                <p className="text-center text-xs text-muted">±{fix.accuracy} m GPS accuracy{open === "digipin" ? " · DIGIPIN = ~4 m ka box, India Post ka open standard" : ""}</p>
+                <p className="text-center text-xs text-muted">±{fix.accuracy} m GPS accuracy{open === "digipin" ? " · DIGIPIN is a ~4 m box, India Post's open standard" : ""}</p>
                 <button
-                  onClick={() => share(open === "pin" ? `Meri location: ${googlePlaceUrl(fix.lat, fix.lon)}` : `Mera DIGIPIN: ${code}`)}
+                  onClick={() => share(open === "pin" ? `My location: ${googlePlaceUrl(fix.lat, fix.lon)}` : `My DIGIPIN: ${code}`)}
                   className="min-h-12 rounded-full bg-green font-semibold text-white"
                 >
-                  {copied ? "Copy ho gaya / Copied" : "Share karein"}
+                  {copied ? "Copied" : "Share"}
                 </button>
               </>
             )}

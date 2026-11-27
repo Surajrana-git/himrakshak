@@ -32,7 +32,7 @@ export default function SearchBar({ onMenu, onPick, onDirections }: Props) {
     const Speech = speechRecognition();
     if (!Speech) return;
     const rec = new Speech();
-    rec.lang = "hi-IN";
+    rec.lang = "en-IN";
     rec.onresult = (e) => setQuery(e.results[0][0].transcript);
     rec.onend = () => setListening(false);
     setListening(true);
@@ -56,18 +56,18 @@ export default function SearchBar({ onMenu, onPick, onDirections }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && results[0] && pick(results[0])}
-          placeholder={listening ? "Boliye… / Listening…" : "Search for Safest Way"}
+          placeholder={listening ? "Listening…" : "Search for Safest Way"}
           aria-label="Search for Safest Way"
           className="min-h-12 min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted"
         />
         {hasSpeech && (
-          <button onClick={listen} aria-label="Bolkar dhoondhein / Voice search" className={`flex h-12 w-10 shrink-0 items-center justify-center ${listening ? "text-danger" : ""}`}>
+          <button onClick={listen} aria-label="Voice search" className={`flex h-12 w-10 shrink-0 items-center justify-center ${listening ? "text-danger" : ""}`}>
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
               <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-2.1a7 7 0 0 0 6-6.9z" />
             </svg>
           </button>
         )}
-        <button onClick={onDirections} aria-label="Rasta / Directions" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green text-white">
+        <button onClick={onDirections} aria-label="Directions" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green text-white">
           <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
             <path d="M21.7 11.3 12.7 2.3a1 1 0 0 0-1.4 0l-9 9a1 1 0 0 0 0 1.4l9 9a1 1 0 0 0 1.4 0l9-9a1 1 0 0 0 0-1.4zM14 14.5V12h-4v3H8v-4a1 1 0 0 1 1-1h5V7.5l3.5 3.5z" />
           </svg>
@@ -75,12 +75,12 @@ export default function SearchBar({ onMenu, onPick, onDirections }: Props) {
       </div>
       {query.trim() && (
         <ul className="absolute inset-x-0 top-full mt-2 overflow-hidden rounded-3xl bg-white shadow-xl">
-          {results.length === 0 && <li className="p-4 text-sm text-muted">Is naam ki jagah list mein nahi hai.</li>}
+          {results.length === 0 && <li className="p-4 text-sm text-muted">No place with that name in the list.</li>}
           {results.map((p) => (
             <li key={p.name}>
               <button onClick={() => pick(p)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left hover:bg-mint">
                 <span className="h-2.5 w-2.5 rounded-full bg-green" />
-                {p.hindi} · {p.name}
+                {p.name}
                 {p.dham && <span className="ml-auto text-xs text-muted">Dham</span>}
               </button>
             </li>

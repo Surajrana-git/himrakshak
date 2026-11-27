@@ -19,7 +19,7 @@ const CLOSURE_SECONDS = 12;
 function speak(text: string) {
   if (!("speechSynthesis" in window)) return;
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "hi-IN";
+  utterance.lang = "en-IN";
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
 }
@@ -41,7 +41,7 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
   }
 
   useEffect(() => {
-    speak(isJam ? `Aage ${alert.kmAhead} kilometre par jaam hai.` : `Saavdhaan. Aage ${alert.kmAhead} kilometre par bhooskhalan. Rasta band hai.`);
+    speak(isJam ? `Traffic jam ${alert.kmAhead} kilometres ahead.` : `Warning. Landslide ${alert.kmAhead} kilometres ahead. The road is closed.`);
   }, [isJam, alert.kmAhead]);
 
   // The countdown starts once the new routes are in, so the driver always sees the choices.
@@ -69,23 +69,23 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
           <p className="font-display text-xs uppercase tracking-[0.2em]">
             {isJam ? "Traffic jam ahead" : "Landslide ahead"} · {alert.kmAhead} km
           </p>
-          <p className="font-display text-3xl leading-tight">{isJam ? "आगे जाम है" : "रास्ता बंद है"}</p>
+          <p className="font-display text-3xl leading-tight">{isJam ? "Jam ahead" : "Road closed"}</p>
         </div>
       </div>
 
-      {!ready && <p className="mt-2">Doosra rasta dhoondh rahe hain…</p>}
-      {alert.failed && <p className="mt-2">Naya rasta abhi nahi mil raha (routing server).</p>}
+      {!ready && <p className="mt-2">Finding another route…</p>}
+      {alert.failed && <p className="mt-2">Cannot find a new route right now (routing server).</p>}
 
       {isJam && ready && fastest && (
         <p className="mt-2">
-          Doosra rasta: {fastest.hours} ghante · {fastest.km} km. Abhi wala: {current.hours} ghante · {current.km} km (jaam ka samay alag).
+          Other route: {fastest.hours} h · {fastest.km} km. Current: {current.hours} h · {current.km} km (plus jam delay).
         </p>
       )}
-      {isJam && noWayAround && <p className="mt-2">Koi doosra rasta nahi. Dheere aur dhyan se chalein.</p>}
+      {isJam && noWayAround && <p className="mt-2">No other route. Drive slowly and carefully.</p>}
 
       {!isJam && noWayAround && (
         <p className="mt-2">
-          Koi doosra rasta nahi hai. Aage na jaayein — {stopPlace} mein rukein aur rasta khulne ka intezaar karein.
+          There is no other route. Do not go ahead: stop at {stopPlace} and wait for the road to reopen.
         </p>
       )}
       {!isJam && options.length > 0 && (
@@ -102,17 +102,17 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
         <div className="mt-3 flex flex-col gap-2">
           {isJam && fastest && (
             <button onClick={() => resolve(fastest)} className="min-h-12 rounded-full bg-ink font-semibold text-snow">
-              Doosra rasta lein
+              Take other route
             </button>
           )}
           <button onClick={() => resolve(isJam ? null : safest)} className="min-h-12 rounded-full bg-snow font-semibold text-ink">
-            {isJam ? "Isi raste pe rahein" : safest ? "Sabse surakshit rasta lein" : "Theek hai, rukta hoon"}
+            {isJam ? "Stay on this route" : safest ? "Take the safest route" : "OK, I will stop"}
           </button>
           <div className="h-1.5 overflow-hidden rounded-full bg-ink/20" aria-hidden>
             <div className="h-full bg-snow transition-[width] duration-1000 ease-linear" style={{ width: `${(left / seconds) * 100}%` }} />
           </div>
           <p className="text-xs">
-            {left} s{isJam ? " · jawab na dene par isi raste pe rahenge" : safest ? " · jawab na dene par sabse surakshit rasta chuna jaayega" : ""}
+            {left} s{isJam ? " · no answer keeps this route" : safest ? " · no answer picks the safest route" : ""}
           </p>
         </div>
       )}

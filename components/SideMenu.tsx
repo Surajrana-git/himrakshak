@@ -19,24 +19,25 @@ export default function SideMenu({ user, onLakes, onReport, onClose }: Props) {
         className="flex h-full w-[82%] max-w-xs flex-col gap-1 overflow-y-auto bg-white p-4 pt-[max(20px,env(safe-area-inset-top))] shadow-2xl"
       >
         <div className="mb-3 rounded-2xl bg-mint p-4">
-          <p className="font-display text-xl font-bold text-green-dark">Himrakshak</p>
-          <p className="text-sm text-muted">Safest Way · सबसे सुरक्षित रास्ता</p>
-          <p className="mt-2 truncate text-sm font-semibold">{user ? name : "Guest (login nahi)"}</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-full.png" alt="Himrakshak" className="mx-auto mb-2 h-24 w-24 rounded-2xl bg-white object-contain" />
+          <p className="text-sm text-muted">Safest Way</p>
+          <p className="mt-2 truncate text-sm font-semibold">{user ? name : "Guest (not signed in)"}</p>
         </div>
         <Link href="/sos" className={`${ROW} text-danger`}>
-          SOS · आपातकालीन मदद
+          SOS emergency help
         </Link>
         <button onClick={onReport} className={ROW}>
-          Rasta report karein / Report road
+          Report a road problem
         </button>
         <button onClick={onLakes} className={ROW}>
-          Glacier jheel / Glacial lakes
+          Glacial lakes
         </button>
         <Link href="/dashboard" className={ROW}>
           Rescue dashboard
         </Link>
         <Link href="/terms" className={ROW}>
-          Terms aur Privacy
+          Terms and Privacy
         </Link>
         <div className="mt-auto pt-4">
           {user ? (

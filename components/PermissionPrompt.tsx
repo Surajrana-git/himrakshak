@@ -58,7 +58,7 @@ export default function PermissionPrompt() {
             <h2 className="mt-2 font-display text-lg font-semibold">
               Allow <span className="text-green">Himrakshak</span> to access this device&apos;s location?
             </h2>
-            <p className="mt-1 text-sm text-muted">Map, safe route aur SOS ke liye. Location sirf report ya SOS bhejne par server tak jaati hai.</p>
+            <p className="mt-1 text-sm text-muted">Used for the map, safe routes and SOS. Your location only leaves the phone when you send a report or an SOS.</p>
             <div className="mt-4 grid grid-cols-2 gap-3">
               {([true, false] as const).map((p) => (
                 <button
@@ -102,7 +102,7 @@ export default function PermissionPrompt() {
             <h2 className="mt-2 font-display text-lg font-semibold">
               Allow <span className="text-green">Himrakshak</span> to send you notifications?
             </h2>
-            <p className="mt-1 text-sm text-muted">Aapke raste par landslide ya rasta band hone ki khabar ke liye.</p>
+            <p className="mt-1 text-sm text-muted">So we can warn you about landslides and road closures on your route.</p>
             <div className="mt-4 flex flex-col gap-2">
               <button onClick={() => Notification.requestPermission().finally(finish)} className="min-h-12 rounded-full bg-green font-semibold text-white">
                 Allow

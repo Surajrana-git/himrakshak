@@ -17,10 +17,10 @@ export type GpsFix = { lat: number; lon: number; accuracy: number };
 
 export function getGpsFix(): Promise<GpsFix> {
   return new Promise((resolve, reject) => {
-    if (!("geolocation" in navigator)) return reject(new Error("Is phone mein GPS nahi hai"));
+    if (!("geolocation" in navigator)) return reject(new Error("This phone has no GPS"));
     navigator.geolocation.getCurrentPosition(
       (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: Math.round(pos.coords.accuracy) }),
-      () => reject(new Error("Location nahi mili. GPS chalu karein ya khuli jagah par jaayein.")),
+      () => reject(new Error("Could not get your location. Turn on GPS or move to an open area.")),
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
     );
   });
@@ -28,10 +28,10 @@ export function getGpsFix(): Promise<GpsFix> {
 
 // Online path: saved to Supabase, the rescue dashboard sees it instantly.
 export async function sendSos(fix: GpsFix, message: string | null): Promise<void> {
-  if (!supabase) throw new Error("SOS server set nahi hai (Supabase keys)");
-  if (!navigator.onLine) throw new Error("Internet nahi hai");
+  if (!supabase) throw new Error("The SOS server is not configured (Supabase keys)");
+  if (!navigator.onLine) throw new Error("No internet");
   const { error } = await supabase.from("sos").insert({ lat: fix.lat, lon: fix.lon, accuracy_m: fix.accuracy, message });
-  if (error) throw new Error(`SOS save nahi hua: ${error.message}`);
+  if (error) throw new Error(`SOS was not saved: ${error.message}`);
 }
 
 // Offline path: the text a person or a rescue room can act on without our app.
@@ -39,7 +39,7 @@ export function sosText(fix: GpsFix, message: string | null): string {
   const lat = fix.lat.toFixed(5);
   const lon = fix.lon.toFixed(5);
   return [
-    "SOS Himrakshak: madad chahiye / need help.",
+    "SOS Himrakshak: I need help.",
     message,
     `Location: ${lat},${lon} (±${fix.accuracy} m)`,
     googlePlaceUrl(fix.lat, fix.lon),

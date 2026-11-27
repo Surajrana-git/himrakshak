@@ -7,13 +7,9 @@ import { supabase } from "@/lib/supabase";
 import { continueAsGuest, enabledProviders, TERMS_VERSION } from "@/lib/auth";
 import { socialSignIn } from "@/lib/native";
 
-export function HLogo({ className = "h-20 w-20" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 64 64" className={className} fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" aria-hidden>
-      <rect x="4" y="4" width="56" height="56" rx="16" />
-      <path d="M20 16v32h7V36h10v12h7V16h-7v13H27V16z" />
-    </svg>
-  );
+export function HLogo({ className = "h-24 w-24" }: { className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src="/logo-mark.png" alt="Himrakshak" className={`${className} object-contain`} />;
 }
 
 const ICONS = {
@@ -58,7 +54,7 @@ function Field({
           className="min-h-12 min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted"
         />
         {isPassword && (
-          <button type="button" onClick={() => setShown(!shown)} aria-label={shown ? "Password chhupayein / Hide" : "Password dikhayein / Show"} className="flex h-10 w-10 items-center justify-center text-green">
+          <button type="button" onClick={() => setShown(!shown)} aria-label={shown ? "Hide password" : "Show password"} className="flex h-10 w-10 items-center justify-center text-green">
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
               <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
               <circle cx="12" cy="12" r="3" />
@@ -123,15 +119,15 @@ export default function AuthScreen() {
     email && !EMAIL.test(email.trim())
       ? isPhone
         ? !phone
-          ? "10 ankon ka Indian mobile number / 10-digit Indian number"
+          ? "Enter a 10-digit Indian mobile number"
           : !providers.phone
-            ? "Mobile OTP abhi setup nahi hua. Email use karein / Use email for now"
+            ? "Mobile OTP login is coming soon. Please use email for now."
             : null
-        : "Sahi email likhein / Enter a valid email"
+        : "Enter a valid email address"
       : null;
-  const mobileError = mobile && !/^(\+91)?[6-9]\d{9}$/.test(mobile.replace(/[\s-]/g, "")) ? "10 ankon ka mobile number / 10-digit number" : null;
-  const passwordError = mode === "create" && password && password.length < 8 ? "Kam se kam 8 akshar / At least 8 characters" : null;
-  const confirmError = confirm && confirm !== password ? "Password match nahi kar raha / Passwords do not match" : null;
+  const mobileError = mobile && !/^(\+91)?[6-9]\d{9}$/.test(mobile.replace(/[\s-]/g, "")) ? "Enter a 10-digit mobile number" : null;
+  const passwordError = mode === "create" && password && password.length < 8 ? "Use at least 8 characters" : null;
+  const confirmError = confirm && confirm !== password ? "Passwords do not match" : null;
 
   const canSubmit =
     agreed &&
@@ -150,9 +146,9 @@ export default function AuthScreen() {
       options: { data: { terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() } },
     });
     setBusy(false);
-    if (error) return setMessage({ text: `OTP nahi gaya: ${error.message}`, ok: false });
+    if (error) return setMessage({ text: `Could not send the OTP: ${error.message}`, ok: false });
     setOtpSent(true);
-    setMessage({ text: `${phone} par 6 ankon ka OTP bheja gaya.`, ok: true });
+    setMessage({ text: `A 6-digit OTP has been sent to ${phone}.`, ok: true });
   }
 
   async function verifyOtp() {
@@ -160,7 +156,7 @@ export default function AuthScreen() {
     setBusy(true);
     const { error } = await supabase.auth.verifyOtp({ phone, token: otp.trim(), type: "sms" });
     setBusy(false);
-    if (error) return setMessage({ text: `OTP galat ya purana hai: ${error.message}`, ok: false });
+    if (error) return setMessage({ text: `That OTP is wrong or has expired: ${error.message}`, ok: false });
     router.replace("/");
   }
 
@@ -176,7 +172,7 @@ export default function AuthScreen() {
     if (mode === "signin") {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       setBusy(false);
-      if (error) return setMessage({ text: `Login nahi hua: ${error.message}`, ok: false });
+      if (error) return setMessage({ text: `Sign-in failed: ${error.message}`, ok: false });
       router.replace("/");
     } else {
       const { data, error } = await supabase.auth.signUp({
@@ -189,9 +185,9 @@ export default function AuthScreen() {
         },
       });
       setBusy(false);
-      if (error) return setMessage({ text: `Account nahi bana: ${error.message}`, ok: false });
+      if (error) return setMessage({ text: `Could not create the account: ${error.message}`, ok: false });
       if (data.session) return router.replace("/");
-      setMessage({ text: "Account ban gaya. Email mein aaya link kholkar confirm karein, phir Sign In karein.", ok: true });
+      setMessage({ text: "Account created. Open the link we emailed you to confirm it, then sign in.", ok: true });
       setMode("signin");
     }
   }
@@ -199,7 +195,7 @@ export default function AuthScreen() {
   async function social(provider: "google" | "apple") {
     if (!providers[provider]) {
       return setSoonNote(
-        `${provider === "apple" ? "Apple ID" : "Google"} login jald aa raha hai / Coming soon. Abhi ${provider === "apple" ? "Gmail (Google)" : "email"} ya mobile number se login karein.`,
+        `${provider === "apple" ? "Apple ID" : "Google"} sign-in is coming soon. For now, sign in with ${provider === "apple" ? "Google (Gmail)" : "email"} or your mobile number.`,
       );
     }
     const error = await socialSignIn(provider);
@@ -217,7 +213,7 @@ export default function AuthScreen() {
       <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-mint" aria-hidden />
       <div className="relative mx-auto flex max-w-sm flex-col gap-4">
         {create && (
-          <button onClick={() => setMode("signin")} aria-label="Wapas / Back" className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md">
+          <button onClick={() => setMode("signin")} aria-label="Back" className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-md">
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
               <path d="M19 12H5M11 6l-6 6 6 6" />
             </svg>
@@ -226,7 +222,7 @@ export default function AuthScreen() {
         <div className="flex flex-col items-center gap-1 text-center">
           <HLogo />
           <h1 className="mt-2 font-display text-3xl font-bold">{create ? "Create Account" : "Hi, Welcome Back!"}</h1>
-          <p className="text-muted">{create ? "Join Safest Way to stay informed, prepared, and safe." : "Log in to your account · अपने खाते में जाएं"}</p>
+          <p className="text-muted">{create ? "Join Safest Way to stay informed, prepared, and safe." : "Log in to your account"}</p>
         </div>
 
         {!create && (
@@ -241,7 +237,7 @@ export default function AuthScreen() {
         )}
 
         <form onSubmit={submit} className="flex flex-col gap-3">
-          {create && <Field icon="person" label="Full Name / पूरा नाम" value={name} onChange={setName} autoComplete="name" />}
+          {create && <Field icon="person" label="Full Name" value={name} onChange={setName} autoComplete="name" />}
           <Field
             icon={create ? "mail" : "person"}
             label={create ? "Email Address" : "Email or Mobile Number"}
@@ -259,12 +255,12 @@ export default function AuthScreen() {
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                placeholder="6 ankon ka OTP / Enter OTP"
+                placeholder="Enter 6-digit OTP"
                 aria-label="OTP"
                 className="min-h-13 rounded-full border border-green/40 bg-white px-5 text-center font-display text-2xl tracking-[0.4em] outline-none focus:border-green"
               />
               <button type="button" onClick={sendOtp} disabled={busy} className="self-end py-2 text-sm font-semibold text-green underline">
-                OTP dobara bhejein / Resend
+                Resend OTP
               </button>
             </label>
           )}
@@ -275,9 +271,9 @@ export default function AuthScreen() {
             <button
               type="button"
               onClick={async () => {
-                if (!supabase || !EMAIL.test(email.trim())) return setMessage({ text: "Pehle apna email likhein / Enter your email first", ok: false });
+                if (!supabase || !EMAIL.test(email.trim())) return setMessage({ text: "Enter your email first", ok: false });
                 const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin });
-                setMessage(error ? { text: error.message, ok: false } : { text: "Password badalne ka link email par bhej diya.", ok: true });
+                setMessage(error ? { text: error.message, ok: false } : { text: "We emailed you a link to reset your password.", ok: true });
               }}
               className="self-end font-semibold text-green underline"
             >
@@ -304,12 +300,12 @@ export default function AuthScreen() {
           </label>
 
           {message && <p className={`rounded-2xl p-3 text-sm ${message.ok ? "bg-mint text-green-dark" : "bg-danger/10 text-danger"}`}>{message.text}</p>}
-          {!supabase && <p className="text-sm text-danger">Login server set nahi hai (Supabase keys).</p>}
+          {!supabase && <p className="text-sm text-danger">Sign-in is not available: the server is not configured.</p>}
 
           <button
             type="submit"
             disabled={phoneOtp ? !agreed || busy || !phone || !providers.phone || (otpSent && otp.length !== 6) : !canSubmit} className="min-h-14 rounded-full bg-green font-display text-xl font-semibold text-white shadow-md disabled:opacity-40">
-            {busy ? "…" : create ? "Create Account" : phoneOtp ? (otpSent ? "Verify OTP" : "OTP bhejein / Send OTP") : "Sign In"}
+            {busy ? "…" : create ? "Create Account" : phoneOtp ? (otpSent ? "Verify OTP" : "Send OTP") : "Sign In"}
           </button>
         </form>
 
@@ -327,7 +323,7 @@ export default function AuthScreen() {
             >
               {p === "google" ? <GoogleMark /> : <AppleMark />}
               {create ? (p === "google" ? "Google" : "Apple") : `Continue with ${p === "google" ? "Google" : "Apple"}`}
-              {!providers[p] && <span className="rounded-full bg-mint px-2 py-0.5 text-xs text-green-dark">Jald</span>}
+              {!providers[p] && <span className="rounded-full bg-mint px-2 py-0.5 text-xs text-green-dark">Coming soon</span>}
             </button>
           ))}
         </div>
@@ -344,7 +340,7 @@ export default function AuthScreen() {
           </button>
         </p>
         <button onClick={guest} className="min-h-12 text-center text-sm font-semibold text-muted underline">
-          Bina login ke map dekhein / Continue without account
+          Continue without an account
         </button>
       </div>
     </main>

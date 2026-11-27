@@ -37,8 +37,8 @@ export default function InstallButton() {
       <button onClick={install} className="flex min-h-12 w-full shrink-0 items-center gap-3 rounded-2xl bg-ink px-4 py-3 text-left text-snow">
         <DownloadIcon />
         <span>
-          <span className="block font-semibold">App install karein</span>
-          <span className="block text-sm opacity-80">Install app: home screen se kholein, offline bhi chalega</span>
+          <span className="block font-semibold">Install the app</span>
+          <span className="block text-sm opacity-80">Open it from your home screen; it also works offline</span>
         </span>
       </button>
     );
@@ -49,12 +49,12 @@ export default function InstallButton() {
       <div className="shrink-0 rounded-2xl bg-ink text-snow">
         <button onClick={() => setShowIosSteps(!showIosSteps)} aria-expanded={showIosSteps} className="flex min-h-12 w-full items-center gap-3 px-4 py-3 text-left">
           <DownloadIcon />
-          <span className="font-semibold">iPhone pe app install karein</span>
+          <span className="font-semibold">Install on iPhone</span>
         </button>
         {showIosSteps && (
           <ol className="list-decimal px-4 pb-4 pl-9 text-sm">
-            <li>Safari mein neeche Share button dabayein</li>
-            <li>&ldquo;Add to Home Screen&rdquo; chunein</li>
+            <li>In Safari, tap the Share button at the bottom</li>
+            <li>Choose &ldquo;Add to Home Screen&rdquo;</li>
             <li>&ldquo;Add&rdquo; dabayein</li>
           </ol>
         )}

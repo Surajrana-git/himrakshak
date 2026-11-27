@@ -13,10 +13,10 @@ const SPEAK_AT_M = [500, 200, 30];
 
 function distanceText(metres: number): string {
   if (metres >= 1000) return `${(metres / 1000).toFixed(1)} km`;
-  return `${Math.max(0, Math.round(metres / 10) * 10)} मी`;
+  return `${Math.max(0, Math.round(metres / 10) * 10)} m`;
 }
 
-// Google-Maps-style next-turn card with a distance countdown and Hindi voice at 500 m, 200 m and the turn.
+// Google-Maps-style next-turn card with a distance countdown and voice at 500 m, 200 m and the turn.
 export default function TurnBanner({ turn }: { turn: Turn }) {
   const { maneuver, metres } = turn;
   const roundabout = maneuver.type === 26 || maneuver.type === 27;
@@ -29,9 +29,9 @@ export default function TurnBanner({ turn }: { turn: Turn }) {
     const key = `${maneuver.lat},${maneuver.lon}@${threshold}`;
     if (spoken.current === key) return;
     spoken.current = key;
-    const prefix = threshold > 30 ? `${threshold} मीटर में, ` : "";
+    const prefix = threshold > 30 ? `In ${threshold} metres, ` : "";
     const say = new SpeechSynthesisUtterance(prefix + maneuver.text);
-    say.lang = "hi-IN";
+    say.lang = "en-IN";
     speechSynthesis.speak(say);
   }, [threshold, maneuver]);
 
@@ -53,7 +53,7 @@ export default function TurnBanner({ turn }: { turn: Turn }) {
         <span className="block font-semibold leading-snug">{maneuver.text}</span>
         {(complex || roundabout) && (
           <span className="mt-1 inline-block rounded-full bg-ink px-2 py-0.5 text-xs text-snow">
-            {roundabout && maneuver.exit ? `गोल चक्कर: ${maneuver.exit}वां निकास · ` : ""}जटिल जंक्शन / Complex junction
+            {roundabout && maneuver.exit ? `Roundabout: exit ${maneuver.exit} · ` : ""}Complex junction
           </span>
         )}
       </span>

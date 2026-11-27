@@ -105,7 +105,7 @@ function reportPopup(report: Report): HTMLElement {
   root.className = "text-ink";
   const title = document.createElement("p");
   title.className = "font-semibold";
-  title.textContent = `${REPORT_KINDS[report.kind].hindi} · ${REPORT_KINDS[report.kind].label}`;
+  title.textContent = REPORT_KINDS[report.kind].label;
   const time = document.createElement("p");
   time.className = "text-sm text-muted";
   time.textContent = timeAgo(report.created_at);
@@ -192,7 +192,7 @@ function newsPopup(place: string, items: SlideNews[]): HTMLElement {
   root.className = "text-ink";
   const title = document.createElement("p");
   title.className = "font-semibold";
-  title.textContent = `Haal ki khabar · Recent news near ${place}`;
+  title.textContent = `Recent news near ${place}`;
   root.append(title);
   for (const n of items.slice(0, 4)) {
     const a = document.createElement("a");
@@ -211,7 +211,7 @@ function newsPopup(place: string, items: SlideNews[]): HTMLElement {
   }
   const note = document.createElement("p");
   note.className = "mt-2 text-xs text-muted";
-  note.textContent = "Jagah khabar ke town se andaazan hai / Place is approximate (from the town named in the news)";
+  note.textContent = "Place is approximate (from the town named in the news)";
   root.append(note);
   return root;
 }
@@ -223,7 +223,7 @@ function closurePin(): HTMLElement {
   pin.className = "relative z-20 flex items-center gap-1 rounded-full border-[3px] border-snow bg-danger py-1 pr-3 pl-1.5 font-bold text-snow shadow-xl";
   pin.append(iconElement(REPORT_ICONS.road_blocked, 24));
   const label = document.createElement("span");
-  label.textContent = "BAND";
+  label.textContent = "CLOSED";
   pin.append(label);
   return pin;
 }
@@ -252,7 +252,7 @@ function lakePin(name: string): HTMLElement {
 function carPin(): HTMLElement {
   const pin = document.createElement("div");
   pin.setAttribute("role", "img");
-  pin.setAttribute("aria-label", "Aapki gaadi / Your vehicle");
+  pin.setAttribute("aria-label", "Your vehicle");
   pin.className = "relative z-30 flex h-9 w-9 items-center justify-center rounded-full border-4 border-snow bg-ink shadow-xl";
   const dot = document.createElement("span");
   dot.className = "h-3 w-3 rounded-full bg-orange";

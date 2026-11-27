@@ -21,7 +21,7 @@ export default function LiveReports({ reports, segmentName }: Props) {
             )}
             <div>
               <p className="font-semibold">
-                {REPORT_KINDS[r.kind].hindi} · {REPORT_KINDS[r.kind].label}
+                {REPORT_KINDS[r.kind].label}
               </p>
               <p className="text-sm text-muted">
                 {segmentName(r.segment_id)} · {timeAgo(r.created_at)}

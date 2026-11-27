@@ -8,7 +8,7 @@ export default function NewsCard({ news }: { news: SlideNewsFeed | null }) {
       <h2 className="font-display text-lg font-semibold">News Update</h2>
       {!item ? (
         <p className="mt-2 rounded-2xl bg-mint p-4 text-sm text-muted">
-          {news ? "Pichhle 6 mahine mein is route ki koi nayi khabar nahi." : "News abhi nahi mil rahi (Google News). Agle ghante phir try hoga."}
+          {news ? "No news for this route in the last 6 months." : "News is unavailable right now (Google News). We will try again next hour."}
         </p>
       ) : (
         <article className="mt-2 flex gap-3 rounded-2xl bg-white p-3 shadow-md ring-1 ring-ink/5">

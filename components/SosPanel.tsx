@@ -76,19 +76,19 @@ export default function SosPanel() {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-5 px-4 pt-[max(16px,env(safe-area-inset-top))] pb-[max(24px,env(safe-area-inset-bottom))]">
       <header className="flex items-center gap-3">
-        <Link href="/" aria-label="Map par wapas / Back to map" className="flex h-12 w-12 items-center justify-center rounded-full bg-ink/10">
+        <Link href="/" aria-label="Back to map" className="flex h-12 w-12 items-center justify-center rounded-full bg-ink/10">
           <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
             <path d="M15 5l-7 7 7 7" />
           </svg>
         </Link>
         <div>
-          <h1 className="font-display text-3xl leading-tight">SOS · मदद</h1>
-          <p className="text-sm text-muted">Bina internet ke bhi kaam karta hai (SMS se)</p>
+          <h1 className="font-display text-3xl leading-tight">SOS</h1>
+          <p className="text-sm text-muted">Works without internet too (by SMS)</p>
         </div>
       </header>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 font-semibold">Kya hua? (zaroori nahi) / What happened</legend>
+        <legend className="mb-2 font-semibold">What happened? (optional)</legend>
         {REASONS.map((r) => (
           <label key={r} className={`flex min-h-12 cursor-pointer items-center rounded-xl border-2 px-3 ${reason === r ? "border-danger bg-danger/10" : "border-ink/20"}`}>
             <input type="radio" name="reason" checked={reason === r} onChange={() => setReason(r)} className="sr-only" />
@@ -103,13 +103,13 @@ export default function SosPanel() {
         className="mx-auto flex h-44 w-44 flex-col items-center justify-center rounded-full border-8 border-danger/30 bg-danger text-snow shadow-2xl disabled:opacity-70"
       >
         <span className="font-display text-6xl leading-none">SOS</span>
-        <span className="mt-1 text-sm font-semibold">{step.kind === "locating" ? "Location le rahe hain…" : "Dabayein / Press"}</span>
+        <span className="mt-1 text-sm font-semibold">{step.kind === "locating" ? "Getting location…" : "Press"}</span>
       </button>
 
       {step.kind === "sent" && (
         <section className="rounded-2xl bg-teal p-4 text-ink">
           <p className="font-display text-2xl">SOS bhej diya</p>
-          <p>Rescue dashboard par aapki location dikh rahi hai. Wahin rukein, phone chalu rakhein.</p>
+          <p>Your location is on the rescue dashboard. Stay where you are and keep your phone on.</p>
           <p className="mt-1 text-sm">
             {step.fix.lat.toFixed(5)}, {step.fix.lon.toFixed(5)} (±{step.fix.accuracy} m)
           </p>
@@ -117,25 +117,25 @@ export default function SosPanel() {
       )}
       {step.kind === "offline" && (
         <section className="rounded-2xl bg-danger p-4 text-snow">
-          <p className="font-display text-2xl">Internet se nahi gaya — SMS bhejein</p>
-          <p className="text-sm">{step.reason}. Neeche SMS button dabayein: aapki location ke saath message taiyaar hai.</p>
+          <p className="font-display text-2xl">Not sent over internet: send an SMS</p>
+          <p className="text-sm">{step.reason}. Tap the SMS button below: the message with your location is ready.</p>
         </section>
       )}
       {step.kind === "no-gps" && (
         <section className="rounded-2xl bg-danger p-4 text-snow">
-          <p className="font-display text-2xl">Location nahi mili</p>
-          <p className="text-sm">{step.reason} Turant 112 par call karein.</p>
+          <p className="font-display text-2xl">Could not get your location</p>
+          <p className="text-sm">{step.reason} Call 112 now.</p>
         </section>
       )}
 
       {smsHref && (
         <a href={smsHref} className="flex min-h-14 items-center justify-center rounded-full bg-ink font-display text-xl text-snow">
-          SMS bhejein (location ke saath)
+          Send SMS (with location)
         </a>
       )}
 
       <label className="flex flex-col gap-1">
-        <span className="font-semibold">Ghar ya saathi ka number (SMS ke liye)</span>
+        <span className="font-semibold">Family or friend&apos;s number (for SMS)</span>
         <input
           type="tel"
           inputMode="tel"
@@ -144,7 +144,7 @@ export default function SosPanel() {
           placeholder="+91…"
           className="min-h-12 rounded-xl border-2 border-ink/20 bg-snow px-3"
         />
-        <span className="text-xs text-muted">Sirf isi phone mein save hota hai. Khaali chhodein toh SMS app mein number khud chunein.</span>
+        <span className="text-xs text-muted">Saved on this phone only. Leave empty to pick a contact in your SMS app.</span>
       </label>
 
       <div className="grid grid-cols-2 gap-2">

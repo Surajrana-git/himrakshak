@@ -53,20 +53,20 @@ export default function SavesScreen({ signedIn, places, error, onSave, onRemove,
 
   async function saveHere(e: React.FormEvent) {
     e.preventDefault();
-    setStatus("Location le rahe hain…");
+    setStatus("Getting your location…");
     try {
       const fix = await getGpsFix();
-      const error = await onSave({ list_name: listName.trim() || "Favourites", name: `Meri jagah ${new Date().toLocaleDateString("en-IN")}`, lat: fix.lat, lon: fix.lon });
-      setStatus(error ? `Save nahi hua: ${error}` : "Save ho gaya");
+      const error = await onSave({ list_name: listName.trim() || "Favourites", name: `My place ${new Date().toLocaleDateString("en-IN")}`, lat: fix.lat, lon: fix.lon });
+      setStatus(error ? `Could not save: ${error}` : "Saved");
       if (!error) setListName("");
     } catch (err) {
-      setStatus(err instanceof Error ? err.message : "Location nahi mili");
+      setStatus(err instanceof Error ? err.message : "Could not get your location");
     }
   }
 
   return (
     <section className="animate-sheet absolute inset-x-0 bottom-0 z-20 flex max-h-[75dvh] flex-col rounded-t-3xl bg-white pb-28 shadow-[0_-8px_24px_rgba(20,35,31,0.18)]" aria-label="My Saves">
-      <button onClick={onClose} aria-label="Band karein / Close" className="flex min-h-10 shrink-0 items-center justify-center">
+      <button onClick={onClose} aria-label="Close" className="flex min-h-10 shrink-0 items-center justify-center">
         <span className="h-1.5 w-12 rounded-full bg-ink/25" />
       </button>
       <div className="flex flex-col gap-4 overflow-y-auto px-4">
@@ -75,15 +75,15 @@ export default function SavesScreen({ signedIn, places, error, onSave, onRemove,
           <input
             value={listName}
             onChange={(e) => setListName(e.target.value)}
-            placeholder="Nayi list ka naam / New list"
+            placeholder="New list name"
             maxLength={40}
             className="min-h-12 min-w-0 flex-1 rounded-full border border-green/40 px-4 outline-none focus:border-green"
           />
-          <button className="min-h-12 shrink-0 rounded-full bg-green px-4 text-sm font-semibold text-white">+ Yahan save</button>
+          <button className="min-h-12 shrink-0 rounded-full bg-green px-4 text-sm font-semibold text-white">+ Save here</button>
         </form>
         {status && <p className="text-sm text-muted">{status}</p>}
         {error && <p className="text-sm text-danger">{error}</p>}
-        {places.length === 0 && !error && <p className="text-sm text-muted">Abhi kuch save nahi hai. Places tab se ya upar se jagah save karein.</p>}
+        {places.length === 0 && !error && <p className="text-sm text-muted">Nothing saved yet. Save places from the Places tab or above.</p>}
         {lists.map((list) => (
           <section key={list}>
             <h3 className="font-semibold text-green">{list}</h3>
@@ -95,7 +95,7 @@ export default function SavesScreen({ signedIn, places, error, onSave, onRemove,
                     <button onClick={() => onShow(p)} className="min-h-12 min-w-0 flex-1 truncate text-left">
                       {p.name}
                     </button>
-                    <button onClick={() => onRemove(p.id)} aria-label={`${p.name} hatayein / Remove`} className="flex h-12 w-12 items-center justify-center text-muted">
+                    <button onClick={() => onRemove(p.id)} aria-label={`Remove ${p.name}`} className="flex h-12 w-12 items-center justify-center text-muted">
                       <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
                         <path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13" />
                       </svg>

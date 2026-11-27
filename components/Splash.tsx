@@ -48,7 +48,7 @@ export default function Splash() {
         onClick={dismiss}
         className="absolute right-4 bottom-6 min-h-12 rounded-full border-2 border-ink px-5 font-semibold text-ink"
       >
-        Aage badhein / Skip
+        Skip
       </button>
     </div>
   );

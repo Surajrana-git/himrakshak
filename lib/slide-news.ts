@@ -50,7 +50,6 @@ const QUERY =
   "(landslide OR भूस्खलन OR लैंडस्लाइड OR मलबा) (Badrinath OR Joshimath OR Chamoli OR Rudraprayag OR Karnaprayag OR Devprayag OR Pipalkoti OR Gauchar OR Sirobagad OR Lambagad OR बदरीनाथ OR बद्रीनाथ OR जोशीमठ OR चमोली OR रुद्रप्रयाग OR कर्णप्रयाग OR देवप्रयाग OR पीपलकोटी OR सिरोबगड़)";
 const FEEDS = [
   `https://news.google.com/rss/search?q=${encodeURIComponent(QUERY)}&hl=en-IN&gl=IN&ceid=IN:en`,
-  `https://news.google.com/rss/search?q=${encodeURIComponent(QUERY)}&hl=hi&gl=IN&ceid=IN:hi`,
 ];
 
 function decode(text: string): string {
@@ -95,7 +94,7 @@ function toNews(item: string): SlideNews | null {
   };
 }
 
-// Landslide news for our route from Google News (Hindi + English), refreshed every hour.
+// Landslide news for our route from Google News (English), refreshed every hour.
 export async function getSlideNews(): Promise<SlideNewsFeed> {
   "use cache";
   cacheLife("hours");

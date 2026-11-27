@@ -4,10 +4,10 @@
 export type RiskLevel = "low" | "medium" | "high";
 
 // `text` keeps labels readable on each colour (4.5:1 contrast or better).
-export const RISK_STYLE: Record<RiskLevel, { color: string; text: string; label: string; hindi: string }> = {
-  low: { color: "#5FB3A1", text: "#14231F", label: "Low risk", hindi: "कम खतरा" },
-  medium: { color: "#F08A3E", text: "#14231F", label: "Medium risk", hindi: "मध्यम खतरा" },
-  high: { color: "#B03030", text: "#F3F1EA", label: "High risk", hindi: "ज़्यादा खतरा" },
+export const RISK_STYLE: Record<RiskLevel, { color: string; text: string; label: string }> = {
+  low: { color: "#5FB3A1", text: "#14231F", label: "Low risk" },
+  medium: { color: "#F08A3E", text: "#14231F", label: "Medium risk" },
+  high: { color: "#B03030", text: "#F3F1EA", label: "High risk" },
 };
 
 const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);

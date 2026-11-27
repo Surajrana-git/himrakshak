@@ -11,10 +11,9 @@ export default function LakeCard({ lake, selected, onSelect }: Props) {
     <section className={`rounded-2xl border-[3px] p-3 ${selected ? "border-ink" : "border-ink/15"}`}>
       <button onClick={onSelect} aria-pressed={selected} className="flex min-h-12 w-full flex-col items-start text-left">
         <span className="font-display text-xs tracking-[0.2em] text-orange-dark uppercase">
-          {lake.status === "history" ? "2013 · जो हो चुका" : "Predict · ग्लेशियर झील"} · {lake.elevationM} m
+          {lake.status === "history" ? "2013 · What happened" : "Predict · Glacial lake"} · {lake.elevationM} m
         </span>
-        <span className="font-display text-2xl leading-tight">{lake.hindi}</span>
-        <span className="text-sm text-muted">{lake.name}</span>
+        <span className="font-display text-2xl leading-tight">{lake.name}</span>
       </button>
 
       {lake.areas.length > 0 && (
@@ -46,11 +45,11 @@ export default function LakeCard({ lake, selected, onSelect }: Props) {
         <div className="mt-2 flex flex-col gap-1.5 text-sm">
           <p>{lake.fieldNote}</p>
           <p>
-            <span className="font-semibold">Khatra / Risk: </span>
+            <span className="font-semibold">Risk: </span>
             {lake.risk}
           </p>
           <p>
-            <span className="font-semibold">नीचे की ओर / Downstream: </span>
+            <span className="font-semibold">Downstream: </span>
             {lake.downstream}
           </p>
           <p className="flex flex-wrap gap-x-3 text-xs">
@@ -62,7 +61,7 @@ export default function LakeCard({ lake, selected, onSelect }: Props) {
           </p>
         </div>
       )}
-      <p className="mt-2 text-xs text-muted">उपग्रह अनुमान · satellite estimates. यह बाढ़ की चेतावनी नहीं · watch only, not a flood warning.</p>
+      <p className="mt-2 text-xs text-muted">Satellite estimates. This is a watch, not a flood warning.</p>
     </section>
   );
 }

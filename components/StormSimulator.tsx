@@ -7,10 +7,10 @@ type Props = {
 export default function StormSimulator({ mmPerHour, hours, onChange }: Props) {
   return (
     <details className="rounded-2xl border-2 border-dashed border-ink/30 p-4">
-      <summary className="min-h-8 cursor-pointer font-display text-lg">Demo: baarish simulate karein</summary>
-      <p className="text-sm text-muted">Simulation only. Live data mein yeh baarish nahi hai.</p>
+      <summary className="min-h-8 cursor-pointer font-display text-lg">Demo: simulate heavy rain</summary>
+      <p className="text-sm text-muted">Simulation only. This rain is not in the live data.</p>
       <label className="mt-3 flex flex-col gap-1">
-        <span className="font-semibold">Toofan: {mmPerHour} mm / ghanta</span>
+        <span className="font-semibold">Storm: {mmPerHour} mm / hour</span>
         <input
           type="range"
           min={0}
@@ -21,7 +21,7 @@ export default function StormSimulator({ mmPerHour, hours, onChange }: Props) {
         />
       </label>
       <label className="mt-3 flex flex-col gap-1">
-        <span className="font-semibold">Agle {hours} ghante tak</span>
+        <span className="font-semibold">For the next {hours} hours</span>
         <input
           type="range"
           min={1}

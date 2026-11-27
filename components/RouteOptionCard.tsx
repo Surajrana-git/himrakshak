@@ -14,15 +14,15 @@ export default function RouteOptionCard({ option, selected, onSelect }: Props) {
       className={`flex w-full flex-col gap-1 rounded-2xl border-[3px] p-3 text-left ${selected ? "border-ink bg-snow" : "border-ink/15 bg-snow/60"}`}
     >
       <span className="flex flex-wrap gap-1.5">
-        {option.safest && <span className="rounded-full bg-teal px-2.5 py-0.5 text-xs font-bold text-ink">सबसे सुरक्षित · Safest</span>}
-        {option.fastest && <span className="rounded-full bg-ink px-2.5 py-0.5 text-xs font-bold text-snow">सबसे तेज़ · Fastest</span>}
+        {option.safest && <span className="rounded-full bg-teal px-2.5 py-0.5 text-xs font-bold text-ink">Safest</span>}
+        {option.fastest && <span className="rounded-full bg-ink px-2.5 py-0.5 text-xs font-bold text-snow">Fastest</span>}
       </span>
       <span className="font-display text-2xl leading-tight">
-        {option.hours} ghante · {option.km} km
+        {option.hours} h · {option.km} km
       </span>
       {via && <span className="text-sm text-muted">via {via}</span>}
       <span className="self-start rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: risk.color, color: risk.text }}>
-        {risk.hindi} · {risk.label} · {option.risk}
+        {risk.label} · {option.risk}
       </span>
     </button>
   );

@@ -153,12 +153,12 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
   const segments: MapSegment[] = scored.map((s, i) => {
     if (layer !== "traffic") {
       const r = RISK_STYLE[s.level];
-      return { ...s, display: { color: r.color, text: r.text, label: `${r.hindi} · ${r.label} · ${s.score}` } };
+      return { ...s, display: { color: r.color, text: r.text, label: `${r.label} · ${s.score}` } };
     }
     const flow = traffic?.enabled ? traffic.flows[i] : null;
     const t = TRAFFIC_STYLE[trafficLevel(s.id, closures.some((c) => c.segmentId === s.id), flow, reports)];
     const speed = flow && !flow.closed ? ` · ${flow.currentKmh} km/h` : "";
-    return { ...s, display: { color: t.color, text: t.text, label: `${t.hindi} · ${t.label}${speed}` } };
+    return { ...s, display: { color: t.color, text: t.text, label: `${t.label}${speed}` } };
   });
 
   const segmentName = (id: string) => {
@@ -217,12 +217,12 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
         ) : (
         <div className="pointer-events-auto flex min-h-14 items-center gap-3 rounded-full bg-white py-2 pr-2 pl-2 shadow-lg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icon.svg" alt="" className="h-10 w-10 rounded-full" />
+          <img src="/logo-mark.png" alt="" className="h-10 w-10 rounded-full bg-white object-contain" />
             <div className="min-w-0 flex-1">
               <p className="truncate font-display text-lg leading-tight">
-                {trip.from.hindi} → {trip.to?.hindi ?? "…"}
+                {trip.from.name} → {trip.to?.name ?? "…"}
               </p>
-              <p className="truncate text-xs text-muted">{trip.stage === "nav" ? "Safar chal raha hai / Navigating" : "Rasta chunein / Choose a route"}</p>
+              <p className="truncate text-xs text-muted">{trip.stage === "nav" ? "Navigating" : "Choose a route"}</p>
             </div>
           <span
             className="shrink-0 rounded-full px-3 py-1.5 text-sm font-semibold"
@@ -253,17 +253,17 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
             </span>
             <span className="min-w-0">
               <span className="block font-display text-2xl leading-tight">
-                {trip.ahead ? `${trip.ahead.kmAhead} km आगे ${trip.ahead.hazard.kind === "jam" ? "जाम" : "रास्ता बंद"}` : "आगे रास्ता साफ़"}
+                {trip.ahead ? `${trip.ahead.hazard.kind === "jam" ? "Jam" : "Road closed"} in ${trip.ahead.kmAhead} km` : "Road ahead is clear"}
               </span>
               <span className="block text-sm opacity-80">
-                {trip.ahead ? (trip.ahead.hazard.kind === "jam" ? "Traffic jam ahead" : "Road closed ahead") : "No reported hazard on your route"}
+                {trip.ahead ? "Reported by drivers" : "No reported hazard on your route"}
               </span>
             </span>
           </div>
         )}
         {!online && (
           <p className="pointer-events-auto rounded-full bg-ink px-4 py-2 text-sm text-snow shadow-lg">
-            Offline: aakhri saved map dikh raha hai / showing last saved data
+            Offline: showing the last saved data
           </p>
         )}
       </header>
@@ -274,7 +274,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
             key={trip.alert.hazard.id}
             alert={trip.alert}
             current={{ km: trip.remainingKm, hours: trip.remainingHours }}
-            stopPlace={stopPlace?.hindi ?? "pichhle town"}
+            stopPlace={stopPlace?.name ?? "the last town"}
             onResolve={trip.resolveAlert}
           />
         </div>
@@ -284,7 +284,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
       <div className="absolute top-[124px] right-3 z-10 flex flex-col gap-2 md:top-4 md:right-4">
         <Link
           href="/sos"
-          aria-label="SOS · मदद / Emergency help"
+          aria-label="SOS emergency help"
           className="flex h-13 w-13 items-center justify-center rounded-full border-4 border-white bg-danger font-display text-base font-bold text-white shadow-xl"
         >
           SOS
@@ -294,12 +294,12 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
             <path d="M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5" />
           </MapButton>
         )}
-        <MapButton label="North upar / Reset north" onClick={() => setNorthSignal((n) => n + 1)}>
+        <MapButton label="Reset north" onClick={() => setNorthSignal((n) => n + 1)}>
           <circle cx="12" cy="12" r="9" />
           <path d="m12 5 3 7h-6zM12 19l-3-7h6z" fill="currentColor" />
         </MapButton>
         {supabase && (
-          <MapButton label="Photo report / Maps camera" onClick={() => setReporting(true)}>
+          <MapButton label="Photo report" onClick={() => setReporting(true)}>
             <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
             <circle cx="12" cy="13" r="3.5" />
           </MapButton>
@@ -307,11 +307,11 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
         <MapButton
           label="Share location"
           onClick={async () => {
-            const text = `Himrakshak · Badrinath highway abhi: ${worstStyle.label}. ${window.location.origin}`;
+            const text = `Himrakshak · Badrinath highway now: ${worstStyle.label}. ${window.location.origin}`;
             if (navigator.share) await navigator.share({ text }).catch(() => {});
             else {
               await navigator.clipboard.writeText(text);
-              setShareNote("Link copy ho gaya / Link copied");
+              setShareNote("Link copied");
               setTimeout(() => setShareNote(null), 2500);
             }
           }}
@@ -321,7 +321,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
           <circle cx="18" cy="18" r="2.5" />
           <path d="m8.2 10.9 7.6-3.8M8.2 13.1l7.6 3.8" />
         </MapButton>
-        <MapButton label="Meri location / My location" onClick={() => setLocateSignal((n) => n + 1)}>
+        <MapButton label="My location" onClick={() => setLocateSignal((n) => n + 1)}>
           <circle cx="12" cy="12" r="4" />
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
         </MapButton>
@@ -342,7 +342,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
       >
         <button
           onClick={() => setSheetOpen(!sheetOpen)}
-          aria-label={sheetOpen ? "Chhota karein / Collapse" : "Aur dekhein / Expand"}
+          aria-label={sheetOpen ? "Collapse" : "Expand"}
           aria-expanded={sheetOpen}
           className="flex min-h-10 shrink-0 items-center justify-center md:hidden"
         >
@@ -368,13 +368,13 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
           )}
           {trip.stage === "nav" && (
             <NavPanel
-              destination={trip.to ? `${trip.to.hindi} · ${trip.to.name}` : ""}
+              destination={trip.to ? trip.to.name : ""}
               remainingKm={trip.remainingKm}
               remainingHours={trip.remainingHours}
               gps={trip.gps}
               arrived={trip.arrived}
               halted={trip.halted}
-              stopPlace={stopPlace ? `${stopPlace.hindi} (${stopPlace.name})` : "pichhle town"}
+              stopPlace={stopPlace ? stopPlace.name : "the last town"}
               onDemo={trip.demoHazard}
               onReport={supabase ? () => setReporting(true) : null}
               onStop={trip.close}
@@ -403,12 +403,12 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
           <InstallButton />
 
           {!supabase && (
-            <p className="text-sm text-muted">Reports band hain: Supabase keys `.env.local` mein nahi hain.</p>
+            <p className="text-sm text-muted">Reports are off: Supabase keys are missing in `.env.local`.</p>
           )}
 
           {layer === "traffic" && !traffic?.enabled && (
             <p className="text-sm text-muted">
-              Traffic: live speed band hai (TOMTOM_API_KEY nahi). Sirf driver ki &ldquo;जाम&rdquo; reports dikh rahi hain.
+              Traffic: live speeds are off (no TOMTOM_API_KEY). Showing driver jam reports only.
             </p>
           )}
           <TripTimeline segments={segments} focusId={focusId} onSelect={selectSegment} />
@@ -470,7 +470,7 @@ export default function RiskView({ route, rain, news, traffic }: Props) {
             trip.setTo(p);
             trip.openPlanner();
           }}
-          onSave={auth.user ? (p) => saved.save({ list_name: "Favourites", name: `${p.hindi} · ${p.name}`, lat: p.lat, lon: p.lon }) : null}
+          onSave={auth.user ? (p) => saved.save({ list_name: "Favourites", name: p.name, lat: p.lat, lon: p.lon }) : null}
           onClose={() => setTab("home")}
         />
       )}

@@ -4,21 +4,21 @@ type Props = { safeHour: number | null; safeClock: string | null };
 export default function SafeTimeCard({ safeHour, safeClock }: Props) {
   if (safeHour === 0) {
     return (
-      <Card tone="bg-teal text-ink" label="Kab niklein? / When to leave" title="Abhi nikal sakte hain">
-        Poore route pe koi hissa high risk mein nahi hai. Safe to leave now.
+      <Card tone="bg-teal text-ink" label="When to leave" title="Safe to leave now">
+        No stretch of the route is at high risk.
       </Card>
     );
   }
   if (safeHour === null) {
     return (
-      <Card tone="bg-danger text-snow" label="Kab niklein? / When to leave" title="Agle 12 ghante yatra na karein">
-        Route agle 12 ghante high risk mein rahega. Avoid travel.
+      <Card tone="bg-danger text-snow" label="When to leave" title="Avoid travel for the next 12 hours">
+        The route stays at high risk for the next 12 hours.
       </Card>
     );
   }
   return (
-    <Card tone="bg-orange text-ink" label="Kab niklein? / When to leave" title={`${safeClock} ke baad niklein`}>
-      {safeHour} ghante baad. Tab tak kam se kam ek hissa high risk mein hai. Leave after {safeClock}.
+    <Card tone="bg-orange text-ink" label="When to leave" title={`Leave after ${safeClock}`}>
+      In {safeHour} hours. Until then at least one stretch is at high risk.
     </Card>
   );
 }

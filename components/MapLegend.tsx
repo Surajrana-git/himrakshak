@@ -5,7 +5,7 @@ import { REPORT_KINDS, type ReportKind } from "@/lib/reports";
 export default function MapLegend({ pastSlideCount }: { pastSlideCount: number }) {
   return (
     <section>
-      <h2 className="font-display text-xl">Map pe kya hai / Map key</h2>
+      <h2 className="font-display text-xl">Map key</h2>
       <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
         {(Object.keys(REPORT_KINDS) as ReportKind[]).map((k) => (
           <li key={k} className="flex items-center gap-2">
@@ -13,7 +13,7 @@ export default function MapLegend({ pastSlideCount }: { pastSlideCount: number }
               <ReportIcon kind={k} className="h-5 w-5" />
             </span>
             <span>
-              {REPORT_KINDS[k].hindi} · {REPORT_KINDS[k].label}
+              {REPORT_KINDS[k].label}
             </span>
           </li>
         ))}
@@ -21,7 +21,7 @@ export default function MapLegend({ pastSlideCount }: { pastSlideCount: number }
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-danger bg-snow text-danger">
             <ReportIcon kind="landslide" className="h-5 w-5" />
           </span>
-          <span>Haal ki khabar · Recent news (Google News, har ghante update)</span>
+          <span>Recent news (Google News, updated hourly)</span>
         </li>
         <li className="col-span-2 flex items-center gap-2">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink text-orange">
@@ -32,7 +32,7 @@ export default function MapLegend({ pastSlideCount }: { pastSlideCount: number }
           </span>
         </li>
       </ul>
-      <p className="mt-2 text-xs text-muted">Driver ki photo ho toh pin pe wahi photo dikhti hai. Tap karke badi photo dekhein.</p>
+      <p className="mt-2 text-xs text-muted">If a driver added a photo, the pin shows it. Tap to see it larger.</p>
     </section>
   );
 }

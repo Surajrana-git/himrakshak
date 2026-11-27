@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
   appName: "Himrakshak",
   webDir: "mobile-shell",
   server: serverUrl ? { url: serverUrl, cleartext: serverUrl.startsWith("http://") } : undefined,
-  android: { backgroundColor: "#14231F" },
+  android: { backgroundColor: "#FFFFFF" },
 };
 
 export default config;
