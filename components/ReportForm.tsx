@@ -97,20 +97,20 @@ export default function ReportForm({ segments, onClose }: Props) {
 
         <fieldset className="flex flex-col gap-2">
           <legend className="font-semibold">Kya hua? / What happened</legend>
-          <div className="grid grid-cols-2 gap-2">
+          {/* Waze-style report menu: big round colour buttons, one tap per hazard. */}
+          <div className="grid grid-cols-3 gap-x-2 gap-y-3">
             {(Object.keys(REPORT_KINDS) as ReportKind[]).map((k) => (
-              <label
-                key={k}
-                className={`flex min-h-14 cursor-pointer items-center gap-2 border-2 px-3 py-2 ${
-                  kind === k ? "border-orange-dark bg-orange/20" : "border-ink/20"
-                }`}
-              >
-                <input type="radio" name="kind" value={k} checked={kind === k} onChange={() => setKind(k)} className="sr-only" />
-                <ReportIcon kind={k} className="h-7 w-7 shrink-0" />
-                <span className="flex flex-col">
-                  <span className="font-semibold">{REPORT_KINDS[k].hindi}</span>
-                  <span className="text-sm text-muted">{REPORT_KINDS[k].label}</span>
+              <label key={k} className="flex cursor-pointer flex-col items-center gap-1 text-center">
+                <input type="radio" name="kind" value={k} checked={kind === k} onChange={() => setKind(k)} className="peer sr-only" />
+                <span
+                  className={`flex h-[72px] w-[72px] items-center justify-center rounded-full shadow-md ring-offset-2 ring-offset-snow peer-focus-visible:ring-4 peer-focus-visible:ring-ink ${REPORT_KINDS[k].fill} ${
+                    kind === k ? "ring-4 ring-ink" : ""
+                  }`}
+                >
+                  <ReportIcon kind={k} className="h-10 w-10" />
                 </span>
+                <span className="text-sm leading-tight font-semibold">{REPORT_KINDS[k].hindi}</span>
+                <span className="text-xs leading-tight text-muted">{REPORT_KINDS[k].label}</span>
               </label>
             ))}
           </div>
@@ -123,8 +123,14 @@ export default function ReportForm({ segments, onClose }: Props) {
             accept="image/*"
             capture="environment"
             onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
-            className="min-h-12"
+            className="peer sr-only"
           />
+          <span className="flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/40 font-semibold peer-focus-visible:ring-4 peer-focus-visible:ring-ink">
+            <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden>
+              <path fillRule="evenodd" d="M8.5 4h7l1.5 2.5H20a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.5a2 2 0 0 1 2-2h3zM12 9a4 4 0 1 0 0 8a4 4 0 1 0 0-8zM12 11a2 2 0 1 1 0 4a2 2 0 1 1 0-4z" />
+            </svg>
+            {photo ? `Photo li gayi: ${photo.name}` : "Photo lein / Take photo"}
+          </span>
         </label>
 
         <label className="flex flex-col gap-2">
