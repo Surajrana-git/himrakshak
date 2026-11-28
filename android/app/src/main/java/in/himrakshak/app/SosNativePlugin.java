@@ -111,7 +111,40 @@ public class SosNativePlugin extends Plugin {
         return bm != null && bm.getAdapter() != null && bm.getAdapter().isEnabled();
     }
 
+    // For phones WITHOUT Himrakshak: the phone's Bluetooth name becomes "SOS HELP call 98…" and the
+    // phone turns visible for 5 minutes, so anyone who opens Bluetooth → Pair new device sees it.
+    // The real name is kept and put back when the SOS stops.
+    private void showHelpName(String helpName) {
+        android.bluetooth.BluetoothManager bm = getContext().getSystemService(android.bluetooth.BluetoothManager.class);
+        if (bm == null || bm.getAdapter() == null) return;
+        android.bluetooth.BluetoothAdapter a = bm.getAdapter();
+        android.content.SharedPreferences prefs = getContext().getSharedPreferences("himrakshak-sos", 0);
+        try {
+            if (!prefs.contains("realName")) prefs.edit().putString("realName", a.getName()).apply();
+            a.setName(helpName.length() > 40 ? helpName.substring(0, 40) : helpName);
+            if (getActivity() != null) {
+                getActivity().startActivity(new Intent(android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
+                        .putExtra(android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300));
+            }
+        } catch (SecurityException | android.content.ActivityNotFoundException ignored) {
+        }
+    }
+
+    private void restoreName() {
+        android.bluetooth.BluetoothManager bm = getContext().getSystemService(android.bluetooth.BluetoothManager.class);
+        android.content.SharedPreferences prefs = getContext().getSharedPreferences("himrakshak-sos", 0);
+        String real = prefs.getString("realName", null);
+        if (bm == null || bm.getAdapter() == null || real == null) return;
+        try {
+            bm.getAdapter().setName(real);
+            prefs.edit().remove("realName").apply();
+        } catch (SecurityException ignored) {
+        }
+    }
+
     private void doStart(PluginCall call) {
+        String helpName = call.getString("helpName");
+        if (helpName != null && !helpName.isEmpty() && bluetoothOn()) showHelpName(helpName);
         // Airplane mode switches Bluetooth off: ask the phone to switch it back on (one tap).
         if (!bluetoothOn() && getActivity() != null) {
             try {
@@ -129,6 +162,7 @@ public class SosNativePlugin extends Plugin {
     @PluginMethod
     public void stopMesh(PluginCall call) {
         getContext().stopService(new Intent(getContext(), MeshRelayService.class));
+        restoreName();
         MeshRelayService.ownId = null;
         MeshRelayService.broadcasts = 0;
         call.resolve(status());

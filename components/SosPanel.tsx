@@ -20,36 +20,37 @@ type Step =
   | { kind: "active"; fix: GpsFix; packet: SosPacket; internet: "sending" | "sent" | "failed" }
   | { kind: "no-gps"; reason: string };
 
-// The contact number lives in this phone only (localStorage), read through a tiny store so
-// the server render ("") and the phone's saved value don't clash during hydration.
-let contactValue: string | null = null;
-const contactListeners = new Set<() => void>();
+// Numbers live on this phone only (localStorage), read through a tiny store so the server
+// render ("") and the phone's saved value don't clash during hydration.
+const OWN_KEY = "himrakshak-sos-own";
+const values = new Map<string, string>();
+const listeners = new Set<() => void>();
 
-function readContact(): string {
-  if (contactValue === null) {
+function readValue(key: string): string {
+  if (!values.has(key)) {
     try {
-      contactValue = localStorage.getItem(CONTACT_KEY) ?? "";
+      values.set(key, localStorage.getItem(key) ?? "");
     } catch {
-      contactValue = "";
+      values.set(key, "");
     }
   }
-  return contactValue;
+  return values.get(key)!;
 }
 
-function writeContact(value: string) {
-  contactValue = value;
+function writeValue(key: string, value: string) {
+  values.set(key, value);
   try {
-    localStorage.setItem(CONTACT_KEY, value);
+    localStorage.setItem(key, value);
   } catch {
     // Private mode: the number just isn't remembered after closing.
   }
-  contactListeners.forEach((listener) => listener());
+  listeners.forEach((l) => l());
 }
 
-function subscribeContact(listener: () => void) {
-  contactListeners.add(listener);
+function subscribe(listener: () => void) {
+  listeners.add(listener);
   return () => {
-    contactListeners.delete(listener);
+    listeners.delete(listener);
   };
 }
 
@@ -57,7 +58,8 @@ function subscribeContact(listener: () => void) {
 export default function SosPanel() {
   const [step, setStep] = useState<Step>({ kind: "idle" });
   const [reason, setReason] = useState<string | null>(null);
-  const contact = useSyncExternalStore(subscribeContact, readContact, () => "");
+  const contact = useSyncExternalStore(subscribe, () => readValue(CONTACT_KEY), () => "");
+  const own = useSyncExternalStore(subscribe, () => readValue(OWN_KEY), () => "");
   // Android app with the offline SOS plugin (false on the server render and on the website).
   const native = useSyncExternalStore(noop, hasNativeSos, () => false);
   const [sms, setSms] = useState<Record<string, string>>({}); // number → what happened
@@ -105,7 +107,9 @@ export default function SosPanel() {
     const family = contact.replace(/[^\d+]/g, "");
     if (family) sosNative.sendSms({ number: family, text: `${sosText(fix, reason)}\n${text}` }).catch(() => {});
     if (GATEWAY) sosNative.sendSms({ number: GATEWAY, text }).catch(() => {});
-    sosNative.startMesh({ packet: text }).then(setMesh).catch((e: Error) => setMeshNote(e.message));
+    // Phones without the app see this as a Bluetooth device name: "SOS HELP call 98…".
+    const callBack = (own || contact).replace(/[^\d+]/g, "");
+    sosNative.startMesh({ packet: text, helpName: callBack ? `SOS HELP call ${callBack}` : "SOS HELP Himrakshak" }).then(setMesh).catch((e: Error) => setMeshNote(e.message));
   }
 
   async function stopSos() {
@@ -223,12 +227,29 @@ export default function SosPanel() {
           type="tel"
           inputMode="tel"
           value={contact}
-          onChange={(e) => writeContact(e.target.value)}
+          onChange={(e) => writeValue(CONTACT_KEY, e.target.value)}
           placeholder="+91…"
           className="min-h-12 rounded-xl border-2 border-ink/20 bg-snow px-3"
         />
         <span className="text-xs text-muted">Saved on this phone only. Leave empty to pick a contact in your SMS app.</span>
       </label>
+      {native && (
+        <label className="flex flex-col gap-1">
+          <span className="font-semibold">Your own number (for helpers nearby)</span>
+          <input
+            type="tel"
+            inputMode="tel"
+            value={own}
+            onChange={(e) => writeValue(OWN_KEY, e.target.value)}
+            placeholder="+91…"
+            className="min-h-12 rounded-xl border-2 border-ink/20 bg-snow px-3"
+          />
+          <span className="text-xs text-muted">
+            During an SOS your phone shows up as &quot;SOS HELP call {own || "your number"}&quot; in the Bluetooth list of every phone nearby, even without
+            Himrakshak.
+          </span>
+        </label>
+      )}
 
       {native && (
         <section className="rounded-2xl border-2 border-ink/15 p-3">

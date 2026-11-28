@@ -8,7 +8,7 @@ export type SmsEvent = { number: string; status: "sent" | "delivered" | "retryin
 
 type SosNative = {
   sendSms(o: { number: string; text: string }): Promise<SmsEvent>;
-  startMesh(o: { packet?: string }): Promise<MeshStatus>;
+  startMesh(o: { packet?: string; helpName?: string }): Promise<MeshStatus>;
   stopMesh(): Promise<MeshStatus>;
   meshStatus(): Promise<MeshStatus>;
   addListener(event: "mesh", fn: (e: MeshEvent) => void): Promise<PluginListenerHandle>;
