@@ -10,7 +10,9 @@ const MAX_CLOUD = 30;
 const BEFORE_GAP_DAYS = 25;
 
 export type SatellitePhoto = { date: string; cloud: number; imageUrl: string; tile: string };
-export type SatelliteView = { now: SatellitePhoto | null; before: SatellitePhoto | null };
+// Bare ground = NDVI below 0.2 (no plants) in the 1 km around the spot; vegetation = mean NDVI.
+export type GroundChange = { bareNowPct: number; bareBeforePct: number; ndviNow: number; ndviBefore: number; possibleSlide: boolean };
+export type SatelliteView = { now: SatellitePhoto | null; before: SatellitePhoto | null; change: GroundChange | null };
 
 type StacItem = { id: string; properties: { datetime: string; "eo:cloud_cover": number }; assets: { visual?: { href: string } } };
 
@@ -23,6 +25,34 @@ function photo(item: StacItem, bbox: number[]): SatellitePhoto | null {
     imageUrl: `${TILER}/${bbox.join(",")}.png?url=${encodeURIComponent(href)}&max_size=640`,
     tile: item.id,
   };
+}
+
+const STATS = "https://titiler.xyz/stac/statistics";
+const NDVI_HALF_DEG = 0.005; // ~1 km box: the slope right at the spot, not the whole valley
+// HazMapper-style check without AI: a slide strips plants, so bare ground jumps and greenness falls.
+const SLIDE_BARE_JUMP_PCT = 10;
+const SLIDE_NDVI_DROP = 0.1;
+
+async function groundCover(itemId: string, lat: number, lon: number): Promise<{ barePct: number; ndvi: number } | null> {
+  const item = `https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/${itemId}`;
+  const [w, s, e, n] = [lon - NDVI_HALF_DEG, lat - NDVI_HALF_DEG, lon + NDVI_HALF_DEG, lat + NDVI_HALF_DEG];
+  // Bands: b1 = red, b2 = near-infrared; NDVI = (nir − red) / (nir + red). Bins of 0.2 from −1 to 1.
+  const params = new URLSearchParams({ url: item, expression: "(b2-b1)/(b2+b1)", histogram_bins: "10", histogram_range: "-1,1" });
+  params.append("assets", "red");
+  params.append("assets", "nir");
+  const res = await fetch(`${STATS}?${params}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [[[w, s], [e, s], [e, n], [w, n], [w, s]]] } }),
+  }).catch(() => null);
+  if (!res?.ok) return null;
+  const body: { properties: { statistics: Record<string, { mean: number; histogram: [number[], number[]] }> } } = await res.json();
+  const stats = Object.values(body.properties.statistics)[0];
+  const counts = stats.histogram[0];
+  const total = counts.reduce((a, b) => a + b, 0);
+  if (!total) return null;
+  const bare = counts.slice(0, 6).reduce((a, b) => a + b, 0); // NDVI −1 … 0.2
+  return { barePct: Math.round((bare / total) * 100), ndvi: Math.round(stats.mean * 100) / 100 };
 }
 
 export async function getSatelliteView(lat: number, lon: number): Promise<SatelliteView> {
@@ -47,9 +77,20 @@ export async function getSatelliteView(lat: number, lon: number): Promise<Satell
   const items: StacItem[] = (await res.json()).features ?? [];
   // "Now" is the newest pass under 30% cloud; "before" is the clearest pass at least 25 days older.
   const latest = items[0];
-  if (!latest) return { now: null, before: null };
+  if (!latest) return { now: null, before: null, change: null };
   const cutoff = new Date(latest.properties.datetime).getTime() - BEFORE_GAP_DAYS * 86400_000;
   const older = items.filter((i) => new Date(i.properties.datetime).getTime() <= cutoff);
   const before = older.sort((a, b) => a.properties["eo:cloud_cover"] - b.properties["eo:cloud_cover"])[0];
-  return { now: photo(latest, bbox), before: before ? photo(before, bbox) : null };
+  const [coverNow, coverBefore] = before ? await Promise.all([groundCover(latest.id, lat, lon), groundCover(before.id, lat, lon)]) : [null, null];
+  const change =
+    coverNow && coverBefore
+      ? {
+          bareNowPct: coverNow.barePct,
+          bareBeforePct: coverBefore.barePct,
+          ndviNow: coverNow.ndvi,
+          ndviBefore: coverBefore.ndvi,
+          possibleSlide: coverNow.barePct - coverBefore.barePct >= SLIDE_BARE_JUMP_PCT && coverBefore.ndvi - coverNow.ndvi >= SLIDE_NDVI_DROP,
+        }
+      : null;
+  return { now: photo(latest, bbox), before: before ? photo(before, bbox) : null, change };
 }

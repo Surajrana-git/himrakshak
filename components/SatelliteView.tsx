@@ -79,6 +79,19 @@ export default function SatelliteView({ title, lat, lon, onClose }: Props) {
           </div>
         )}
 
+        {current?.view?.change && (
+          <div role="status" className={`rounded-2xl p-3 ${current.view.change.possibleSlide ? "bg-danger text-white" : "bg-mint text-ink"}`}>
+            <p className="font-display text-lg font-bold">
+              {current.view.change.possibleSlide ? "Possible new slide: plants lost here" : "No big change in the ground here"}
+            </p>
+            <p className="text-sm">
+              Bare ground within 1 km: {current.view.change.bareBeforePct}% before → {current.view.change.bareNowPct}% now. Greenness (NDVI):{" "}
+              {current.view.change.ndviBefore} → {current.view.change.ndviNow}.
+            </p>
+            <p className="mt-1 text-xs opacity-80">Automatic check. Snow, cloud shadow or harvest can look the same; confirm with the photos and driver reports.</p>
+          </div>
+        )}
+
         <p className="text-xs text-muted">
           ESA Sentinel-2, 10 m per pixel, a new pass about every 5 days (found with Element84 Earth Search, cut with TiTiler). The orange ring marks the spot. Compare the
           two photos: fresh bare earth or a grey streak across the road that was green before can mean a new slide. Small rockfalls are too small to see; driver
