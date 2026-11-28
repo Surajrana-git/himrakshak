@@ -10,7 +10,6 @@
     "postinstall": "cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs public/"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^1.14.0",
     "@capacitor-community/speech-recognition": "^7.0.1",
     "@capacitor/android": "^8.6.3",
     "@capacitor/app": "^8.1.2",

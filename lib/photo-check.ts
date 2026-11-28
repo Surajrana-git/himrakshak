@@ -1,16 +1,18 @@
-import Anthropic from "@anthropic-ai/sdk";
-
 export type PhotoVerdict = { verdict: "blocked" | "clear" | "unclear"; confidence: number; reason: string };
 
+// Google Gemini, free tier (key from aistudio.google.com, no card needed).
+const MODEL = "gemini-2.5-flash";
+const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
 const SCHEMA = {
-  type: "object",
+  type: "OBJECT",
   properties: {
-    verdict: { type: "string", enum: ["blocked", "clear", "unclear"] },
-    confidence: { type: "number" },
-    reason: { type: "string" },
+    verdict: { type: "STRING", enum: ["blocked", "clear", "unclear"] },
+    confidence: { type: "NUMBER" },
+    reason: { type: "STRING" },
   },
   required: ["verdict", "confidence", "reason"],
-  additionalProperties: false,
 };
 
 const PROMPT = `This photo was sent by a driver in Uttarakhand as a road report (landslide, rockfall, blocked road, water on the road).
@@ -20,30 +22,39 @@ Decide whether the road in the photo is blocked for a car right now.
 - "unclear": no road visible, too dark or blurry, or not a road photo.
 confidence is 0 to 1. reason is one short plain-English sentence a driver understands, under 15 words.`;
 
-// Claude looks at a report photo and says whether the road is blocked. null when no
-// ANTHROPIC_API_KEY is set (the check is then off and the app says so).
+type GeminiResponse = { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+
+// The AI looks at a report photo and says whether the road is blocked. null when no
+// GEMINI_API_KEY is set (the check is then off and the app says so).
 export async function checkRoadPhoto(photoUrl: string): Promise<PhotoVerdict | null> {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
-  const client = new Anthropic();
-  const response = await client.beta.messages.create({
-    model: "claude-opus-5-5",
-    max_tokens: 2000,
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
-    output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
-    messages: [
-      {
-        role: "user",
-        content: [
-          { type: "image", source: { type: "url", url: photoUrl } },
-          { type: "text", text: PROMPT },
-        ],
-      },
-    ],
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return null;
+
+  const photo = await fetch(photoUrl);
+  if (!photo.ok) throw new Error(`Photo download failed: ${photo.status}`);
+  const bytes = Buffer.from(await photo.arrayBuffer());
+  if (bytes.length > MAX_PHOTO_BYTES) throw new Error("Photo is too large");
+
+  const res = await fetch(ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            { inline_data: { mime_type: photo.headers.get("content-type") ?? "image/jpeg", data: bytes.toString("base64") } },
+            { text: PROMPT },
+          ],
+        },
+      ],
+      generationConfig: { responseMimeType: "application/json", responseSchema: SCHEMA, temperature: 0 },
+    }),
   });
-  if (response.stop_reason === "refusal") return { verdict: "unclear", confidence: 0, reason: "The AI could not check this photo." };
-  const text = response.content.find((b) => b.type === "text");
-  if (!text || text.type !== "text") return null;
-  const parsed: PhotoVerdict = JSON.parse(text.text);
+  if (res.status === 429) throw new Error("busy");
+  if (!res.ok) throw new Error(`Gemini returned ${res.status}`);
+  const body: GeminiResponse = await res.json();
+  const text = body.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) return { verdict: "unclear", confidence: 0, reason: "The AI could not check this photo." };
+  const parsed: PhotoVerdict = JSON.parse(text);
   return { ...parsed, confidence: Math.min(1, Math.max(0, parsed.confidence)) };
 }

@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { checkRoadPhoto } from "@/lib/photo-check";
 
 // Only photos in our own report bucket, so this cannot be used to send any image to the AI.
@@ -12,11 +11,9 @@ export async function POST(request: Request) {
     const result = await checkRoadPhoto(photoUrl);
     return Response.json(result ?? { off: true });
   } catch (e) {
-    if (e instanceof Anthropic.RateLimitError) return Response.json({ error: "AI is busy, try again in a minute" }, { status: 429 });
-    if (e instanceof Anthropic.APIError) {
-      console.error("photo check failed:", e.status, e.message);
-      return Response.json({ error: "AI check failed" }, { status: 502 });
-    }
-    throw e;
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("photo check failed:", message);
+    if (message === "busy") return Response.json({ error: "AI is busy, try again in a minute" }, { status: 429 });
+    return Response.json({ error: "AI check failed" }, { status: 502 });
   }
 }
