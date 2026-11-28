@@ -1,4 +1,5 @@
-export type PhotoVerdict = { verdict: "blocked" | "clear" | "unclear"; confidence: number; reason: string };
+// "fake": not a live camera shot (screenshot, photo of a screen, downloaded or edited image). Rejected.
+export type PhotoVerdict = { verdict: "blocked" | "clear" | "unclear" | "fake"; confidence: number; reason: string };
 
 // Google Gemini, free tier (key from aistudio.google.com, no card needed).
 const MODEL = "gemini-2.5-flash";
@@ -8,7 +9,7 @@ const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const SCHEMA = {
   type: "OBJECT",
   properties: {
-    verdict: { type: "STRING", enum: ["blocked", "clear", "unclear"] },
+    verdict: { type: "STRING", enum: ["blocked", "clear", "unclear", "fake"] },
     confidence: { type: "NUMBER" },
     reason: { type: "STRING" },
   },
@@ -16,7 +17,13 @@ const SCHEMA = {
 };
 
 const PROMPT = `This photo was sent by a driver in Uttarakhand as a road report (landslide, rockfall, blocked road, water on the road).
-Decide whether the road in the photo is blocked for a car right now.
+It must be a live photo taken just now with the phone camera. Our app adds a dark band at the bottom with
+"Himrakshak · live camera", GPS and time: that band is expected. If the band is missing, the photo did not
+come from our camera: answer "fake".
+First decide if it is a real live camera photo of a real scene.
+- "fake": a screenshot, a photo of a TV, monitor or phone screen, a printed picture, a news or stock image,
+  a photo with another app's watermark or logo, a drawing, cartoon, AI-made or clearly edited image.
+If it is a real live photo, decide whether the road in the photo is blocked for a car right now.
 - "blocked": debris, rocks, mud, a fallen slope, water or a vehicle pile-up stop a car from passing.
 - "clear": a road is visible and a car can pass.
 - "unclear": no road visible, too dark or blurry, or not a road photo.

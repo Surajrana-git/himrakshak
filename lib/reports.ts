@@ -81,7 +81,7 @@ function mergeReports(current: Report[], incoming: Report[]): Report[] {
 }
 
 // The AI look at the photo is a bonus: if it is off or fails, the report still goes out.
-async function checkPhoto(photoUrl: string): Promise<{ verdict: "blocked" | "clear" | "unclear"; confidence: number } | null> {
+async function checkPhoto(photoUrl: string): Promise<{ verdict: "blocked" | "clear" | "unclear" | "fake"; confidence: number; reason: string } | null> {
   const res = await fetch("/api/photo-check", { method: "POST", body: JSON.stringify({ photoUrl }) }).catch(() => null);
   if (!res?.ok) return null;
   const body = await res.json();
@@ -102,6 +102,7 @@ export async function createReport(report: NewReport): Promise<void> {
   }
 
   const ai = photo_url ? await checkPhoto(photo_url) : null;
+  if (ai?.verdict === "fake") throw new Error(`Report rejected by the AI photo check: ${ai.reason}`);
   const row = { segment_id: report.segment_id, kind: report.kind, note: report.note, lat: report.lat, lon: report.lon, photo_url };
   let { error } = await supabase.from("reports").insert({ ...row, device_id: deviceId(), ai_verdict: ai?.verdict ?? null, ai_confidence: ai?.confidence ?? null });
   // Until supabase/run-28nov.sql adds the new columns, save the report without them rather than lose it.
