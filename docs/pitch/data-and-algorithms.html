@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Himrakshak · Data and algorithms</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  :root { --green:#0E7A3D; --mint:#E6F4EC; --ink:#14231F; --muted:#5B6662; }
+  body { font-family: Inter, Arial, sans-serif; color: var(--ink); font-size: 9.6pt; line-height: 1.42; margin: 0; }
+  h1 { font-family: Poppins, Arial; font-size: 21pt; margin: 0 0 2px; }
+  h2 { font-family: Poppins, Arial; font-size: 13.5pt; color: var(--green); margin: 16px 0 6px; break-after: avoid; }
+  p { margin: 4px 0; }
+  .muted { color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; margin: 4px 0 6px; }
+  th, td { text-align: left; vertical-align: top; padding: 5px 6px; border-bottom: 1px solid #DCE5E0; }
+  th { background: var(--mint); font-size: 8.6pt; text-transform: uppercase; letter-spacing: .05em; }
+  tr { break-inside: avoid; }
+  code { font-family: Menlo, monospace; font-size: 8.4pt; background: #F1F4F2; padding: 0 3px; border-radius: 3px; }
+  a { color: var(--green); word-break: break-all; }
+  .formula { font-family: Poppins, Arial; font-weight: 600; font-size: 11.5pt; background: var(--mint); padding: 8px 12px; border-radius: 10px; margin: 6px 0; }
+</style>
+</head>
+<body>
+
+<h1>Himrakshak · Data and algorithms</h1>
+<p class="muted">Team Elite Zero Division · Algonex 1.0 · 28 Nov 2026 · Code: github.com/Surajrana-git/himrakshak · App: himrakshak.vercel.app</p>
+<p>Every dataset below is free and open. Files in <code>data/</code> are in the code repository; readable CSV copies are in <code>docs/data/</code>. Live data is fetched when the app runs and is not stored.</p>
+
+<h2>1 · Data stored in the app</h2>
+<table>
+  <tr><th style="width:24%">File in repo</th><th style="width:30%">What it holds</th><th style="width:22%">Built by</th><th>Original source</th></tr>
+  <tr><td><code>data/landslides-uttarakhand.json</code><br><code>docs/data/landslides-uttarakhand.csv</code></td><td>100 past landslides in Uttarakhand (2007–2017) placed within 10 km: date, title, place, size, deaths, lat/lon</td><td><code>scripts/build-landslides.mjs</code></td><td>NASA Global Landslide Catalog<br><a href="https://data.nasa.gov/dataset/global-landslide-catalog-export">data.nasa.gov/dataset/global-landslide-catalog-export</a><br>CSV: <a href="https://data.nasa.gov/docs/legacy/Global_Landslide_Catalog_Export/Global_Landslide_Catalog_Export_rows.csv">Global_Landslide_Catalog_Export_rows.csv</a></td></tr>
+  <tr><td><code>data/landslides-badrinath.json</code><br><code>docs/data/landslides-badrinath-nh7.csv</code></td><td>29 of those within 2 km of the Rishikesh–Badrinath road (NH-7), tagged by stretch; used to train the AI check</td><td><code>scripts/build-landslides.mjs</code></td><td>Same NASA catalog</td></tr>
+  <tr><td><code>data/slope-uttarakhand.json</code><br><code>docs/data/slope-uttarakhand-grid.csv</code></td><td>Mean hillside slope (degrees) for 100,800 cells of 0.01° (~1 km) covering Uttarakhand</td><td><code>scripts/build-slope-grid.mjs</code> (110 tiles, zoom 10 ≈ 150 m)</td><td>AWS Terrain Tiles (Mapzen terrarium; SRTM and other DEMs)<br><a href="https://registry.opendata.aws/terrain-tiles/">registry.opendata.aws/terrain-tiles</a></td></tr>
+  <tr><td><code>data/route-badrinath.json</code><br><code>docs/data/badrinath-stretches-risk-factors.csv</code></td><td>Road geometry of 9 stretches Rishikesh → Badrinath, rain point per stretch; CSV adds measured slope and history factors</td><td><code>scripts/build-route.mjs</code></td><td>OpenStreetMap via OSRM<br><a href="https://project-osrm.org">project-osrm.org</a></td></tr>
+  <tr><td><code>data/landslide-model.json</code></td><td>Trained AI landslide model: weights, thresholds, 95th-percentile rain index per stretch, test results</td><td><code>scripts/train-landslide-model.mjs</code></td><td>Open-Meteo historical rain 2001–2020 (ERA5) <a href="https://open-meteo.com/en/docs/historical-weather-api">open-meteo.com/en/docs/historical-weather-api</a> + NASA catalog</td></tr>
+  <tr><td><code>data/glacial-lakes.json</code><br><code>docs/data/glacial-lakes.csv</code></td><td>Vasudhara Tal, Balbala, Chorabari Tal: area by year, elevation, risk class</td><td>By hand from papers</td><td>Pandey A. (2026), Open Geosciences 18(1); NDMA glacial lake list (5 "Category A" lakes in Uttarakhand, 2024)</td></tr>
+  <tr><td><code>data/places.json</code></td><td>23 towns and the four dhams with coordinates</td><td>By hand</td><td>OpenStreetMap</td></tr>
+</table>
+
+<h2>2 · Live data (fetched when the app runs)</h2>
+<table>
+  <tr><th style="width:24%">Data</th><th style="width:46%">Used for</th><th>Source link</th></tr>
+  <tr><td>Rain: last 24 h, next 48 h</td><td>Risk score, safe time to leave, AI check, Indian thresholds</td><td>Open-Meteo <a href="https://open-meteo.com/en/docs">open-meteo.com/en/docs</a></td></tr>
+  <tr><td>Sentinel-2 L2A satellite images (10 m, ~5 days)</td><td>Satellite view; greenness (NDVI) slide check</td><td>Element84 Earth Search <a href="https://earth-search.aws.element84.com/v1">earth-search.aws.element84.com/v1</a> · <a href="https://registry.opendata.aws/sentinel-2-l2a-cogs/">registry.opendata.aws/sentinel-2-l2a-cogs</a> · cut with TiTiler <a href="https://titiler.xyz">titiler.xyz</a></td></tr>
+  <tr><td>Roads and routes</td><td>Route options, turn-by-turn, detours around closed roads</td><td>Valhalla on OpenStreetMap <a href="https://valhalla1.openstreetmap.de">valhalla1.openstreetmap.de</a></td></tr>
+  <tr><td>Place search</td><td>Search any place in Uttarakhand, voice "go to"</td><td>Photon (Komoot, OpenStreetMap) <a href="https://photon.komoot.io">photon.komoot.io</a></td></tr>
+  <tr><td>Map tiles</td><td>Base map</td><td>OpenFreeMap <a href="https://openfreemap.org">openfreemap.org</a></td></tr>
+  <tr><td>Landslide news</td><td>Recent slides on the map</td><td>Google News RSS (English)</td></tr>
+  <tr><td>Driver reports, SOS, saved places</td><td>Closures, jams, photos, Road Rewards, rescue dashboard</td><td>Our own database (Supabase)</td></tr>
+  <tr><td>Report photo check</td><td>Is the road in the photo blocked?</td><td>Google Gemini API, free tier <a href="https://ai.google.dev/gemini-api/docs">ai.google.dev/gemini-api/docs</a></td></tr>
+</table>
+
+<h2>3 · Indian datasets and research</h2>
+<table>
+  <tr><th style="width:30%">Indian source</th><th style="width:16%">Status</th><th>What it gives and how we use it</th></tr>
+  <tr><td>Rishikesh–Mana road (NH-58/NH-7) rainfall threshold study, NHESS 24, 465 (2024)<br><a href="https://nhess.copernicus.org/articles/24/465/2024/">nhess.copernicus.org/articles/24/465/2024</a></td><td><b>Used in app</b></td><td>Threshold I = 58.7·D<sup>−1.12</sup> for this exact road (satellite rain; 81.6% of 2005–06 slides caught). Checked for every stretch, now + next 6 h.</td></tr>
+  <tr><td>Chamoli–Joshimath rainfall threshold study, Landslides (2013)<br><a href="https://link.springer.com/doi/10.1007/s10346-013-0438-9">doi.org/10.1007/s10346-013-0438-9</a></td><td><b>Used in app</b></td><td>Lower-boundary threshold I = 1.82·D<sup>−0.23</sup> from 81 slides around Chamoli–Joshimath. Checked alongside NH-58.</td></tr>
+  <tr><td>Landslide Atlas of India, NRSC/ISRO (2023)<br><a href="https://www.isro.gov.in/media_isro/pdf/LandslideAtlas_2023.pdf">isro.gov.in/media_isro/pdf/LandslideAtlas_2023.pdf</a></td><td>Reference</td><td>~80,000 landslides 1998–2022; Uttarakhand 11,219; Rudraprayag ranked 1st and Tehri 2nd of 147 districts for landslide exposure. Confirms our watched stretches.</td></tr>
+  <tr><td>GSI National Landslide Susceptibility Mapping, Bhukosh portal<br><a href="https://bhukosh.gsi.gov.in/Bhukosh/Public">bhukosh.gsi.gov.in/Bhukosh/Public</a></td><td>Next</td><td>1:50,000 susceptibility zones and landslide polygons (free download after sign-up). Will replace NASA points as the history layer and add a GSI zone factor.</td></tr>
+  <tr><td>GSI landslide early-warning bulletins (Rudraprayag, Chamoli, Tehri, Uttarkashi)</td><td>Next</td><td>District 24/48 h landslide forecasts; to show next to our score.</td></tr>
+  <tr><td>IMD gridded rainfall 0.25° and district warnings<br><a href="https://imdpune.gov.in">imdpune.gov.in</a> · <a href="https://mausam.imd.gov.in">mausam.imd.gov.in</a></td><td>Next</td><td>Indian rain record to re-train the AI check; official red/orange alerts in the app.</td></tr>
+  <tr><td>NDMA glacial lake risk list (2024)</td><td>Used (lakes)</td><td>188 Himalayan lakes, 13 in Uttarakhand, 5 "Category A" (4 Pithoragarh, 1 Chamoli: Vasudhara Tal).</td></tr>
+  <tr><td>ISRO Bhuvan / CartoDEM (30 m)<br><a href="https://bhuvan.nrsc.gov.in">bhuvan.nrsc.gov.in</a></td><td>Next</td><td>Indian elevation model to sharpen the slope map from ~150 m to 30 m.</td></tr>
+</table>
+
+<h2>4 · Algorithms</h2>
+<table>
+  <tr><th style="width:20%">Algorithm · code</th><th style="width:52%">How it works</th><th>Reference</th></tr>
+  <tr><td><b>Risk score</b><br><code>lib/risk.ts</code>, <code>lib/terrain.ts</code>, <code>lib/routes.ts</code></td><td>
+    <div class="formula">score = rain_score × slope_factor × history_factor (0–100)</div>
+    rain_score = min(100, 1.5 × rain last 24 h + 4 × rain next 6 h) in mm (IMD calls 64.5 mm/day "heavy").<br>
+    slope_factor = 1 + clamp((mean slope − 10°) / 25°, 0, 1) → 1.0 … 2.0.<br>
+    history_factor = min(1.8, 1 + 0.4 × past slides within 2 km per 10 km of road).<br>
+    Scored for every ~10 km of any route. 0–39 Low · 40–69 Medium · 70+ High.</td><td>Formula agreed by the team (AGENTS.md); slope and history from the data above</td></tr>
+  <tr><td><b>Safe time to leave</b><br><code>lib/risk.ts</code></td><td>The earliest hour in the next 12 hours when every stretch scores below 70.</td><td>—</td></tr>
+  <tr><td><b>Indian rainfall thresholds</b><br><code>lib/thresholds.ts</code></td><td>For durations D = 1, 3, 6, 12, 24, 48, 72 h ending 6 h from now: mean intensity I = rain in D hours ÷ D. A stretch is "above threshold" if I ≥ a·D<sup>b</sup> for any D. NH-58: a = 58.7, b = −1.12. Chamoli–Joshimath: a = 1.82, b = −0.23.</td><td>NHESS 2024; Landslides 2013 (links above)</td></tr>
+  <tr><td><b>AI landslide check</b><br><code>lib/ai-risk.ts</code>, <code>scripts/train-landslide-model.mjs</code></td><td>NASA LHASA antecedent rainfall index: ARI = Σ R(t−i)·(i+1)<sup>−2</sup> / Σ (i+1)<sup>−2</sup> over 7 days, divided by the stretch's own 95th percentile (2001–2020).<br>
+    4 features: log(1 + ARI/ARI95), log(1 + rain today), log(1 + rain 14 days), monsoon month → logistic regression.<br>
+    Trained on 2010–2014 slide days, tested on 2015–2017: AUC 0.75 (train 0.90); "High" = top 15% of days caught 7 of 24 test slide days, "Medium or High" (top 30%) caught 14 of 24. Re-scored every 30 min for today and tomorrow.</td><td>Kirschbaum &amp; Stanley (2018), Earth's Future, <a href="https://doi.org/10.1002/2017EF000715">doi.org/10.1002/2017EF000715</a>; code <a href="https://github.com/nasa/lhasa">github.com/nasa/lhasa</a></td></tr>
+  <tr><td><b>Slope map</b><br><code>scripts/build-slope-grid.mjs</code></td><td>For each terrain pixel: gradient = height difference to neighbours ÷ distance (east–west and north–south); slope = atan(√(gx² + gy²)). Averaged per 0.01° cell.</td><td>Standard central-difference slope from neighbouring pixels</td></tr>
+  <tr><td><b>Satellite slide check</b><br><code>lib/satellite.ts</code></td><td>NDVI = (NIR − Red) / (NIR + Red) from Sentinel-2 bands B08 and B04 in the 1 km around a spot, newest clear image vs one ≥ 25 days older. "Possible new slide" when bare ground (NDVI &lt; 0.2) rises by ≥ 10 points and mean NDVI falls by ≥ 0.1.</td><td>Rouse et al. (1974) NDVI; method of HazMapper (Scheip &amp; Wegmann, 2021, NHESS)</td></tr>
+  <tr><td><b>Routes and detours</b><br><code>lib/valhalla.ts</code>, <code>lib/routes.ts</code></td><td>Valhalla shortest path (time). Closed spots become ~1 km no-go boxes. Because the public server returns one route, we ask again with a point one-third and two-thirds along the road blocked, which finds the other valley roads; drop any option over 2× longer. "Safest" = lowest risk, then quickest.</td><td><a href="https://github.com/valhalla/valhalla">github.com/valhalla/valhalla</a></td></tr>
+  <tr><td><b>Road closed</b><br><code>lib/reports.ts</code></td><td>Closed when blocking reports (landslide, rockfall, road blocked) come from ≥ 2 different phones within 1 km in 12 h, and no "Road clear" report came after. Drivers passing within 500 m are asked "Still there?".</td><td>—</td></tr>
+  <tr><td><b>Photo check</b><br><code>lib/photo-check.ts</code></td><td>Report photo sent to Google Gemini (gemini-2.5-flash) with a fixed prompt; answer forced into JSON {verdict: blocked / clear / unclear, confidence 0–1, reason}. Only photos from our own storage are accepted.</td><td><a href="https://ai.google.dev/gemini-api/docs">ai.google.dev/gemini-api/docs</a></td></tr>
+  <tr><td><b>Road Rewards</b><br><code>lib/rewards.ts</code></td><td>10 points per report; +20 when a different phone reports within 1 km and 12 h. Levels at 0, 50, 200 points.</td><td>—</td></tr>
+</table>
+<p class="muted" style="margin-top:8px">Limits: NASA catalog points are often placed to the nearest 1–10 km; satellite pixels are 10 m, so small rockfalls do not show; clouds hide the ground in monsoon. The score is a guide for drivers, not a guarantee.</p>
+</body>
+</html>

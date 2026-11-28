@@ -1,0 +1,101 @@
+id,date,title,place,location_accuracy,size,deaths,lat,lon
+9630,2016-10-04,Mahakali river at Bangabagad,Mahakali river at Bangabagad,1km,medium,0,29.8521,80.553
+9448,2016-08-05,Bangapani area of Pithoragarh,Bangapani area of Pithoragarh,10km,small,1,29.5866,80.2154
+9449,2016-08-04,Valley of Flowers near Badrinath,Valley of Flowers near Badrinath,5km,medium,0,30.7386,79.4954
+9258,2016-07-31,"Janki Chatti, Uttarakhand, India","Janki Chatti, Uttarakhand, India",1km,medium,0,30.9753,78.4375
+9166,2016-07-18,"Gangotri Highway near Helgugad, Uttarkashi, Uttarakhand, India","Gangotri Highway near Helgugad, Uttarkashi, Uttarakhand, India",1km,medium,0,30.7313,78.4358
+9017,2016-07-17,"Narendranagar bypass on the Rishikesh-Gangotri national highway,Tehri Garhwal district, Uttarakhand, India","Narendranagar bypass on the Rishikesh-Gangotri national highway,Tehri Garhwal district, Uttarakhand, India",1km,medium,4,30.1642,78.2936
+9020,2016-07-17,"Railway tunnel a few kilometres from the Haridwar railway station, between Haridwar and Dehradun, Uttarakhand, India","Railway tunnel a few kilometres from the Haridwar railway station, between Haridwar and Dehradun, Uttarakhand, India",exact,medium,0,29.9551,78.1677
+9002,2016-07-16,"Mussoorie-Tehri bypass, near Landour, Uttarakhand, India","Mussoorie-Tehri bypass, near Landour, Uttarakhand, India",5km,medium,0,30.4554,78.0973
+9008,2016-07-16,"Mathyali village, Jakhnidhar, Uttarakhand, India","Mathyali village, Jakhnidhar, Uttarakhand, India",1km,small,0,30.3351,78.5113
+8367,2016-06-30,"Didihat, Uttarakhand, India","Didihat, Uttarakhand, India",1km,large,0,29.8002,80.2565
+8032,2016-06-29,"Nandprayag, Uttarakhand, India","Nandprayag, Uttarakhand, India",1km,medium,0,30.3299,79.3206
+9318,2016-05-23,"Chakrata, Uttarakhand, India","Chakrata, Uttarakhand, India",1km,small,10,30.7007,77.8644
+7311,2015-08-15,Lambagadh,Lambagadh,5km,medium,0,30.6494,79.5269
+7309,2015-08-15,Malla,Malla,1km,medium,0,30.7864,78.616
+7308,2015-08-15,Gagnani,Gagnani,5km,medium,0,30.9111,78.6814
+7297,2015-07-28,Kedarnath Yatra,Kedarnath Yatra,5km,small,0,30.7204,79.0758
+7273,2015-07-26,"Sirobagad, Rishikesh-Badrinath highway","Sirobagad, Rishikesh-Badrinath highway",5km,medium,0,30.2411,78.9014
+7270,2015-07-24,Pithoragarh,Pithoragarh,5km,small,0,29.5863,80.2186
+7227,2015-07-19,Sandrathi village of Munsiyari block of Pithoragarh district,Sandrathi village of Munsiyari block of Pithoragarh district,1km,small,1,30.0705,80.2364
+7224,2015-07-19,"Varunavat Mountain, Uttarkashi","Varunavat Mountain, Uttarkashi",5km,medium,0,30.73,78.4378
+7161,2015-07-11,Sirobagad area of Rudraprayag,Sirobagad area of Rudraprayag,5km,medium,0,30.241,78.9
+7160,2015-07-11,Badrinath Highway near Mulygoan in Tihri,Badrinath Highway near Mulygoan in Tihri,5km,medium,0,30.3799,78.4862
+7159,2015-07-10,"Baliyanala, Nainithal","Baliyanala, Nainithal",5km,medium,0,29.3908,79.4552
+7084,2015-07-06,"Mall Rd, Nainital","Mall Rd, Nainital",5km,medium,0,29.393,79.4525
+7012,2015-06-25,5 km from Kedarnath Temple,5 km from Kedarnath Temple,5km,medium,0,30.6838,79.0479
+7110,2015-04-30,Rishikesh-Badrinath National Highway near Joshimath,Rishikesh-Badrinath National Highway near Joshimath,5km,small,0,30.5568,79.5541
+7111,2015-04-28,"Vishnuprayag, Joshimath","Vishnuprayag, Joshimath",1km,small,0,30.5631,79.5765
+6341,2014-09-11,Gaurikund-Kedarnath pedestrian trek,Gaurikund-Kedarnath pedestrian trek,10km,medium,0,30.688,79.0478
+6184,2014-07-28,"Pithauragadh, Uttarakhand","Pithauragadh, Uttarakhand",1km,medium,7,29.5829,80.2182
+6177,2014-07-23,"Bazpur, Uttarakhand","Bazpur, Uttarakhand",1km,small,2,29.1585,79.1464
+6167,2014-07-20,"Sonprayag, Uttarakhand","Sonprayag, Uttarakhand",1km,small,3,30.6326,78.9953
+6162,2014-07-19,"Mussoorie, Uttarakhand","Mussoorie, Uttarakhand",10km,small,0,30.4305,78.0803
+5360,2013-08-18,"Chamoli District, Uttarakhand","Chamoli District, Uttarakhand",5km,medium,0,30.3642,79.3158
+5346,2013-08-17,"Harsil, Uttarakhand","Harsil, Uttarakhand",5km,medium,0,31.0343,78.7248
+5347,2013-08-17,"Uttarkashi, Uttarakhand","Uttarkashi, Uttarakhand",5km,medium,0,30.7292,78.4396
+5320,2013-08-13,"Kot Village Of Tehri District, Uttarakhand","Kot Village Of Tehri District, Uttarakhand",5km,medium,2,30.6014,78.3449
+5285,2013-08-05,"Jhulaghat Area Of Pithoragarh District, Uttarakhand","Jhulaghat Area Of Pithoragarh District, Uttarakhand",10km,medium,1,29.5659,80.3657
+5240,2013-07-31,"Dehradun, Uttarakhand","Dehradun, Uttarakhand",10km,medium,4,30.3822,78.0949
+5225,2013-07-28,"Bhatwari Area Of Uttarkashi Districti, Uttarakhand","Bhatwari Area Of Uttarkashi Districti, Uttarakhand",5km,small,1,30.819,78.6149
+5224,2013-07-28,"Samkot Village Of Pithoragarhi, Uttarakhand","Samkot Village Of Pithoragarhi, Uttarakhand",10km,small,1,29.9964,80.201
+5215,2013-07-27,Balsori Villages In The Akhrori Area,Balsori Villages In The Akhrori Area,5km,medium,0,30.4521,78.754
+5208,2013-07-26,Rishikesh-Badrinath Highway Near Kaleshwar,Rishikesh-Badrinath Highway Near Kaleshwar,5km,medium,0,30.2835,79.2498
+5197,2013-07-25,"Ganga Vihar Colony In Bhatwadi Area, Uttarkashi, Uttarakhand","Ganga Vihar Colony In Bhatwadi Area, Uttarkashi, Uttarakhand",5km,medium,0,30.8203,78.6185
+5199,2013-07-25,"Malla, Uttarkashi, Uttarakhand","Malla, Uttarkashi, Uttarakhand",1km,medium,0,30.7866,78.6171
+5179,2013-07-24,"Karnaprayag, Uttarakhand","Karnaprayag, Uttarakhand",5km,medium,0,30.262,79.2191
+5182,2013-07-24,"Thirpak, Uttarakhand","Thirpak, Uttarakhand",5km,medium,0,30.301,79.3628
+5183,2013-07-24,"Tefana, Uttarakhand","Tefana, Uttarakhand",1km,medium,0,30.3056,79.3286
+5184,2013-07-24,"Sunali, Uttarakhand","Sunali, Uttarakhand",1km,medium,0,30.9058,78.0906
+5177,2013-07-23,"Gauchar, Chamoli District, Uttarakhand","Gauchar, Chamoli District, Uttarakhand",5km,medium,0,30.2902,79.151
+5176,2013-07-23,"Deval, Chamoli District, Uttarakhand","Deval, Chamoli District, Uttarakhand",1km,medium,0,30.1944,79.1939
+5139,2013-07-19,"Munsyari Area, Pithoragarh, Uttarakhand","Munsyari Area, Pithoragarh, Uttarakhand",5km,medium,0,30.0718,80.2369
+5130,2013-07-18,"Netali Maneri Marg, Uttarkashi District, Uttarakhand","Netali Maneri Marg, Uttarkashi District, Uttarakhand",5km,small,0,30.7314,78.4347
+5129,2013-07-18,"Chamoli District, Uttarakhand","Chamoli District, Uttarakhand",1km,medium,0,30.4043,79.3308
+5088,2013-07-12,"Lohardobha Billage, Dhari, Nainital","Lohardobha Billage, Dhari, Nainital",5km,medium,6,29.3802,79.4633
+5086,2013-07-12,"Nainital District, Uttarakhand","Nainital District, Uttarakhand",5km,medium,6,29.3802,79.4633
+5068,2013-07-10,"Bhikona Village, Pokhri Block, Chamoli Village, Uttarakhand","Bhikona Village, Pokhri Block, Chamoli Village, Uttarakhand",5km,medium,7,30.3629,79.2143
+4975,2013-06-24,"Sirobhgarh Bend, Srinagar-Rudraprayag Highway, Uttarakhand, Northern India","Sirobhgarh Bend, Srinagar-Rudraprayag Highway, Uttarakhand, Northern India",10km,medium,0,30.2524,78.9228
+4966,2013-06-19,"Almora, Uttarakhand","Almora, Uttarakhand",5km,medium,0,29.5935,79.6805
+4949,2013-06-18,Road Near Tipri To Kedarnath,Road Near Tipri To Kedarnath,5km,medium,0,30.3797,78.5017
+4936,2013-06-17,"Rambara District, Uttarakhand","Rambara District, Uttarakhand",1km,large,13,30.6945,79.0544
+4943,2013-06-17,"Almora, Uttarakhand","Almora, Uttarakhand",5km,medium,4,29.5987,79.6592
+4924,2013-06-16,"Kedarnath (Hindu Shrine), Near Kedarnath Dome (Mountain), Uttarakhand","Kedarnath (Hindu Shrine), Near Kedarnath Dome (Mountain), Uttarakhand",1km,very_large,5000,30.7351,79.0666
+4914,2013-06-12,"Rishikesh-Gangotri National Highway Near Mari Sainji Village, Uttarkashi, Uttarakhand","Rishikesh-Gangotri National Highway Near Mari Sainji Village, Uttarkashi, Uttarakhand",5km,medium,0,30.7394,78.5306
+4551,2012-09-14,"Bageshwar, Uttarakhand","Bageshwar, Uttarakhand",5km,large,9,29.841,79.7758
+4550,2012-09-14,"Rudraprayag, Uttarakhand","Rudraprayag, Uttarakhand",5km,very_large,19,30.2853,78.9829
+4481,2012-08-17,"Chamoli, Uttarakhand","Chamoli, Uttarakhand",5km,medium,4,30.6594,79.5605
+4472,2012-08-14,"Uttarkashi, Uttarakhand,","Uttarkashi, Uttarakhand,",10km,medium,0,30.7362,78.44
+6310,2012-08-05,Kempty falls,Kempty falls,1km,medium,0,30.4876,78.0366
+4445,2012-07-05,"Badrinath Rd,  Rishikesh, Uttarakhand","Badrinath Rd,  Rishikesh, Uttarakhand",1km,large,1,30.1281,78.3221
+4240,2012-03-04,"Pithoragarh district, Uttarakhand","Pithoragarh district, Uttarakhand",10km,medium,2,29.5798,80.2123
+4090,2011-12-10,Uttarakhand ,Uttarakhand ,10km,medium,0,29.913,79.3532
+3900,2011-08-08,"Govindghat, on the Rishikesh-Badrinath highway","Govindghat, on the Rishikesh-Badrinath highway",5km,medium,0,30.6521,79.5566
+3757,2011-07-10,Nalupani area in Uttarkashi district,Nalupani area in Uttarkashi district,10km,medium,0,30.7333,78.4399
+3746,2011-07-08,Lambagad,Lambagad,10km,medium,0,30.6509,79.5192
+3674,2011-06-29,Several roads in Uttarakhand,Several roads in Uttarakhand,5km,large,10,30.0667,79.0193
+3673,2011-06-29,"Rishikesh-Kedarnath national highway, Sirobagad","Rishikesh-Kedarnath national highway, Sirobagad",10km,medium,0,30.2416,78.8996
+3578,2011-06-07,"Rishikesh-Badrinath hwy., near Sirobgarh(Sirobagad), Rudraprayag district, Uttarakhand","Rishikesh-Badrinath hwy., near Sirobgarh(Sirobagad), Rudraprayag district, Uttarakhand",5km,medium,0,30.2414,78.908
+2476,2010-09-20,"NH-87 near Naintital, Uttarakhand","NH-87 near Naintital, Uttarakhand",10km,medium,0,29.3987,79.4841
+2454,2010-09-19,"near Mt. Kamet and Ghastoli village, near Mana pass, Chamoli district, Uttarakhand","near Mt. Kamet and Ghastoli village, near Mana pass, Chamoli district, Uttarakhand",10km,medium,2,30.9013,79.5322
+2470,2010-09-19,"Dehradun-Mussoorie rd, Himachal Pradesh","Dehradun-Mussoorie rd, Himachal Pradesh",5km,medium,0,30.4326,78.0767
+2455,2010-09-19,"road to Shivpur(Shivpuri), Pauri Garhwal district, Uttarakhand","road to Shivpur(Shivpuri), Pauri Garhwal district, Uttarakhand",10km,medium,0,30.1035,78.4265
+2452,2010-09-19,"near Mohand, Dehradun-Delhi hwy, Uttar Pradesh","near Mohand, Dehradun-Delhi hwy, Uttar Pradesh",5km,medium,0,30.1977,77.9137
+2445,2010-09-18,"near Devprayag, Rishikesh-Badrinath hwy, ","near Devprayag, Rishikesh-Badrinath hwy, ",10km,medium,0,30.1454,78.6007
+2416,2010-09-12,"Uttarkashi town, Uttarakhand","Uttarkashi town, Uttarakhand",5km,medium,0,30.7333,78.4403
+2379,2010-09-03,"Rudraprayag, Rishikesh-Badrinath hwy","Rudraprayag, Rishikesh-Badrinath hwy",10km,medium,0,30.2851,78.9829
+2380,2010-09-03,"Bhatwari, Rishikesh-Gangotri hwy","Bhatwari, Rishikesh-Gangotri hwy",5km,medium,0,30.4008,79.0278
+2378,2010-09-03,"Shivpuri, Rishikesh-Badrinath hwy","Shivpuri, Rishikesh-Badrinath hwy",5km,medium,0,30.135,78.3896
+2291,2010-08-20,"Ranachatti(?), route to Yamunotri, Garwhal division, Uttarakhand","Ranachatti(?), route to Yamunotri, Garwhal division, Uttarakhand",10km,medium,0,30.966,78.4151
+2292,2010-08-20,"Bhatwari, Rishikesh-Gangotri highway, Uttarkhand","Bhatwari, Rishikesh-Gangotri highway, Uttarkhand",5km,medium,0,30.8183,78.6186
+2290,2010-08-20,"Gaurikund, road to Kedarnath, Garwhal division, Uttarakhand","Gaurikund, road to Kedarnath, Garwhal division, Uttarakhand",5km,medium,0,30.6509,79.0264
+2268,2010-08-18,"Saraswati Shishu Mandir school(?), Sumgarh(Sumgad) village(?), Bageshwar-Pindari glacier rd 45 km from Bageshwar, Kapkot, Bageshwar, Uttarakhand","Saraswati Shishu Mandir school(?), Sumgarh(Sumgad) village(?), Bageshwar-Pindari glacier rd 45 km from Bageshwar, Kapkot, Bageshwar, Uttarakhand",10km,large,18,30.0134,79.9261
+2241,2010-08-13,"Gangotree national highway near Bhatvaree, Uttarkashi district","Gangotree national highway near Bhatvaree, Uttarkashi district",5km,medium,0,30.80200029,78.61786282
+2161,2010-07-29,"Uttarkāshi : Landslips, triggered by heavy rain, blocked two key highways connecting Rishikesh, Gangotri and Badrinath in Uttarakhand on Thursday, le*",,10km,medium,0,30.7467,78.4517
+2162,2010-07-29,"Pīpalkoti : Landslips, triggered by heavy rain, blocked two key highways connecting Rishikesh, Gangotri and Badrinath in Uttarakhand on Thursday, lea*",,10km,medium,0,30.4054,79.3426
+2120,2010-07-22,"Patlot-Aghora road, Almora District ","Patlot-Aghora road, Almora District ",10km,medium,1,29.6095,79.6628
+2105,2010-07-20,"Bhimtal area, Naintal district, Uttarakhand","Bhimtal area, Naintal district, Uttarakhand",10km,medium,1,29.3576,79.5519
+2041,2010-07-06,"highway to Rudraprayag district, Uttarakhand","highway to Rudraprayag district, Uttarakhand",10km,medium,0,30.2485,78.8847
+1130,2009-09-01,Chinona area in Almora district,Chinona area in Almora district,5km,medium,3,29.7036,78.5658
+1072,2009-08-08,"Bala, Pithoragarh, Uttarakhand (450Km from Deheradun)","Bala, Pithoragarh, Uttarakhand (450Km from Deheradun)",10km,large,15,29.5885,80.2098
+653,2008-07-18,Sukhidhang area of Champawat district in Uttarakhand ,Sukhidhang area of Champawat district in Uttarakhand ,5km,medium,14,29.33,80.1

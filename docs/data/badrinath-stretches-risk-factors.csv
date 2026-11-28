@@ -1,0 +1,10 @@
+stretch,km,mean_slope_deg,slope_factor,past_slides_within_2km,history_factor,rain_point_lat,rain_point_lon
+Rishikesh → Devprayag,72.1,22.8,1.51,4,1.22,30.06833,78.46126
+Devprayag → Srinagar,36,19.7,1.39,1,1.11,30.2128,78.66884
+Srinagar → Rudraprayag,34.5,20.1,1.4,8,1.8,30.24727,78.8978
+Rudraprayag → Gauchar,23.6,21.5,1.46,3,1.51,30.29603,79.06795
+Gauchar → Karnaprayag,10.4,23.3,1.53,2,1.77,30.26663,79.17293
+Karnaprayag → Chamoli,30.4,21.4,1.46,6,1.79,30.30857,79.30595
+Chamoli → Pipalkoti,15,23.7,1.55,2,1.53,30.40921,79.38955
+Pipalkoti → Joshimath,36.1,31.5,1.86,2,1.22,30.5316,79.51739
+Joshimath → Badrinath,42.9,32.5,1.9,5,1.47,30.62665,79.55249
