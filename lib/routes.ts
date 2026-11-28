@@ -1,5 +1,5 @@
 import { cacheLife } from "next/cache";
-import { roadRoute, type Point, type RoadRoute } from "@/lib/valhalla";
+import { roadRoute, type Costing, type Point, type RoadRoute } from "@/lib/valhalla";
 import { getRain } from "@/lib/weather";
 import { distanceKm } from "@/lib/geo";
 import { getTerrain } from "@/lib/terrain";
@@ -73,11 +73,11 @@ async function scoreRoutes(routes: RoadRoute[], storm: Storm) {
 }
 
 // Up to 3 real road options from A to B that avoid every closed spot, scored by landslide risk.
-export async function getRouteOptions(from: Point, to: Point, closed: Point[], storm: Storm): Promise<RouteOption[]> {
+export async function getRouteOptions(from: Point, to: Point, closed: Point[], storm: Storm, costing: Costing = "auto"): Promise<RouteOption[]> {
   "use cache";
   cacheLife("minutes");
 
-  const direct = await roadRoute(from, to, closed);
+  const direct = await roadRoute(from, to, closed, costing);
   if (!direct) return [];
 
   // The public Valhalla server returns no alternates, so ask again with one third of the
@@ -86,7 +86,7 @@ export async function getRouteOptions(from: Point, to: Point, closed: Point[], s
     const [lon, lat] = direct.coordinates[Math.floor(direct.coordinates.length * f)];
     return { lat, lon };
   });
-  const alternates = await Promise.all(cuts.map((cut) => roadRoute(from, to, [...closed, cut]).catch(() => null)));
+  const alternates = await Promise.all(cuts.map((cut) => roadRoute(from, to, [...closed, cut], costing).catch(() => null)));
 
   const routes: RoadRoute[] = [direct];
   for (const alt of alternates) {

@@ -1,5 +1,5 @@
 import { getRouteOptions } from "@/lib/routes";
-import type { Point } from "@/lib/valhalla";
+import { COSTINGS, type Costing, type Point } from "@/lib/valhalla";
 import { inUttarakhand } from "@/lib/area";
 
 // Only Uttarakhand: this is not a general routing proxy.
@@ -12,7 +12,7 @@ function parsePoint(text: string | null): Point | null {
   return Number.isFinite(lat) && Number.isFinite(lon) && inArea(point) ? point : null;
 }
 
-// GET /api/routes?from=lat,lon&to=lat,lon&closed=lat,lon;lat,lon&storm=mmPerHour,hours
+// GET /api/routes?from=lat,lon&to=lat,lon&closed=lat,lon;lat,lon&storm=mmPerHour,hours&mode=auto|bus|motorcycle|pedestrian
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const from = parsePoint(params.get("from"));
@@ -28,7 +28,9 @@ export async function GET(request: Request) {
   const storm = { mmPerHour: Math.min(20, Math.max(0, mmPerHour || 0)), hours: Math.min(8, Math.max(1, hours || 3)) };
 
   try {
-    return Response.json({ options: await getRouteOptions(from, to, closed, storm) });
+    const mode = params.get("mode") as Costing | null;
+    const costing = mode && COSTINGS.includes(mode) ? mode : "auto";
+    return Response.json({ options: await getRouteOptions(from, to, closed, storm, costing) });
   } catch (e) {
     console.error("route options failed:", e);
     return Response.json({ error: "Routing or weather server is not reachable" }, { status: 502 });

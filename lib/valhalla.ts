@@ -70,11 +70,15 @@ function thin(coordinates: number[][]): number[][] {
   return kept;
 }
 
+// How you travel: Valhalla picks roads (and speeds) for each.
+export type Costing = "auto" | "bus" | "motorcycle" | "pedestrian";
+export const COSTINGS: Costing[] = ["auto", "bus", "motorcycle", "pedestrian"];
+
 // Null when no road gets from A to B without crossing a closed spot.
-export async function roadRoute(from: Point, to: Point, closed: Point[]): Promise<RoadRoute | null> {
+export async function roadRoute(from: Point, to: Point, closed: Point[], costing: Costing = "auto"): Promise<RoadRoute | null> {
   const request = {
     locations: [from, to],
-    costing: "auto",
+    costing,
     units: "kilometers",
     language: "en-US",
     exclude_polygons: closed.map(({ lat, lon }) => {

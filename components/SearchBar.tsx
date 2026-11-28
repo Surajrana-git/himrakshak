@@ -33,7 +33,7 @@ export default function SearchBar({ onMenu, onPick, onDirections, onVoice, liste
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && results[0] && pick(results[0])}
-          placeholder={listening ? "Listening…" : "Search any place in Uttarakhand"}
+          placeholder={listening ? "Listening…" : "Search for Safest Way"}
           aria-label="Search Himrakshak"
           className="min-h-12 min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted"
         />

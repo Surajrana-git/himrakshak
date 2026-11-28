@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import placesData from "@/data/places.json";
 import { distanceKm } from "@/lib/geo";
 import type { RouteOption, Storm } from "@/lib/routes";
-import type { Maneuver, Point } from "@/lib/valhalla";
+import type { Costing, Maneuver, Point } from "@/lib/valhalla";
 
 export type Place = { name: string; hindi: string; lat: number; lon: number; dham: boolean };
 // "ai": the AI check rates the stretch High today; the road is open but slides are likely.
@@ -44,11 +44,12 @@ function bearingDeg([lon0, lat0]: number[], [lon1, lat1]: number[]): number {
 
 type Fetched = { key: string; options: RouteOption[] | null; failed: boolean };
 
-async function fetchOptions(from: Point, to: Point, closed: Point[], storm: Storm): Promise<RouteOption[]> {
+async function fetchOptions(from: Point, to: Point, closed: Point[], storm: Storm, mode: Costing): Promise<RouteOption[]> {
   const params = new URLSearchParams({
     from: `${from.lat},${from.lon}`,
     to: `${to.lat},${to.lon}`,
     storm: `${storm.mmPerHour},${storm.hours}`,
+    mode,
   });
   if (closed.length > 0) params.set("closed", closed.map((c) => `${c.lat},${c.lon}`).join(";"));
   const res = await fetch(`/api/routes?${params}`);
@@ -110,6 +111,7 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
   const [stage, setStage] = useState<"idle" | "plan" | "nav">("idle");
   const [from, setFrom] = useState<Place>(PLACES[0]);
   const [to, setTo] = useState<Place | null>(null);
+  const [mode, setMode] = useState<Costing>("auto");
   const [plan, setPlan] = useState<Fetched | null>(null);
   const [pickedId, setPickedId] = useState<string | null>(null);
   const [active, setActive] = useState<RouteOption | null>(null);
@@ -126,17 +128,17 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
   const closedKey = closed.map((c) => `${c.lat.toFixed(3)},${c.lon.toFixed(3)}`).join(";");
 
   // Route options for the planner. The key holds everything the answer depends on.
-  const planKey = stage === "plan" && to ? `${from.lat},${from.lon}>${to.lat},${to.lon}|${closedKey}|${storm.mmPerHour},${storm.hours}` : "";
+  const planKey = stage === "plan" && to ? `${from.lat},${from.lon}>${to.lat},${to.lon}|${closedKey}|${storm.mmPerHour},${storm.hours}|${mode}` : "";
   useEffect(() => {
     if (!planKey || !to) return;
     let stale = false;
-    fetchOptions(from, to, closed, storm)
+    fetchOptions(from, to, closed, storm, mode)
       .then((options) => !stale && setPlan({ key: planKey, options, failed: false }))
       .catch(() => !stale && setPlan({ key: planKey, options: null, failed: true }));
     return () => {
       stale = true;
     };
-    // planKey already covers from, to, closures and storm.
+    // planKey already covers from, to, closures, storm and mode.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planKey]);
   const planResult = plan?.key === planKey ? plan : null;
@@ -206,7 +208,7 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
     if (!pending || !to || !car) return;
     const avoid = pending.hazard.kind === "closure" ? closed : [...closed, pending.hazard];
     let stale = false;
-    fetchOptions(car, to, avoid, storm)
+    fetchOptions(car, to, avoid, storm, mode)
       .then((options) => !stale && setAlertFetch({ key: pendingId, options, failed: false }))
       .catch(() => !stale && setAlertFetch({ key: pendingId, options: null, failed: true }));
     return () => {
@@ -255,6 +257,8 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
     alert,
     setFrom,
     setTo,
+    mode,
+    setMode,
     pick: setPickedId,
     openPlanner: () => setStage("plan"),
     close: () => {

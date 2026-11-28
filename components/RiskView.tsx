@@ -37,6 +37,7 @@ import SatelliteView from "@/components/SatelliteView";
 import type { AiRiskFeed } from "@/lib/ai-risk";
 import { isGuest, useAuth } from "@/lib/auth";
 import { useSavedPlaces } from "@/lib/saved-places";
+import { useSavedRoutes } from "@/lib/saved-routes";
 import { canListen, listen, parseCommand, say } from "@/lib/voice";
 import lakesData from "@/data/glacial-lakes.json";
 import { nearestPlace, useTrip, type Hazard, type Place } from "@/lib/trip";
@@ -79,6 +80,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const [satellite, setSatellite] = useState<{ title: string; lat: number; lon: number } | null>(null);
   const auth = useAuth();
   const saved = useSavedPlaces(auth.user?.id ?? null);
+  const savedRoutes = useSavedRoutes(auth.user?.id ?? null);
   const [lakeId, setLakeId] = useState<string | null>(null);
   const selectedLake = lakesData.lakes.find((l) => l.id === lakeId) ?? null;
   // Fit the camera to the lake and the road below it, so the link to the route is visible.
@@ -149,6 +151,24 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
     return list;
   }, [closures, reports, aiHigh, ai, route.segments]);
   const trip = useTrip(knownHazards, storm);
+
+  // Links from other screens: /?plan opens the planner, /?trip=fromLat,fromLon,toLat,toLon,mode|From|To
+  // re-plans a saved route. Read once, then cleared from the address bar.
+  const { setFrom, setTo, setMode, openPlanner } = trip;
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const saved = params.get("trip");
+    if (!params.has("plan") && !saved) return;
+    if (saved) {
+      const [coords, fromName, toName] = saved.split("|");
+      const [fLat, fLon, tLat, tLon, mode] = coords.split(",");
+      setFrom({ name: fromName, hindi: fromName, lat: Number(fLat), lon: Number(fLon), dham: false });
+      setTo({ name: toName, hindi: toName, lat: Number(tLat), lon: Number(tLon), dham: false });
+      if (mode === "auto" || mode === "bus" || mode === "motorcycle" || mode === "pedestrian") setMode(mode);
+    }
+    openPlanner();
+    window.history.replaceState(null, "", "/");
+  }, [setFrom, setTo, setMode, openPlanner]);
 
   // Phone/browser notification once per day per stretch, if the user allowed notifications.
   const aiKey = aiHigh.join(",");
@@ -445,7 +465,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
           <path d="m12 5 3 7h-6zM12 19l-3-7h6z" fill="currentColor" />
         </MapButton>
         {supabase && (
-          <MapButton label="Photo report" onClick={() => setReporting(true)}>
+          <MapButton label="Map Camera: post a photo" onClick={() => router.push("/post")}>
             <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
             <circle cx="12" cy="13" r="3.5" />
           </MapButton>
@@ -509,10 +529,30 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
               failed={trip.planFailed}
               selected={trip.selected}
               avoidsClosures={mapClosures.length > 0}
+              mode={trip.mode}
               onFrom={trip.setFrom}
               onTo={trip.setTo}
+              onMode={trip.setMode}
               onPick={trip.pick}
               onStart={trip.start}
+              onSave={
+                auth.user
+                  ? (o) =>
+                      savedRoutes.save({
+                        name: `${trip.from.name} → ${trip.to?.name ?? ""}`,
+                        mode: trip.mode,
+                        from_name: trip.from.name,
+                        from_lat: trip.from.lat,
+                        from_lon: trip.from.lon,
+                        to_name: trip.to?.name ?? "",
+                        to_lat: trip.to?.lat ?? 0,
+                        to_lon: trip.to?.lon ?? 0,
+                        km: o.km,
+                        hours: o.hours,
+                        risk: o.risk,
+                      })
+                  : null
+              }
               onClose={trip.close}
             />
           )}
