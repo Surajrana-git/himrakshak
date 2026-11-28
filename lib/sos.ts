@@ -63,7 +63,8 @@ export function useSosCalls(): SosCall[] {
       .limit(200)
       .then(({ data }) => setCalls((current) => [...(data ?? []), ...current.filter((c) => !data?.some((d) => d.id === c.id))]));
     const channel = client
-      .channel("sos-live")
+      // One channel per screen using this hook: a shared name crashes Supabase when a second screen subscribes.
+      .channel(`sos-live-${crypto.randomUUID()}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "sos" }, (payload) =>
         setCalls((current) => [payload.new as SosCall, ...current.filter((c) => c.id !== (payload.new as SosCall).id)]),
       )

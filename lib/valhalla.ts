@@ -74,8 +74,22 @@ function thin(coordinates: number[][]): number[][] {
 export type Costing = "auto" | "bus" | "motorcycle" | "pedestrian";
 export const COSTINGS: Costing[] = ["auto", "bus", "motorcycle", "pedestrian"];
 
+const WALK_KMH = 4.5;
+const TOO_FAR = 154; // the public server routes walks only up to 100 km
+
 // Null when no road gets from A to B without crossing a closed spot.
+// A walk longer than the server allows follows the road route, timed at walking pace.
 export async function roadRoute(from: Point, to: Point, closed: Point[], costing: Costing = "auto"): Promise<RoadRoute | null> {
+  try {
+    return await fetchRoute(from, to, closed, costing);
+  } catch (e) {
+    if (costing !== "pedestrian" || !(e instanceof Error) || !e.message.includes(`#${TOO_FAR}`)) throw e;
+    const road = await fetchRoute(from, to, closed, "auto");
+    return road && { ...road, hours: Math.round((road.km / WALK_KMH) * 10) / 10 };
+  }
+}
+
+async function fetchRoute(from: Point, to: Point, closed: Point[], costing: Costing): Promise<RoadRoute | null> {
   const request = {
     locations: [from, to],
     costing,
@@ -98,7 +112,7 @@ export async function roadRoute(from: Point, to: Point, closed: Point[], costing
   if (res.status === 400) {
     const { error_code, error }: { error_code?: number; error?: string } = await res.json();
     if (error_code !== undefined && NO_PATH_CODES.includes(error_code)) return null;
-    throw new Error(`Valhalla: ${error ?? "bad request"}`);
+    throw new Error(`Valhalla #${error_code}: ${error ?? "bad request"}`);
   }
   if (!res.ok) throw new Error(`Valhalla returned ${res.status}`);
   const { trip }: ValhallaResponse = await res.json();

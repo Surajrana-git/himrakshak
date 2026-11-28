@@ -60,7 +60,8 @@ export function useReports() {
       .then(({ data }) => setReports((current) => mergeReports(current, data ?? [])));
 
     const channel = client
-      .channel("reports-live")
+      // One channel per screen using this hook: a shared name crashes Supabase when a second screen subscribes.
+      .channel(`reports-live-${crypto.randomUUID()}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "reports" }, (payload) =>
         setReports((current) => mergeReports(current, [payload.new as Report])),
       )

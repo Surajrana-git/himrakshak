@@ -11,7 +11,7 @@ type ScreenProps = { icon?: IconName; title: string; subtitle?: string; children
 export default function Screen({ icon, title, subtitle, children, footer }: ScreenProps) {
   const router = useRouter();
   return (
-    <main className="mx-auto flex min-h-dvh max-w-lg flex-col bg-white text-ink">
+    <main className="mx-auto flex h-dvh max-w-lg flex-col overflow-y-auto overscroll-contain bg-white text-ink">
       <div className="flex-1 px-4 pt-[max(16px,env(safe-area-inset-top))] pb-6">
         <button
           onClick={() => (window.history.length > 1 ? router.back() : router.push("/"))}

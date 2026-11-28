@@ -46,22 +46,22 @@ const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 //   no photo or the AI could not check → pending (approved once a second phone posts the same nearby).
 export async function addContribution(c: NewContribution): Promise<{ status: Status; reason: string | null }> {
   if (!supabase) throw new Error("The server is not configured");
-  const photo_urls: string[] = [];
-  let status: Status = c.photos.length ? "approved" : "pending";
-  let reason: string | null = null;
-  for (const photo of c.photos) {
-    if (photo.size > MAX_PHOTO_BYTES) throw new Error("Each photo must be under 5 MB");
-    const path = `${crypto.randomUUID()}.jpg`;
-    const upload = await supabase.storage.from("report-photos").upload(path, photo, { contentType: "image/jpeg" });
-    if (upload.error) throw new Error(`Photo upload failed: ${upload.error.message}`);
-    const url = supabase.storage.from("report-photos").getPublicUrl(path).data.publicUrl;
-    photo_urls.push(url);
-    const ai = await checkPhoto(url);
-    if (ai?.verdict === "fake") {
-      status = "rejected";
-      reason = ai.reason;
-    } else if (!ai && status === "approved") status = "pending";
-  }
+  const client = supabase;
+  if (c.photos.some((p) => p.size > MAX_PHOTO_BYTES)) throw new Error("Each photo must be under 5 MB");
+  // All photos upload and get their AI check at the same time, not one after another.
+  const checked = await Promise.all(
+    c.photos.map(async (photo) => {
+      const path = `${crypto.randomUUID()}.jpg`;
+      const upload = await client.storage.from("report-photos").upload(path, photo, { contentType: "image/jpeg" });
+      if (upload.error) throw new Error(`Photo upload failed: ${upload.error.message}`);
+      const url = client.storage.from("report-photos").getPublicUrl(path).data.publicUrl;
+      return { url, ai: await checkPhoto(url) };
+    }),
+  );
+  const photo_urls = checked.map((p) => p.url);
+  const fake = checked.find((p) => p.ai?.verdict === "fake");
+  const status: Status = fake ? "rejected" : !checked.length || checked.some((p) => !p.ai) ? "pending" : "approved";
+  const reason = fake?.ai?.reason ?? null;
   const row = { kind: c.kind, category: c.category, title: c.title, details: c.details, lat: c.lat, lon: c.lon, photo_urls, visibility: c.visibility, device_id: deviceId() };
   let { error } = await supabase.from("contributions").insert({ ...row, status, ai_reason: reason?.slice(0, 200) ?? null });
   // Before supabase/run-final-2.sql there is no status column: a rejected post is not saved at all.
@@ -114,7 +114,8 @@ export function useContributions(): { items: Contribution[]; error: string | nul
         setItems((data as Contribution[]) ?? []);
       });
     const channel = client
-      .channel("contributions-live")
+      // One channel per screen using this hook: a shared name crashes Supabase when a second screen subscribes.
+      .channel(`contributions-live-${crypto.randomUUID()}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "contributions" }, (p) => setItems((cur) => [p.new as Contribution, ...cur]))
       .subscribe();
     return () => {

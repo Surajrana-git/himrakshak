@@ -210,6 +210,9 @@ export default function TripPlanner(p: Props) {
                   </>
                 )}
               </dl>
+              {mode === "pedestrian" && selected.km > 100 && (
+                <p className="mt-2 rounded-xl bg-mint p-2 text-xs">Long walk: shown along the road, timed at 4.5 km/h. Plan night stops on the way.</p>
+              )}
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button onClick={() => save(selected)} className="flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-green font-semibold text-green-dark">
                   <Icon name="bookmark" className="h-5 w-5" /> Save Route

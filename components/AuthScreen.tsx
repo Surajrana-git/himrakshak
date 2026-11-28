@@ -202,7 +202,7 @@ export default function AuthScreen() {
 
   const create = mode === "create";
   return (
-    <main className="relative min-h-dvh overflow-y-auto bg-white px-6 pt-[max(24px,env(safe-area-inset-top))] pb-10 text-ink">
+    <main className="relative h-dvh overflow-y-auto bg-white px-6 pt-[max(24px,env(safe-area-inset-top))] pb-10 text-ink">
       <div className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-mint" aria-hidden />
       <div className="relative mx-auto flex max-w-sm flex-col gap-4">
         {create && (

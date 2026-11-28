@@ -7,7 +7,7 @@ import type { PlaceName } from "@/lib/geocode";
 type Fix = { lat: number; lon: number };
 type Props = { onUse: (photo: File, fix: Fix) => void; onClose: () => void };
 
-const MAX_SIDE = 1600;
+const MAX_SIDE = 1280; // sharp enough for the stamp and the AI, ~40% smaller to upload on a hill road
 
 // Himrakshak Geo Cam: the camera itself, with place, GPS and time stamped live on the preview
 // and burned into the photo. There is no gallery button, so only a photo taken here can be sent.
@@ -101,7 +101,7 @@ export default function GeoCamera({ onUse, onClose }: Props) {
         setShot({ file, url: URL.createObjectURL(blob), fix });
       },
       "image/jpeg",
-      0.88,
+      0.8,
     );
   }
 
