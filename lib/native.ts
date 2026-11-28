@@ -49,7 +49,7 @@ export function listenForLoginCallback(onDone: () => void): () => void {
   };
 }
 
-// Push needs a Firebase project (android/app/google-services.json). Without it the native side
+// Push needs a Firebase project (android/app/google-services.json, kept out of git). Without it the native side
 // crashes on register(), so it stays off until NEXT_PUBLIC_PUSH_ENABLED=1 is set.
 export async function registerForPush(userId: string | null): Promise<void> {
   if (!isApp() || process.env.NEXT_PUBLIC_PUSH_ENABLED !== "1" || !supabase) return;

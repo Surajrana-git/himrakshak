@@ -108,6 +108,8 @@ export async function createReport(report: NewReport): Promise<void> {
   // Until supabase/run-28nov.sql adds the new columns, save the report without them rather than lose it.
   if (error && /device_id|ai_verdict|ai_confidence/.test(error.message)) ({ error } = await supabase.from("reports").insert(row));
   if (error) throw new Error(`Report save failed: ${error.message}`);
+  // If this report is the second phone on the same block, the server alerts every phone.
+  if (BLOCKING.includes(report.kind)) fetch("/api/push/closure", { method: "POST", body: JSON.stringify({ lat: report.lat, lon: report.lon }) }).catch(() => {});
 }
 
 const BLOCKING: ReportKind[] = ["landslide", "rockfall", "road_blocked"];
