@@ -2,7 +2,7 @@
 export type PhotoVerdict = { verdict: "blocked" | "clear" | "unclear" | "fake"; confidence: number; reason: string };
 
 // Google Gemini, free tier (key from aistudio.google.com, no card needed).
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-3.8-flash";
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
