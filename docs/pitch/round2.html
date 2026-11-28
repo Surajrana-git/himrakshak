@@ -49,6 +49,7 @@
   .phone.s img { height:3.3in; object-fit:cover; object-position:top; }
   .small p, .small li { font-size:11.5pt; }
   .comp .card { padding:12px 16px; }
+  .tight td, .tight th { font-size:10pt; padding:4px 8px; line-height:1.3; }
   .comp h3 { font-size:13pt; margin:4px 0 2px; }
   .comp p { font-size:10.5pt; line-height:1.35; }
 </style>
@@ -79,7 +80,7 @@
     <tr><td>Bug fixes, demo script</td><td><span class="chip live">Done</span></td><td>App stuck on splash, login loop, map reload, build failures fixed; 110-second backup demo video recorded</td></tr>
     <tr><td>Push alerts for closures on your route</td><td><span class="chip key">Partly</span></td><td>In-app voice + vibration alert with reroute, home banner and phone notification while the app is open. Alerts with the app closed need Firebase (next)</td></tr>
     <tr><td>Before-you-go summary</td><td><span class="chip key">Partly</span></td><td>"Safe time to leave" card + route cards that say steepest slope and past slides near the road</td></tr>
-    <tr><td>Field test on 2 phones, offline SOS</td><td><span class="chip todo">Before final</span></td><td>Tested on 1 real Android phone (results on slide 9); road test before 3 PM</td></tr>
+    <tr><td>Field test on 2 phones, offline SOS</td><td><span class="chip todo">Before final</span></td><td>Tested on 1 real Android phone (results on slide 10); road test before 3 PM</td></tr>
   </table>
   <p class="muted" style="margin-top:.18in">Beyond the plan we added: search and routes for all of Uttarakhand, AI photo check, a satellite slide check, and Waze-style driving features.</p>
   <p class="num">2</p>
@@ -156,7 +157,7 @@
 </section>
 
 <!-- 7 Data and algorithms -->
-<section class="slide small">
+<section class="slide small tight">
   <p class="kicker">Datasets and algorithms</p>
   <h2 style="margin-bottom:.16in">All open data, all algorithms we can explain</h2>
   <div class="grid" style="grid-template-columns:1fr 1fr;gap:.3in">
@@ -175,6 +176,7 @@
       <tr><th style="width:36%">Algorithm</th><th>How it works</th></tr>
       <tr><td>Risk score</td><td>rain_score × slope × history, per 10 km; 0–39 low, 40–69 medium, 70+ high</td></tr>
       <tr><td>Safe time to leave</td><td>First hour in the next 12 when every stretch is below 70</td></tr>
+      <tr><td>Indian thresholds</td><td>Rain intensity over 1–72 h vs I = a·D<sup>b</sup> from two Indian studies (slide 8)</td></tr>
       <tr><td>AI landslide check</td><td>NASA LHASA 7-day rain index (weights 1/(i+1)²) vs local 95th percentile → logistic regression on 4 features; trained 2010–14, tested 2015–17, AUC 0.75</td></tr>
       <tr><td>Slope</td><td>Height gradient between neighbouring terrain pixels → degrees; 10° → 1.0 … 35° → 2.0</td></tr>
       <tr><td>Satellite slide check</td><td>NDVI = (NIR − Red) / (NIR + Red); bare ground +10 points and NDVI −0.1 in a month = possible slide</td></tr>
@@ -186,7 +188,29 @@
   <p class="num">7</p>
 </section>
 
-<!-- 8 Trust -->
+<!-- 8 Indian data -->
+<section class="slide small">
+  <p class="kicker">Indian data and research</p>
+  <h2 style="margin-bottom:.16in">Checked against Indian studies of this very road</h2>
+  <div class="card" style="display:flex;gap:.35in;align-items:center;margin-bottom:.18in">
+    <p style="font-family:Poppins;font-weight:600;font-size:14pt;white-space:nowrap">In the app now</p>
+    <p>Every stretch is tested against two <b>published Indian rainfall thresholds</b>: rain of intensity I (mm/h) for D hours above <b>I = 58.7·D<sup>−1.12</sup></b> (Rishikesh–Mana road NH-58 study, 81.6% of slides caught) or <b>I = 1.82·D<sup>−0.23</sup></b> (Chamoli–Joshimath study) has set off slides here before. The card turns red and names the stretches.</p>
+  </div>
+  <table>
+    <tr><th style="width:34%">Indian source</th><th style="width:13%">Status</th><th>Use</th></tr>
+    <tr><td>NH-58 rainfall threshold study, NHESS 24, 465 (2024)</td><td><span class="chip live">In app</span></td><td>Threshold for the Rishikesh–Mana road, checked now + next 6 h</td></tr>
+    <tr><td>Chamoli–Joshimath threshold, Landslides (2013)</td><td><span class="chip live">In app</span></td><td>Second, more cautious threshold from 81 local slides</td></tr>
+    <tr><td>NDMA glacial lake list (2024)</td><td><span class="chip live">In app</span></td><td>13 risky lakes in Uttarakhand, 5 "Category A"; Vasudhara Tal on our map</td></tr>
+    <tr><td>Landslide Atlas of India, NRSC/ISRO (2023)</td><td><span class="chip key">Reference</span></td><td>~80,000 slides; Uttarakhand 11,219; Rudraprayag 1st and Tehri 2nd of 147 districts for exposure</td></tr>
+    <tr><td>GSI landslide susceptibility maps + inventory (Bhukosh)</td><td><span class="chip todo">Next</span></td><td>1:50,000 zones and polygons to replace NASA points as the history layer</td></tr>
+    <tr><td>GSI early-warning bulletins; IMD gridded rain and district alerts</td><td><span class="chip todo">Next</span></td><td>Show official forecasts next to our score; re-train the AI on Indian rain</td></tr>
+    <tr><td>ISRO Bhuvan CartoDEM (30 m)</td><td><span class="chip todo">Next</span></td><td>Sharper slope map: 150 m → 30 m</td></tr>
+  </table>
+  <p class="src">Full list with links: Himrakshak-Data-and-Algorithms.pdf</p>
+  <p class="num">8</p>
+</section>
+
+<!-- 9 Trust -->
 <section class="slide">
   <p class="kicker">Crowd reports you can trust</p>
   <h2>One prank must not close a highway</h2>
@@ -197,7 +221,7 @@
     <div class="card"><div class="icon">+</div><h3>Rewards for truth</h3><p class="muted">A report confirmed by another driver earns 3× the points, so true reports pay more than fake ones.</p></div>
   </div>
   <div class="card white" style="margin-top:.3in"><p><b>Reports work anywhere in the state.</b> On a watched highway they attach to the stretch; elsewhere they show by place name ("Near Mussoorie") and still reach every phone instantly.</p></div>
-  <p class="num">8</p>
+  <p class="num">9</p>
 </section>
 
 <!-- 8 Usability -->
@@ -232,7 +256,7 @@
     <p style="font-family:Poppins;font-weight:600;font-size:15pt;white-space:nowrap">Next test</p>
     <p>Before the final: two taxi drivers on the Rishikesh road, one hand, no help from us. We measure seconds to send a report, alerts they missed, and words they did not understand.</p>
   </div>
-  <p class="num">9</p>
+  <p class="num">10</p>
 </section>
 
 <!-- 9 Blockers -->
@@ -250,7 +274,7 @@
     <tr><td>Public router gives only one route</td><td>Ask again with a third of the road virtually closed to find the other valleys</td><td>Always show a real alternative</td></tr>
     <tr><td>Prank or wrong reports</td><td>2 different phones, "still there?", AI photo check, rewards for confirmed reports</td><td>Trust needs more than one voice</td></tr>
   </table>
-  <p class="num">10</p>
+  <p class="num">11</p>
 </section>
 
 <!-- 10 Next -->
@@ -263,7 +287,7 @@
     <div class="card"><p class="pill" style="background:var(--green);color:#fff">After funding</p><ul class="tick" style="margin-top:10px"><li>Apple login, street-level photos</li><li>Own map and image servers (no free demo servers)</li><li>Pilot with taxi unions and SDRF</li></ul></div>
   </div>
   <p class="muted" style="margin-top:.3in">Known limits we tell users: 10 m satellite pixels miss small rockfalls; clouds hide the ground in monsoon; the risk score is a guide, not a guarantee.</p>
-  <p class="num">11</p>
+  <p class="num">12</p>
 </section>
 
 <!-- 11 Close -->
