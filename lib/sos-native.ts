@@ -2,7 +2,7 @@
 
 import { Capacitor, registerPlugin, type PluginListenerHandle } from "@capacitor/core";
 
-export type MeshStatus = { running: boolean; heard: number; relayed: number; synced: number; sending: boolean };
+export type MeshStatus = { running: boolean; heard: number; relayed: number; synced: number; sending: boolean; broadcasts?: number; bluetoothOn?: boolean };
 export type MeshEvent = MeshStatus & { event: string; packet?: string };
 export type SmsEvent = { number: string; status: "sent" | "delivered" | "retrying" | "failed"; detail: string };
 

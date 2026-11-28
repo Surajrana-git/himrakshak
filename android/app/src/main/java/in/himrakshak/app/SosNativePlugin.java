@@ -38,6 +38,8 @@ public class SosNativePlugin extends Plugin {
             data.put("synced", synced);
             data.put("running", MeshRelayService.running);
             data.put("sending", MeshRelayService.ownId != null);
+            data.put("broadcasts", MeshRelayService.broadcasts);
+            data.put("bluetoothOn", bluetoothOn());
             if (packet != null) data.put("packet", packet.toText());
             notifyListeners("mesh", data);
         };
@@ -104,7 +106,19 @@ public class SosNativePlugin extends Plugin {
         else call.reject("Bluetooth permission was not given");
     }
 
+    private boolean bluetoothOn() {
+        android.bluetooth.BluetoothManager bm = getContext().getSystemService(android.bluetooth.BluetoothManager.class);
+        return bm != null && bm.getAdapter() != null && bm.getAdapter().isEnabled();
+    }
+
     private void doStart(PluginCall call) {
+        // Airplane mode switches Bluetooth off: ask the phone to switch it back on (one tap).
+        if (!bluetoothOn() && getActivity() != null) {
+            try {
+                getActivity().startActivity(new Intent(android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE));
+            } catch (SecurityException | android.content.ActivityNotFoundException ignored) {
+            }
+        }
         Intent intent = new Intent(getContext(), MeshRelayService.class);
         String packet = call.getString("packet");
         if (packet != null) intent.putExtra(MeshRelayService.EXTRA_PACKET, packet);
@@ -116,6 +130,7 @@ public class SosNativePlugin extends Plugin {
     public void stopMesh(PluginCall call) {
         getContext().stopService(new Intent(getContext(), MeshRelayService.class));
         MeshRelayService.ownId = null;
+        MeshRelayService.broadcasts = 0;
         call.resolve(status());
     }
 
@@ -131,6 +146,8 @@ public class SosNativePlugin extends Plugin {
         s.put("relayed", MeshRelayService.relayedIds.size());
         s.put("synced", MeshRelayService.synced.size());
         s.put("sending", MeshRelayService.ownId != null);
+        s.put("broadcasts", MeshRelayService.broadcasts);
+        s.put("bluetoothOn", bluetoothOn());
         return s;
     }
 }

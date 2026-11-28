@@ -67,6 +67,7 @@ public class MeshRelayService extends Service {
     static final Set<String> synced = ConcurrentHashMap.newKeySet();
     static volatile String ownId = null;
     static volatile int heard = 0;
+    static volatile int broadcasts = 0; // times our own SOS went on air: proof it is sending, even alone
     static final Set<String> relayedIds = ConcurrentHashMap.newKeySet();
 
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -149,6 +150,7 @@ public class MeshRelayService extends Service {
             if (scanner != null) scanner.stopScan(scanCallback);
         } catch (SecurityException ignored) {
         }
+        scanner = null;
     }
 
     private void startScan() {
@@ -157,8 +159,8 @@ public class MeshRelayService extends Service {
             emit("bluetooth-off", null);
             return;
         }
-        scanner = a.getBluetoothLeScanner();
-        if (scanner == null) return;
+        BluetoothLeScanner s = a.getBluetoothLeScanner();
+        if (s == null) return;
         List<ScanFilter> filters = new ArrayList<>();
         // The filter lets Android keep scanning with the screen off.
         filters.add(new ScanFilter.Builder().setServiceUuid(SOS_UUID).build());
@@ -167,7 +169,8 @@ public class MeshRelayService extends Service {
                 .setScanMode(ownId != null ? ScanSettings.SCAN_MODE_BALANCED : ScanSettings.SCAN_MODE_LOW_POWER)
                 .build();
         try {
-            scanner.startScan(filters, settings, scanCallback);
+            s.startScan(filters, settings, scanCallback);
+            scanner = s;
         } catch (SecurityException e) {
             emit("no-permission", null);
         }
@@ -183,6 +186,8 @@ public class MeshRelayService extends Service {
             synchronized (packets) {
                 for (SosPacket p : packets.values()) if (p.ttl > 0 || p.id.equals(ownId)) live.add(p);
             }
+            // Bluetooth may come on after the start (airplane mode turns it off): begin listening then.
+            if (scanner == null) startScan();
             if (!live.isEmpty()) advertise(live.get(turn++ % live.size()));
             forwardToInternet();
             handler.postDelayed(this, ROTATE_MS);
@@ -191,7 +196,12 @@ public class MeshRelayService extends Service {
 
     private void advertise(SosPacket p) {
         BluetoothAdapter a = adapter();
-        if (a == null || !a.isEnabled()) return;
+        if (a == null || !a.isEnabled()) {
+            advertiser = null;
+            scanner = null; // listen again once Bluetooth is back
+            emit("bluetooth-off", p);
+            return;
+        }
         if (advertiser == null) advertiser = a.getBluetoothLeAdvertiser();
         if (advertiser == null) {
             emit("no-advertising", null); // a few phones cannot advertise; they still relay to the internet
@@ -218,6 +228,10 @@ public class MeshRelayService extends Service {
             };
             advertiser.startAdvertising(settings, data, advertising);
             if (!p.id.equals(ownId)) relayedIds.add(p.id);
+            else {
+                broadcasts++;
+                emit("advertised", p);
+            }
         } catch (SecurityException e) {
             emit("no-permission", null);
         }

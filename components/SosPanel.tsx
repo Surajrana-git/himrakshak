@@ -71,7 +71,8 @@ export default function SosPanel() {
     const handles = [
       sosNative.addListener("mesh", (e) => {
         setMesh(e);
-        if (e.event === "bluetooth-off") setMeshNote("Turn on Bluetooth so phones nearby can pass your SOS on.");
+        if (e.event === "bluetooth-off") setMeshNote("Turn on Bluetooth so phones nearby can pass your SOS on. It works in airplane mode too.");
+        if (e.event === "advertised") setMeshNote("");
         if (e.event === "synced") setMeshNote("A phone with internet carried an SOS to the rescue dashboard.");
       }),
       sosNative.addListener("sms", (e) => setSms((cur) => ({ ...cur, [e.number]: `${e.status}${e.status === "failed" || e.status === "retrying" ? `: ${e.detail}` : ""}` }))),
@@ -184,8 +185,12 @@ export default function SosPanel() {
                   </li>
                 ))}
                 <li>
-                  <b>Bluetooth:</b> {mesh?.sending ? "calling phones nearby, again and again" : "starting…"}
-                  {mesh?.sending ? ` · ${mesh.heard} heard nearby · ${mesh.synced} carried to rescue` : ""}
+                  <b>Bluetooth:</b>{" "}
+                  {mesh?.bluetoothOn === false
+                    ? "turn on Bluetooth (it works in airplane mode too)"
+                    : mesh?.sending
+                      ? `sent ${mesh.broadcasts ?? 0} times to phones nearby · ${mesh.heard} other SOS heard · ${mesh.synced} carried to rescue`
+                      : "starting…"}
                 </li>
               </>
             )}
