@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { distanceKm } from "@/lib/geo";
+import { deviceId } from "@/lib/device";
 
 export type ReportKind = "landslide" | "rockfall" | "road_blocked" | "water" | "jam" | "clear";
 
@@ -26,6 +27,7 @@ export type Report = {
   lat: number;
   lon: number;
   photo_url: string | null;
+  device_id?: string | null; // missing until supabase/run-28nov.sql has been run
 };
 
 export type NewReport = Omit<Report, "id" | "created_at" | "photo_url"> & { photo: File | null };
@@ -83,14 +85,10 @@ export async function createReport(report: NewReport): Promise<void> {
     photo_url = supabase.storage.from("report-photos").getPublicUrl(path).data.publicUrl;
   }
 
-  const { error } = await supabase.from("reports").insert({
-    segment_id: report.segment_id,
-    kind: report.kind,
-    note: report.note,
-    lat: report.lat,
-    lon: report.lon,
-    photo_url,
-  });
+  const row = { segment_id: report.segment_id, kind: report.kind, note: report.note, lat: report.lat, lon: report.lon, photo_url };
+  let { error } = await supabase.from("reports").insert({ ...row, device_id: deviceId() });
+  // Until supabase/run-28nov.sql adds the column, save the report without it rather than lose it.
+  if (error?.message.includes("device_id")) ({ error } = await supabase.from("reports").insert(row));
   if (error) throw new Error(`Report save failed: ${error.message}`);
 }
 
@@ -98,8 +96,8 @@ const BLOCKING: ReportKind[] = ["landslide", "rockfall", "road_blocked"];
 const CONFIRM_KM = 1;
 const CONFIRM_HOURS = 12;
 
-// A road counts as closed when 2+ drivers report it within 1 km in the last 12 h,
-// and nobody has reported it clear since. One report alone could be a mistake or a prank.
+// A road counts as closed when 2+ different phones report it within 1 km in the last 12 h,
+// and nobody has reported it clear since. One report, or one phone twice, could be a mistake or a prank.
 export function confirmedBlocks(reports: Report[]): { lat: number; lon: number; segmentId: string; count: number }[] {
   const since = Date.now() - CONFIRM_HOURS * 3600_000;
   const recent = reports.filter((r) => new Date(r.created_at).getTime() > since);
@@ -110,7 +108,8 @@ export function confirmedBlocks(reports: Report[]): { lat: number; lon: number; 
     const nearby = recent.filter((o) => distanceKm(o.lat, o.lon, r.lat, r.lon) < CONFIRM_KM);
     const latestBlock = nearby.filter((o) => BLOCKING.includes(o.kind)).map((o) => o.created_at).sort().pop()!;
     const reopened = nearby.some((o) => o.kind === "clear" && o.created_at > latestBlock);
-    const count = nearby.filter((o) => BLOCKING.includes(o.kind)).length;
+    // Reports from before phones had ids count as one phone each.
+    const count = new Set(nearby.filter((o) => BLOCKING.includes(o.kind)).map((o) => o.device_id ?? o.id)).size;
     if (count >= 2 && !reopened) blocks.push({ lat: r.lat, lon: r.lon, segmentId: r.segment_id, count });
   }
   return blocks;

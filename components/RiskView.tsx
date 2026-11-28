@@ -41,6 +41,7 @@ import lakesData from "@/data/glacial-lakes.json";
 import { nearestPlace, useTrip, type Hazard } from "@/lib/trip";
 import { confirmedBlocks, createReport, recentJams, REPORT_KINDS, useReports, type Report } from "@/lib/reports";
 import { distanceKm } from "@/lib/geo";
+import { deviceId } from "@/lib/device";
 import { supabase } from "@/lib/supabase";
 import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
 import type { RainSeries } from "@/lib/weather";
@@ -673,10 +674,11 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
 }
 
 const PASSING_KM = 0.5;
-// Only hazards (not "Road clear"), at least 2 min old (likely not this driver's own) and under 12 h old.
+// Only hazards (not "Road clear") from another phone, between 2 min and 12 h old.
 function isAskable(r: Report): boolean {
   const age = Date.now() - new Date(r.created_at).getTime();
-  return r.kind !== "clear" && r.kind in REPORT_KINDS && age > 2 * 60_000 && age < 12 * 3600_000;
+  const mine = r.device_id != null && r.device_id === deviceId();
+  return !mine && r.kind !== "clear" && r.kind in REPORT_KINDS && age > 2 * 60_000 && age < 12 * 3600_000;
 }
 
 const HAZARD_ICON = { jam: "jam", ai: "landslide", closure: "road_blocked" } as const;
