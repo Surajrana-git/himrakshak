@@ -431,14 +431,13 @@ export default function RiskMap({
 
   useEffect(() => {
     if (!container.current) return;
-    // Opening at "my location": start on the whole state so the fly-in to the blue dot is visible.
-    const routeBounds = startAtMe ? new LngLatBounds([77.6, 28.8], [81.0, 31.4]) : boundsOf(towns.map((t) => [t.lon, t.lat]));
+    const routeBounds = boundsOf(towns.map((t) => [t.lon, t.lat]));
 
     const map = new MapLibreMap({
       container: container.current,
       style: MAP_STYLE,
-      bounds: routeBounds,
-      fitBoundsOptions: { padding: viewPadding() },
+      // Opening at "my location": start on the whole state so the fly-in to the blue dot is visible.
+      ...(startAtMe ? { center: [79.2, 30.1] as [number, number], zoom: 6.6 } : { bounds: routeBounds, fitBoundsOptions: { padding: viewPadding() } }),
       attributionControl: { compact: true },
     });
     mapRef.current = map;
