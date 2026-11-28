@@ -31,19 +31,34 @@ export async function searchPlaces(query: string): Promise<Place[]> {
 
 export type PlaceName = { title: string; address: string };
 
-// The place name under a GPS point, for the Geo Cam stamp ("Selakui, Uttarakhand, India").
-export async function placeAt(lat: number, lon: number): Promise<PlaceName | null> {
-  "use cache";
-  cacheLife("days");
+type NominatimPlace = {
+  display_name?: string;
+  address?: { village?: string; hamlet?: string; town?: string; city?: string; suburb?: string; county?: string; state?: string };
+};
 
-  const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&lang=en`).catch(() => null);
+// The place name under a GPS point, for the Geo Cam stamp ("Central Hope Town, Uttarakhand").
+// OpenStreetMap's Nominatim first (full address), Photon if it is busy. Not cached, so a
+// failed lookup is simply tried again on the next shot.
+export async function placeAt(lat: number, lon: number): Promise<PlaceName | null> {
+  const headers = { "User-Agent": "Himrakshak road safety app" };
+  const nominatim = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=jsonv2&zoom=17&accept-language=en`, { headers })
+    .then((res) => (res.ok ? (res.json() as Promise<NominatimPlace>) : null))
+    .catch(() => null);
+  if (nominatim?.display_name && nominatim.address) {
+    const a = nominatim.address;
+    const town = a.town ?? a.city ?? a.village ?? a.suburb ?? a.hamlet ?? a.county;
+    return { title: [town, a.state ?? "Uttarakhand"].filter(Boolean).join(", "), address: nominatim.display_name };
+  }
+
+  const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&lang=en`, { headers }).catch(() => null);
   if (!res?.ok) return null;
   const { features }: { features: PhotonFeature[] } = await res.json();
   const p = features[0]?.properties;
   if (!p) return null;
   const town = p.city ?? p.district ?? p.county ?? p.name;
-  const title = [town, p.state ?? "Uttarakhand"].filter(Boolean).join(", ");
   const parts = [p.name, p.street, p.district, p.city, p.county].filter((x, i, all): x is string => !!x && all.indexOf(x) === i);
-  const address = `${parts.join(", ")}${p.state ? `, ${p.state}` : ""}${p.postcode ? ` ${p.postcode}` : ""}, India`;
-  return { title, address };
+  return {
+    title: [town, p.state ?? "Uttarakhand"].filter(Boolean).join(", "),
+    address: `${parts.join(", ")}${p.state ? `, ${p.state}` : ""}${p.postcode ? ` ${p.postcode}` : ""}, India`,
+  };
 }
