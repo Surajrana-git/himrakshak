@@ -111,7 +111,16 @@ export function drawStamp(ctx: CanvasRenderingContext2D, w: number, h: number, i
   ctx.beginPath();
   ctx.roundRect(w - 2 * u - tagW, top - tagH - 1 * u, tagW, tagH, 1.2 * u);
   ctx.fill();
-  if (images.logo) ctx.drawImage(images.logo, w - 2 * u - tagW + 0.8 * u, top - tagH - 0.4 * u, 3.8 * u, 3.8 * u);
+  if (images.logo) {
+    // The logo is dark ink, so it sits on a white tile to show on the dark badge.
+    const lx = w - 2 * u - tagW + 0.6 * u;
+    const ly = top - tagH - 0.6 * u;
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.roundRect(lx, ly, 4.2 * u, 4.2 * u, 0.8 * u);
+    ctx.fill();
+    ctx.drawImage(images.logo, lx + 0.2 * u, ly + 0.2 * u, 3.8 * u, 3.8 * u);
+  }
   ctx.fillStyle = "#ffffff";
   ctx.textBaseline = "middle";
   ctx.font = `700 ${2.6 * u}px Poppins, Inter, sans-serif`;
