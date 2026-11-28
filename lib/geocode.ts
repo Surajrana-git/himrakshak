@@ -62,3 +62,30 @@ export async function placeAt(lat: number, lon: number): Promise<PlaceName | nul
     address: `${parts.join(", ")}${p.state ? `, ${p.state}` : ""}${p.postcode ? ` ${p.postcode}` : ""}, India`,
   };
 }
+
+export type Hotel = { name: string; kind: string; address: string; lat: number; lon: number };
+
+// Hotels, guest houses and hostels near a point, from OpenStreetMap (Photon). Empty if Photon is down.
+export async function hotelsNear(lat: number, lon: number): Promise<Hotel[]> {
+  "use cache";
+  cacheLife("hours");
+
+  const params = new URLSearchParams({ q: "hotel", lat: String(lat), lon: String(lon), limit: "20", lang: "en", bbox: `${lon - 0.4},${lat - 0.4},${lon + 0.4},${lat + 0.4}` });
+  ["tourism:hotel", "tourism:guest_house", "tourism:hostel", "tourism:motel"].forEach((t) => params.append("osm_tag", t));
+  const res = await fetch(`https://photon.komoot.io/api/?${params}`).catch(() => null);
+  if (!res?.ok) return [];
+  const { features }: { features: PhotonFeature[] } = await res.json();
+  return features
+    .filter((f) => f.properties.name)
+    .map((f) => {
+      const p = f.properties;
+      const [hLon, hLat] = f.geometry.coordinates;
+      return {
+        name: p.name!,
+        kind: (p.osm_value ?? "hotel").replace("_", " "),
+        address: [p.street, p.district, p.city, p.state].filter(Boolean).join(", "),
+        lat: hLat,
+        lon: hLon,
+      };
+    });
+}

@@ -108,6 +108,7 @@ export default function SideMenu({ user, savedCount, onSaves, onLakes, onClose }
             { icon: "bookmark", label: "Saved Places", onClick: onSaves },
             { icon: "map", label: "Offline Maps", href: "/offline-maps" },
             { icon: "news", label: "Recent News", href: "/news" },
+            { icon: "bed", label: "Hotels Near You", href: "/hotels" },
           ]}
         />
         <Section
