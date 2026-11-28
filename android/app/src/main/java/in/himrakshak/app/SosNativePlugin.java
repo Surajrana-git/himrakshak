@@ -20,7 +20,8 @@ import com.getcapacitor.annotation.PermissionCallback;
 @CapacitorPlugin(
         name = "SosNative",
         permissions = {
-                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS}),
+                // Some phones (Nothing, Samsung dual-SIM) also need phone state to pick the SIM for an SMS.
+                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS, Manifest.permission.READ_PHONE_STATE}),
                 @Permission(alias = "bluetooth", strings = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT}),
                 @Permission(alias = "location", strings = {Manifest.permission.ACCESS_FINE_LOCATION}),
                 @Permission(alias = "notifications", strings = {Manifest.permission.POST_NOTIFICATIONS}),
@@ -35,6 +36,8 @@ public class SosNativePlugin extends Plugin {
             data.put("heard", heard);
             data.put("relayed", relayed);
             data.put("synced", synced);
+            data.put("running", MeshRelayService.running);
+            data.put("sending", MeshRelayService.ownId != null);
             if (packet != null) data.put("packet", packet.toText());
             notifyListeners("mesh", data);
         };

@@ -63,7 +63,17 @@ final class SmsFallback {
         PendingIntent deliveredPi = PendingIntent.getBroadcast(ctx, request, new Intent(deliveredAction).setPackage(ctx.getPackageName()), flags);
 
         try {
-            SmsManager sms = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? ctx.getSystemService(SmsManager.class) : SmsManager.getDefault();
+            if (android.provider.Settings.Global.getInt(ctx.getContentResolver(), android.provider.Settings.Global.AIRPLANE_MODE_ON, 0) == 1) {
+                ctx.unregisterReceiver(sent);
+                ctx.unregisterReceiver(delivered);
+                callback.onStatus("failed", "airplane mode is on, no phone signal for SMS");
+                return;
+            }
+            // The SIM chosen for SMS in phone settings (dual-SIM phones).
+            int sub = android.telephony.SubscriptionManager.getDefaultSmsSubscriptionId();
+            SmsManager sms = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                    ? (sub >= 0 ? ctx.getSystemService(SmsManager.class).createForSubscriptionId(sub) : ctx.getSystemService(SmsManager.class))
+                    : (sub >= 0 ? SmsManager.getSmsManagerForSubscriptionId(sub) : SmsManager.getDefault());
             ArrayList<String> parts = sms.divideMessage(text);
             if (parts.size() == 1) {
                 sms.sendTextMessage(number, null, text, sentPi, deliveredPi);

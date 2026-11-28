@@ -17,8 +17,7 @@ const CONTACT_KEY = "himrakshak-sos-contact";
 type Step =
   | { kind: "idle" }
   | { kind: "locating" }
-  | { kind: "sent"; fix: GpsFix }
-  | { kind: "offline"; fix: GpsFix; reason: string; packet: SosPacket }
+  | { kind: "active"; fix: GpsFix; packet: SosPacket; internet: "sending" | "sent" | "failed" }
   | { kind: "no-gps"; reason: string };
 
 // The contact number lives in this phone only (localStorage), read through a tiny store so
@@ -80,7 +79,8 @@ export default function SosPanel() {
     return () => handles.forEach((h) => h.then((x) => x.remove()));
   }, []);
 
-  // The waterfall: internet → SMS (no data needed) → Bluetooth mesh (no signal needed).
+  // One press, everything at once (no time to choose in a landslide):
+  //   internet → rescue dashboard · SMS → family (and rescue gateway) · Bluetooth → phones nearby.
   async function pressSos() {
     setStep({ kind: "locating" });
     let fix: GpsFix;
@@ -91,21 +91,25 @@ export default function SosPanel() {
       return;
     }
     const packet: SosPacket = { id: newPacketId(), lat: fix.lat, lon: fix.lon, hazard: (reason && REASON_HAZARD[reason]) || "OTHER", ts: Math.floor(Date.now() / 1000), ttl: MESH_TTL };
-    const online = await fetch("/api/sos-relay", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ packet: toText(packet), via: "app" }) })
-      .then((r) => r.ok)
-      .catch(() => false);
-    if (online) return setStep({ kind: "sent", fix });
+    const text = toText(packet);
+    setSms({});
+    setStep({ kind: "active", fix, packet, internet: "sending" });
 
-    setStep({ kind: "offline", fix, reason: "No internet", packet });
+    fetch("/api/sos-relay", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ packet: text, via: "app" }) })
+      .then((r) => r.ok)
+      .catch(() => false)
+      .then((ok) => setStep((cur) => (cur.kind === "active" && cur.packet.id === packet.id ? { ...cur, internet: ok ? "sent" : "failed" } : cur)));
+
     if (!native) return; // website: the SMS button below opens the SMS app
-    // Android app: the SMS goes out by itself, and the Bluetooth mesh starts carrying the SOS.
     const family = contact.replace(/[^\d+]/g, "");
-    const sends = [
-      family && sosNative.sendSms({ number: family, text: `${sosText(fix, reason)}\n${toText(packet)}` }),
-      GATEWAY && sosNative.sendSms({ number: GATEWAY, text: toText(packet) }),
-    ].filter(Boolean) as Promise<unknown>[];
-    await Promise.allSettled(sends);
-    sosNative.startMesh({ packet: toText(packet) }).then(setMesh).catch((e: Error) => setMeshNote(e.message));
+    if (family) sosNative.sendSms({ number: family, text: `${sosText(fix, reason)}\n${text}` }).catch(() => {});
+    if (GATEWAY) sosNative.sendSms({ number: GATEWAY, text }).catch(() => {});
+    sosNative.startMesh({ packet: text }).then(setMesh).catch((e: Error) => setMeshNote(e.message));
+  }
+
+  async function stopSos() {
+    if (native) setMesh(await sosNative.stopMesh().catch(() => null));
+    setStep({ kind: "idle" });
   }
 
   async function toggleRelay() {
@@ -117,8 +121,9 @@ export default function SosPanel() {
     }
   }
 
-  const fix = step.kind === "sent" || step.kind === "offline" ? step.fix : null;
-  const smsHref = fix ? `sms:${contact.replace(/[^\d+]/g, "")}?body=${encodeURIComponent(sosText(fix, reason))}` : null;
+  const fix = step.kind === "active" ? step.fix : null;
+  // Website only: the phone's SMS app with the message ready (the Android app sends it by itself).
+  const smsHref = fix && !native ? `sms:${contact.replace(/[^\d+]/g, "")}?body=${encodeURIComponent(sosText(fix, reason))}` : null;
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col gap-5 px-4 pt-[max(16px,env(safe-area-inset-top))] pb-[max(24px,env(safe-area-inset-bottom))]">
@@ -153,35 +158,45 @@ export default function SosPanel() {
         <span className="mt-1 text-sm font-semibold">{step.kind === "locating" ? "Getting location…" : "Press"}</span>
       </button>
 
-      {step.kind === "sent" && (
-        <section className="rounded-2xl bg-teal p-4 text-ink">
-          <p className="font-display text-2xl">SOS bhej diya</p>
-          <p>Your location is on the rescue dashboard. Stay where you are and keep your phone on.</p>
-          <p className="mt-1 text-sm">
-            {step.fix.lat.toFixed(5)}, {step.fix.lon.toFixed(5)} (±{step.fix.accuracy} m)
-          </p>
-        </section>
-      )}
-      {step.kind === "offline" && (
-        <section className="rounded-2xl bg-danger p-4 text-snow">
-          <p className="font-display text-2xl">No internet: sending another way</p>
-          {native ? (
-            <ul className="mt-1 flex flex-col gap-1 text-sm">
-              {!contact && !GATEWAY && <li>SMS: add a family number below to send your location by SMS.</li>}
-              {Object.entries(sms).map(([n, st]) => (
-                <li key={n}>
-                  SMS to {n}: <b>{st}</b>
+      {step.kind === "active" && (
+        <section className={`rounded-2xl p-4 ${step.internet === "sent" ? "bg-teal text-ink" : "bg-danger text-snow"}`}>
+          <p className="font-display text-2xl">SOS is going out</p>
+          <ul className="mt-2 flex flex-col gap-1.5 text-sm">
+            <li>
+              <b>Internet:</b>{" "}
+              {step.internet === "sent" ? "on the rescue dashboard" : step.internet === "sending" ? "sending…" : "no internet, using SMS and Bluetooth"}
+            </li>
+            {native && (
+              <>
+                {!contact && !GATEWAY && (
+                  <li>
+                    <b>SMS:</b> add a family number below
+                  </li>
+                )}
+                {contact && !Object.keys(sms).length && (
+                  <li>
+                    <b>SMS:</b> sending…
+                  </li>
+                )}
+                {Object.entries(sms).map(([n, st]) => (
+                  <li key={n}>
+                    <b>SMS to {n}:</b> {st}
+                  </li>
+                ))}
+                <li>
+                  <b>Bluetooth:</b> {mesh?.sending ? "calling phones nearby, again and again" : "starting…"}
+                  {mesh?.sending ? ` · ${mesh.heard} heard nearby · ${mesh.synced} carried to rescue` : ""}
                 </li>
-              ))}
-              <li>
-                Bluetooth: {mesh?.sending ? "your SOS is being passed phone to phone" : "starting…"}
-                {mesh ? ` · ${mesh.heard} heard, ${mesh.synced} reached rescue` : ""}
-              </li>
-              <li className="font-mono text-xs opacity-80">{toText(step.packet)}</li>
-            </ul>
-          ) : (
-            <p className="text-sm">Tap the SMS button below: the message with your location is ready.</p>
-          )}
+              </>
+            )}
+            <li>
+              {step.fix.lat.toFixed(5)}, {step.fix.lon.toFixed(5)} (±{step.fix.accuracy} m)
+            </li>
+          </ul>
+          <p className="mt-2 text-sm">Stay where you are and keep your phone on.</p>
+          <button onClick={stopSos} className="mt-3 min-h-12 w-full rounded-full border-2 border-current font-semibold">
+            I am safe: stop SOS
+          </button>
         </section>
       )}
       {step.kind === "no-gps" && (

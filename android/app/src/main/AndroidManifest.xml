@@ -59,6 +59,7 @@
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <!-- Offline SOS: SMS with only a phone signal; Bluetooth mesh with no signal at all. -->
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
