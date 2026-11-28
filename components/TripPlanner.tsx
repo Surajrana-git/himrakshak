@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import RouteOptionCard from "@/components/RouteOptionCard";
 import PlaceField from "@/components/PlaceField";
@@ -9,7 +9,8 @@ import type { RouteOption } from "@/lib/routes";
 import { RISK_STYLE } from "@/lib/risk";
 import type { Costing } from "@/lib/valhalla";
 import { googleDirectionsUrl } from "@/lib/google-maps";
-import { tripCost, useVehicles } from "@/lib/vehicles";
+import { tripCost, useVehicles, type Vehicle } from "@/lib/vehicles";
+import type { FuelStop } from "@/lib/fuel";
 
 type Props = {
   from: Place;
@@ -26,6 +27,7 @@ type Props = {
   onPick: (id: string) => void;
   onStart: () => void;
   onSave: ((option: RouteOption) => Promise<string | null>) | null; // null when not signed in
+  fuel: FuelStop[] | null; // pumps along the chosen road; null while loading
   onClose: () => void;
 };
 
@@ -37,7 +39,15 @@ const MODES: { id: Costing; label: string; icon: IconName }[] = [
   { id: "pedestrian", label: "Walk", icon: "walk" },
 ];
 
-const hoursText = (h: number) => `${Math.floor(h)} hr ${Math.round((h % 1) * 60)} min`;
+const hoursText = (h: number) => (h < 1 ? `${Math.round(h * 60)} min` : `${Math.floor(h)} hr ${Math.round((h % 1) * 60)} min`);
+
+// Until the driver adds their own vehicle: a typical hill car and commuter bike, petrol near ₹95/L
+// (Uttarakhand, Nov 2026). Always labelled "typical" on screen.
+const TYPICAL: Record<"auto" | "motorcycle", Vehicle> = {
+  auto: { id: "typical-car", type: "Car", name: "Typical car (15 km/L)", registration: "", mileageKmpl: 15, fuel: "Petrol", pricePerLitre: 95, maintenancePerKm: 0 },
+  motorcycle: { id: "typical-bike", type: "Bike", name: "Typical bike (45 km/L)", registration: "", mileageKmpl: 45, fuel: "Petrol", pricePerLitre: 95, maintenancePerKm: 0 },
+};
+type Eta = Partial<Record<Costing, { km: number; hours: number } | null>>;
 
 // "From - To (Trip)" → route options (safest / fastest) with trip cost → Start.
 export default function TripPlanner(p: Props) {
@@ -48,7 +58,25 @@ export default function TripPlanner(p: Props) {
   const vehicle = vehicles.find((v) => v.id === vehicleId) ?? vehicles[0] ?? null;
   const [note, setNote] = useState("");
   const drives = mode === "auto" || mode === "motorcycle";
-  const cost = selected && vehicle && drives ? tripCost(selected.km, vehicle) : null;
+  const costVehicle = drives ? (vehicle ?? TYPICAL[mode as "auto" | "motorcycle"]) : null;
+  const cost = selected && costVehicle ? tripCost(selected.km, costVehicle) : null;
+
+  // Time by car, bike and on foot for the tabs, like a maps app.
+  const [eta, setEta] = useState<{ key: string; data: Eta } | null>(null);
+  const etaKey = to ? `${from.lat},${from.lon}|${to.lat},${to.lon}` : "";
+  useEffect(() => {
+    if (!etaKey) return;
+    const [f, t] = etaKey.split("|");
+    let stale = false;
+    fetch(`/api/eta?from=${f}&to=${t}`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((data: Eta) => !stale && setEta({ key: etaKey, data }))
+      .catch(() => {});
+    return () => {
+      stale = true;
+    };
+  }, [etaKey]);
+  const times = eta?.key === etaKey ? eta.data : {};
 
   function useMyLocation() {
     setGpsError(null);
@@ -142,6 +170,7 @@ export default function TripPlanner(p: Props) {
           >
             <Icon name={m.icon} className="h-6 w-6" />
             {m.label}
+            <span className="text-[11px] font-bold text-green-dark">{times[m.id] ? hoursText(times[m.id]!.hours) : m.id === "bus" ? "" : to ? "…" : ""}</span>
           </button>
         ))}
       </div>
@@ -163,7 +192,7 @@ export default function TripPlanner(p: Props) {
               ))}
             </select>
           ) : (
-            <p className="mt-1 text-sm text-muted">Add your vehicle to see fuel and trip cost.</p>
+            <p className="mt-1 text-sm text-muted">Showing a {mode === "motorcycle" ? "typical bike (45 km/L)" : "typical car (15 km/L)"}, petrol ₹95/L. Add your vehicle for your own cost.</p>
           )}
         </div>
       )}
@@ -200,16 +229,37 @@ export default function TripPlanner(p: Props) {
                 {cost && (
                   <>
                     <dt className="flex items-center gap-2">
-                      <Icon name="fuel" className="h-4 w-4 text-green" /> Fuel Required <span className="text-xs text-muted">(distance ÷ mileage)</span>
+                      <Icon name="fuel" className="h-4 w-4 text-green" /> Petrol needed <span className="text-xs text-muted">({costVehicle?.mileageKmpl} km/L{vehicle ? "" : ", typical"})</span>
                     </dt>
                     <dd className="font-semibold">{cost.litres.toFixed(2)} L</dd>
                     <dt className="flex items-center gap-2">
-                      <Icon name="coin" className="h-4 w-4 text-green" /> Estimated Travel Cost <span className="text-xs text-muted">(fuel × price{vehicle?.maintenancePerKm ? " + upkeep" : ""})</span>
+                      <Icon name="coin" className="h-4 w-4 text-green" /> Estimated cost <span className="text-xs text-muted">(₹{costVehicle?.pricePerLitre}/L{vehicle?.maintenancePerKm ? " + upkeep" : ""})</span>
                     </dt>
                     <dd className="font-display text-lg font-bold text-green-dark">₹{cost.rupees.toFixed(2)}</dd>
                   </>
                 )}
               </dl>
+              {drives && (
+                <div className="mt-3 rounded-2xl bg-mint p-3">
+                  <p className="flex items-center gap-2 text-sm font-semibold">
+                    <Icon name="fuel" className="h-5 w-5 text-green" />
+                    {p.fuel === null
+                      ? "Finding petrol and CNG pumps on this road…"
+                      : `${p.fuel.length} petrol pumps on this road${p.fuel.some((f) => f.cng) ? `, ${p.fuel.filter((f) => f.cng).length} with CNG` : ""}`}
+                  </p>
+                  {p.fuel && p.fuel.length > 0 && (
+                    <ul className="mt-1 text-xs">
+                      {p.fuel.slice(0, 6).map((f) => (
+                        <li key={`${f.lat},${f.lon}`}>
+                          km {f.km} · {f.name}
+                          {f.cng ? " · CNG" : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {p.fuel && p.fuel.length === 0 && <p className="text-xs text-muted">None mapped near this road. Fill up before you start.</p>}
+                </div>
+              )}
               {mode === "pedestrian" && selected.km > 100 && (
                 <p className="mt-2 rounded-xl bg-mint p-2 text-xs">Long walk: shown along the road, timed at 4.5 km/h. Plan night stops on the way.</p>
               )}

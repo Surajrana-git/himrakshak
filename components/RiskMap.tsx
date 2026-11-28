@@ -66,6 +66,7 @@ type Props = {
   reports: Report[];
   // Approved traveller posts (AI-checked Geo Cam photo, or confirmed by a second phone).
   posts: { id: string; lat: number; lon: number; title: string; details: string | null; photo: string | null; at: string }[];
+  fuel: { name: string; lat: number; lon: number; cng: boolean; km: number }[]; // pumps along the planned road
   focusId: string | null;
   onSelectSegment: (id: string) => void;
   locateSignal: number;
@@ -297,6 +298,17 @@ function postPopup(post: Props["posts"][number]): HTMLElement {
   return box;
 }
 
+// Petrol pump icon (green), CNG in teal with "CNG" under it.
+function fuelPin(cng: boolean): HTMLElement {
+  const pin = document.createElement("button");
+  pin.type = "button";
+  pin.setAttribute("aria-label", cng ? "CNG and petrol pump" : "Petrol pump");
+  pin.className = `flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-md ${cng ? "bg-teal text-ink" : "bg-green text-white"}`;
+  pin.innerHTML =
+    '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v15M4 20h11M5 10h9M14 8l3 2v7a1.5 1.5 0 0 0 3 0V9l-2-2"/></svg>';
+  return pin;
+}
+
 function carPin(): HTMLElement {
   const pin = document.createElement("div");
   pin.setAttribute("role", "img");
@@ -340,6 +352,7 @@ export default function RiskMap({
   towns,
   reports,
   posts,
+  fuel,
   focusId,
   onSelectSegment,
   locateSignal,
@@ -359,6 +372,7 @@ export default function RiskMap({
   const arrowHead = useRef<Marker | null>(null);
   const lakeMarkers = useRef<Marker[]>([]);
   const postMarkers = useRef<Marker[]>([]);
+  const fuelMarkers = useRef<Marker[]>([]);
   const onSelectLakeRef = useRef(onSelectLake);
   const onSelectRef = useRef(onSelectSegment);
   const [loaded, setLoaded] = useState(false);
@@ -390,6 +404,20 @@ export default function RiskMap({
         .addTo(map),
     );
   }, [loaded, posts]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    fuelMarkers.current.forEach((m) => m.remove());
+    fuelMarkers.current = fuel.map((f) => {
+      const box = document.createElement("div");
+      box.className = "text-sm text-ink";
+      box.innerHTML = `<b></b><br><span></span>`;
+      box.querySelector("b")!.textContent = f.name;
+      box.querySelector("span")!.textContent = `${f.cng ? "Petrol + CNG" : "Petrol"} · km ${f.km} on your route`;
+      return new Marker({ element: fuelPin(f.cng) }).setLngLat([f.lon, f.lat]).setPopup(new Popup({ offset: 18 }).setDOMContent(box)).addTo(map);
+    });
+  }, [loaded, fuel]);
 
   useEffect(() => {
     if (!container.current) return;

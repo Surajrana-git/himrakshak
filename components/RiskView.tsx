@@ -39,6 +39,9 @@ import type { AiRiskFeed } from "@/lib/ai-risk";
 import { isGuest, useAuth } from "@/lib/auth";
 import { useSavedPlaces } from "@/lib/saved-places";
 import { useSavedRoutes } from "@/lib/saved-routes";
+import type { FuelStop } from "@/lib/fuel";
+import { getGpsFix } from "@/lib/sos";
+import { inUttarakhand } from "@/lib/area";
 import { approval, useContributions } from "@/lib/contributions";
 import { canListen, listen, parseCommand, say } from "@/lib/voice";
 import lakesData from "@/data/glacial-lakes.json";
@@ -164,6 +167,26 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
     return list;
   }, [closures, reports, aiHigh, ai, route.segments]);
   const trip = useTrip(knownHazards, storm);
+
+  // Petrol and CNG pumps along the chosen road (planner list and map icons).
+  const fuelRoute = trip.stage !== "idle" ? (trip.selected ?? null) : null;
+  const fuelKey = fuelRoute ? `${fuelRoute.id}|${fuelRoute.km}|${fuelRoute.coordinates.length}` : "";
+  const [fuel, setFuel] = useState<{ key: string; stops: FuelStop[] } | null>(null);
+  useEffect(() => {
+    if (!fuelKey || !fuelRoute) return;
+    let stale = false;
+    const line = fuelRoute.coordinates.filter((_, i, all) => i % Math.max(1, Math.ceil(all.length / 1500)) === 0);
+    fetch("/api/fuel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ coordinates: line }) })
+      .then((r) => (r.ok ? r.json() : { stops: [] }))
+      .then((b: { stops: FuelStop[] }) => !stale && setFuel({ key: fuelKey, stops: b.stops }))
+      .catch(() => !stale && setFuel({ key: fuelKey, stops: [] }));
+    return () => {
+      stale = true;
+    };
+    // fuelKey covers the chosen road.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fuelKey]);
+  const fuelStops = fuel?.key === fuelKey ? fuel.stops : null;
 
   // Links from other screens: /?plan opens the planner, /?trip=fromLat,fromLon,toLat,toLon,mode|From|To
   // re-plans a saved route. Read once, then cleared from the address bar.
@@ -360,6 +383,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
           towns={route.towns}
           reports={reports}
           posts={mapPosts}
+          fuel={fuelStops ?? NO_FUEL}
           focusId={focusId}
           onSelectSegment={selectSegment}
           locateSignal={locateSignal}
@@ -378,6 +402,10 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
             onPick={(place) => {
               trip.setTo(place);
               trip.openPlanner();
+              // Like a maps app: the trip starts from where you are, when the phone knows it.
+              getGpsFix()
+                .then((f) => inUttarakhand(f.lat, f.lon) && trip.setFrom({ name: "Your location", hindi: "Your location", lat: f.lat, lon: f.lon, dham: false }))
+                .catch(() => {});
             }}
             onDirections={trip.openPlanner}
             onVoice={voiceCommand}
@@ -567,6 +595,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
                       })
                   : null
               }
+              fuel={fuelStops}
               onClose={trip.close}
             />
           )}
@@ -758,6 +787,7 @@ const HAZARD_TEXT = { jam: "Jam", ai: "High slide risk", closure: "Road closed" 
 // Stable empty list so the map doesn't redraw news pins on every render.
 const NO_NEWS: SlideNewsFeed["items"] = [];
 const NO_LAKES: typeof lakesData.lakes = [];
+const NO_FUEL: FuelStop[] = [];
 
 function VoiceButton({ listening, onClick }: { listening: boolean; onClick: () => void }) {
   // Hidden where there is no recogniser (some browsers); the server renders without it.
