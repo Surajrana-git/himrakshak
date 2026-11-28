@@ -25,7 +25,8 @@ function day(mm: number[], t: number, ari95: number, month: number): AiDay {
 type DailyPoint = { daily: { time: string[]; precipitation_sum: (number | null)[] } };
 
 // Re-scored every 30 minutes with the latest Open-Meteo rain (last 14 days, today, tomorrow).
-export async function getAiRisk(segments: { id: string; rainPoint: { lat: number; lon: number } }[]): Promise<AiRiskFeed> {
+// null when Open-Meteo does not answer; never throws, so a weather outage cannot fail the page build.
+export async function getAiRisk(segments: { id: string; rainPoint: { lat: number; lon: number } }[]): Promise<AiRiskFeed | null> {
   "use cache";
   cacheLife({ stale: 300, revalidate: 1800, expire: 7200 });
 
@@ -37,8 +38,11 @@ export async function getAiRisk(segments: { id: string; rainPoint: { lat: number
     forecast_days: "2",
     timezone: "Asia/Kolkata",
   });
-  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
-  if (!res.ok) throw new Error(`Open-Meteo returned ${res.status}`);
+  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`).catch(() => null);
+  if (!res?.ok) {
+    cacheLife("minutes");
+    return null;
+  }
   const body: DailyPoint | DailyPoint[] = await res.json();
   const list = Array.isArray(body) ? body : [body];
 

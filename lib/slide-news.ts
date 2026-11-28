@@ -95,7 +95,9 @@ function toNews(item: string): SlideNews | null {
 }
 
 // Landslide news for our route from Google News (English), refreshed every hour.
-export async function getSlideNews(): Promise<SlideNewsFeed> {
+// null when Google News does not answer. It must not throw: an error inside a cached
+// function fails the whole page build (Google sometimes blocks Vercel's build servers).
+export async function getSlideNews(): Promise<SlideNewsFeed | null> {
   "use cache";
   cacheLife("hours");
 
@@ -108,7 +110,10 @@ export async function getSlideNews(): Promise<SlideNewsFeed> {
     ),
   );
   const xml = results.filter((r) => r.status === "fulfilled").map((r) => r.value);
-  if (xml.length === 0) throw new Error("Google News is unreachable");
+  if (xml.length === 0) {
+    cacheLife("minutes"); // try again soon, not in an hour
+    return null;
+  }
 
   const seen = new Set<string>();
   const items = xml

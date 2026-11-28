@@ -21,9 +21,9 @@ export default function Page() {
 async function LiveRisk() {
   const [rain, news, traffic, ai] = await Promise.all([
     getRain(route.segments.map((s) => s.rainPoint)).catch(() => null),
-    getSlideNews().catch(() => null),
+    getSlideNews(),
     getTraffic(route.segments.map((s) => s.rainPoint)).catch(() => null),
-    getAiRisk(route.segments).catch(() => null),
+    getAiRisk(route.segments),
   ]);
   if (!rain) {
     return (
