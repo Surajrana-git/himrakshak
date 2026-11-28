@@ -32,6 +32,7 @@ import PlacesScreen from "@/components/PlacesScreen";
 import PermissionPrompt from "@/components/PermissionPrompt";
 import NewsCard from "@/components/NewsCard";
 import AiRiskCard from "@/components/AiRiskCard";
+import ThresholdCard from "@/components/ThresholdCard";
 import SatelliteView from "@/components/SatelliteView";
 import type { AiRiskFeed } from "@/lib/ai-risk";
 import { isGuest, useAuth } from "@/lib/auth";
@@ -558,6 +559,10 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
             </button>
           )}
           <SafeTimeCard safeHour={safeHour} safeClock={safeClock} />
+          <ThresholdCard
+            stretches={route.segments.map((seg, i) => ({ id: seg.id, name: `${seg.from} → ${seg.to}`, hourlyMm: series[i] }))}
+            nowIndex={rain.nowIndex}
+          />
           <AiRiskCard
             feed={ai}
             segmentName={segmentName}
