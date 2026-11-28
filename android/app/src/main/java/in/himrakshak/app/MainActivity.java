@@ -8,5 +8,6 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(SosNativePlugin.class); // offline SOS: SMS and Bluetooth mesh
         super.onCreate(savedInstanceState);
+        DangerChannel.ensure(this); // siren channel for push alerts, ready before any arrive
     }
 }

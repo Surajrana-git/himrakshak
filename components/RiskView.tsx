@@ -40,6 +40,9 @@ import { isGuest, useAuth } from "@/lib/auth";
 import { useSavedPlaces } from "@/lib/saved-places";
 import { useSavedRoutes } from "@/lib/saved-routes";
 import type { FuelStop } from "@/lib/fuel";
+import DangerPopup, { type Danger } from "@/components/DangerPopup";
+import { hasNativeSos, sosNative } from "@/lib/sos-native";
+import { parsePacket } from "@/lib/sos-packet";
 import { getGpsFix } from "@/lib/sos";
 import { inUttarakhand } from "@/lib/area";
 import { approval, useContributions } from "@/lib/contributions";
@@ -62,7 +65,23 @@ import pastLandslides from "@/data/landslides-uttarakhand.json";
 type Props = { route: typeof route; rain: RainSeries; news: SlideNewsFeed | null; traffic: TrafficFeed | null; ai: AiRiskFeed | null };
 
 export default function RiskView({ route, rain, news, traffic, ai }: Props) {
-  const reports = useReports();
+  // Danger pop-up with siren: a new landslide / rockfall / block / flooding report from another
+  // phone, or an SOS heard over Bluetooth. Never for jams.
+  const [danger, setDanger] = useState<Danger | null>(null);
+  const reports = useReports((r) => {
+    if (!DANGER_KINDS.includes(r.kind) || r.device_id === deviceId()) return;
+    setDanger({ id: r.id, title: `${REPORT_KINDS[r.kind].label} reported`, body: `Near ${nearestPlace(r).name}. ${r.note ?? "Drive with care or choose a safer route."}`, lat: r.lat, lon: r.lon });
+  });
+  useEffect(() => {
+    if (!hasNativeSos()) return;
+    const handle = sosNative.addListener("mesh", (e) => {
+      const p = e.event === "heard" && e.packet ? parsePacket(e.packet) : null;
+      if (p) setDanger({ id: p.id, title: "SOS nearby: someone needs help", body: `A phone close to you sent an SOS (${p.hazard.toLowerCase()}). Tap Show on map for the spot.`, lat: p.lat, lon: p.lon });
+    });
+    return () => {
+      handle.then((h) => h.remove());
+    };
+  }, []);
   const [reporting, setReporting] = useState(false);
   const [quickReport, setQuickReport] = useState(false);
   const [asked, setAsked] = useState<Set<string>>(new Set());
@@ -753,6 +772,16 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
       {layersOpen && <LayersMenu base={baseMap} data={layer} onBase={setBaseMap} onData={setLayer} onClose={() => setLayersOpen(false)} />}
       {satellite && <SatelliteView {...satellite} onClose={() => setSatellite(null)} />}
       <PermissionPrompt />
+      {danger && (
+        <DangerPopup
+          danger={danger}
+          onShow={() => {
+            setFocusPoint({ lat: danger.lat, lon: danger.lon });
+            setDanger(null);
+          }}
+          onClose={() => setDanger(null)}
+        />
+      )}
       {quickReport && trip.car && (
         <QuickReport
           at={trip.car}
@@ -788,6 +817,7 @@ const HAZARD_TEXT = { jam: "Jam", ai: "High slide risk", closure: "Road closed" 
 const NO_NEWS: SlideNewsFeed["items"] = [];
 const NO_LAKES: typeof lakesData.lakes = [];
 const NO_FUEL: FuelStop[] = [];
+const DANGER_KINDS: Report["kind"][] = ["landslide", "rockfall", "road_blocked", "water"];
 
 function VoiceButton({ listening, onClick }: { listening: boolean; onClick: () => void }) {
   // Hidden where there is no recogniser (some browsers); the server renders without it.

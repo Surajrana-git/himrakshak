@@ -1,4 +1,5 @@
 import { getSettings } from "@/lib/settings";
+import { playSiren } from "@/lib/siren";
 import { useEffect, useRef, useState } from "react";
 import RouteOptionCard from "@/components/RouteOptionCard";
 import ReportIcon from "@/components/ReportIcon";
@@ -48,6 +49,7 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
   useEffect(() => {
     // A buzz the driver feels even with the sound off: longer for a closed road.
     if (getSettings().vibrate) navigator.vibrate?.(kind === "closure" ? [400, 150, 400, 150, 400] : [250, 120, 250]);
+    if (kind !== "jam") playSiren(); // danger only: a jam is a nuisance, not a threat
     speak(
       kind === "jam"
         ? `Traffic jam ${alert.kmAhead} kilometres ahead.`

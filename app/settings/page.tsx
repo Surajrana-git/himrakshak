@@ -33,7 +33,7 @@ export default function SettingsPage() {
       </Link>
 
       <p className="px-1 text-sm font-semibold text-muted">Preferences</p>
-      <MenuRow icon="bell" title="Notifications" subtitle={`Risk alerts ${onOff(s.riskAlerts)} · Voice ${onOff(s.voice)} · Vibrate ${onOff(s.vibrate)}`} href="/settings/notifications" />
+      <MenuRow icon="bell" title="Notifications" subtitle={`Siren ${onOff(s.siren)} · Voice ${onOff(s.voice)} · Vibrate ${onOff(s.vibrate)}`} href="/settings/notifications" />
       <MenuRow icon="map" title="Map Preferences" subtitle={`Map: ${s.mapType} · Screen on while driving ${onOff(s.keepScreenOn)}`} href="/settings/map" />
       <MenuRow icon="language" title="Language" subtitle="English" href="/settings/language" />
 

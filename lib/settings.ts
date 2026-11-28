@@ -6,12 +6,13 @@ import { useSyncExternalStore } from "react";
 export type Settings = {
   mapType: "standard" | "satellite" | "terrain";
   riskAlerts: boolean; // phone notification when a stretch is at high risk today
+  siren: boolean; // danger siren with landslide, blocked road and SOS alerts (never for jams)
   voice: boolean; // spoken turns and hazard warnings while driving
   vibrate: boolean; // buzz on hazard alerts
   keepScreenOn: boolean; // screen stays on while navigating
 };
 
-const DEFAULTS: Settings = { mapType: "standard", riskAlerts: true, voice: true, vibrate: true, keepScreenOn: true };
+const DEFAULTS: Settings = { mapType: "standard", riskAlerts: true, siren: true, voice: true, vibrate: true, keepScreenOn: true };
 const KEY = "himrakshak-settings";
 const listeners = new Set<() => void>();
 

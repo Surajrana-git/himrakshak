@@ -42,7 +42,8 @@ export async function pushToAll(title: string, body: string, link = "/"): Promis
       fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ message: { token: t, notification: { title, body }, data: { link }, android: { priority: "high" } } }),
+        // The app's "Danger alerts" channel plays the Himrakshak siren (DangerChannel.java).
+        body: JSON.stringify({ message: { token: t, notification: { title, body }, data: { link }, android: { priority: "high", notification: { channel_id: "himrakshak-danger", sound: "siren" } } } }),
       })
         .then((r) => r.ok)
         .catch(() => false),

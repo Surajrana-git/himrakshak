@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { distanceKm } from "@/lib/geo";
 import { deviceId } from "@/lib/device";
@@ -43,8 +43,13 @@ export const ON_HIGHWAY_KM = 5;
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
 // Recent reports, kept live: new ones from any phone appear instantly.
-export function useReports() {
+// onNew: called for each report that arrives live (not the ones loaded at start).
+export function useReports(onNew?: (report: Report) => void) {
   const [reports, setReports] = useState<Report[]>([]);
+  const onNewRef = useRef(onNew);
+  useEffect(() => {
+    onNewRef.current = onNew;
+  }, [onNew]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -62,9 +67,10 @@ export function useReports() {
     const channel = client
       // One channel per screen using this hook: a shared name crashes Supabase when a second screen subscribes.
       .channel(`reports-live-${crypto.randomUUID()}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "reports" }, (payload) =>
-        setReports((current) => mergeReports(current, [payload.new as Report])),
-      )
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "reports" }, (payload) => {
+        setReports((current) => mergeReports(current, [payload.new as Report]));
+        onNewRef.current?.(payload.new as Report);
+      })
       .subscribe();
 
     return () => {

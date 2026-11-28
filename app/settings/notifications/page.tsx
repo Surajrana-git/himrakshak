@@ -26,6 +26,7 @@ export default function NotificationsPage() {
         )}
       </Card>
       <Toggle label="High landslide risk today" hint="A notification once a day when a stretch is at high risk." on={s.riskAlerts} onChange={(v) => setSetting("riskAlerts", v)} />
+      <Toggle label="Danger siren" hint="A short siren with landslide, blocked road and SOS alerts. Never for traffic jams." on={s.siren} onChange={(v) => setSetting("siren", v)} />
       <Toggle label="Voice alerts while driving" hint="Turns, closed roads and landslides ahead, spoken aloud." on={s.voice} onChange={(v) => setSetting("voice", v)} />
       <Toggle label="Vibration" hint="A short buzz on every tap, and a strong one when a closure or jam is ahead." on={s.vibrate} onChange={(v) => setSetting("vibrate", v)} />
     </Screen>
