@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Himrakshak · Round 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: 13.333in 7.5in; margin: 0; }
+  :root { --green:#0E7A3D; --green-dark:#0A5C2E; --mint:#E6F4EC; --ink:#14231F; --muted:#5B6662; --orange:#F08A3E; --red:#B03030; --teal:#5FB3A1; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, Arial, sans-serif; color: var(--ink); background: #fff; }
+  .slide { width: 13.333in; height: 7.5in; padding: 0.6in 0.7in; position: relative; overflow: hidden; page-break-after: always; background: #fff; }
+  .slide.dark { background: var(--green-dark); color: #fff; }
+  h1, h2, h3 { font-family: Poppins, Arial, sans-serif; }
+  h2 { font-size: 34pt; font-weight: 700; line-height: 1.1; margin-bottom: 0.3in; }
+  h3 { font-size: 15pt; font-weight: 600; margin-bottom: 4px; }
+  p, li { font-size: 13pt; line-height: 1.45; }
+  .kicker { font-family: Poppins; font-size: 11pt; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .dark .kicker { color: #9FE0B8; }
+  .muted { color: var(--muted); }
+  .src { position: absolute; left: .7in; bottom: .3in; font-size: 9pt; color: var(--muted); }
+  .num { position: absolute; right: .7in; bottom: .3in; font-size: 9pt; color: var(--muted); }
+  .grid { display: grid; gap: 0.25in; }
+  .card { background: var(--mint); border-radius: 18px; padding: 18px 20px; }
+  .card.white { background: #fff; box-shadow: 0 2px 10px rgba(20,35,31,.12); }
+  .stat { font-family: Poppins; font-size: 44pt; font-weight: 700; color: var(--green); line-height: 1; }
+  .stat.red { color: var(--red); }
+  .icon { width: 44px; height: 44px; border-radius: 50%; background: var(--green); color: #fff; display: flex; align-items: center; justify-content: center; font-family: Poppins; font-weight: 700; font-size: 16pt; margin-bottom: 10px; }
+  .phone { width: 1.78in; border-radius: 22px; border: 6px solid var(--ink); overflow: hidden; background: #000; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+  .phone img { width: 100%; display: block; }
+  .cap { font-family: Poppins; font-weight: 600; font-size: 11pt; text-align: center; margin-top: 8px; }
+  .pill { display: inline-block; border-radius: 999px; padding: 3px 12px; font-size: 10.5pt; font-weight: 600; }
+  ul.tick { list-style: none; }
+  ul.tick li { padding-left: 28px; position: relative; margin-bottom: 6px; }
+  ul.tick li::before { content: ""; position: absolute; left: 0; top: 5px; width: 16px; height: 16px; border-radius: 50%; background: var(--green); box-shadow: inset 0 0 0 4px var(--mint); }
+  .arrow { font-family: Poppins; font-size: 22pt; color: var(--green); align-self: center; padding-top: 0; }
+
+  .chip { display:inline-block; border-radius:999px; padding:2px 10px; font-size:9.5pt; font-weight:700; }
+  .live { background:var(--green); color:#fff; }
+  .key { background:var(--orange); color:var(--ink); }
+  .todo { background:#E4E7E5; color:var(--ink); }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { text-align:left; vertical-align:top; padding:7px 10px; font-size:11.5pt; line-height:1.35; border-bottom:1px solid #DDE5E0; }
+  th { font-family:Poppins; font-size:10.5pt; letter-spacing:.08em; text-transform:uppercase; color:var(--green); }
+  h2 { font-size: 28pt; margin-bottom: .22in; }
+  .phone { box-shadow: none; }
+  .card.white { box-shadow: none; border: 1.5px solid #D5E3DA; }
+  .phone.s { width:1.55in; border-width:5px; border-radius:18px; }
+  .phone.s img { height:3.3in; object-fit:cover; object-position:top; }
+  .small p, .small li { font-size:11.5pt; }
+  .comp .card { padding:12px 16px; }
+  .comp h3 { font-size:13pt; margin:4px 0 2px; }
+  .comp p { font-size:10.5pt; line-height:1.35; }
+</style>
+</head>
+<body>
+
+<!-- 1 Cover -->
+<section class="slide dark" style="display:flex;align-items:center;gap:.7in">
+  <img src="../../public/logo-full.png" style="width:4.3in;border-radius:28px;background:#fff;padding:.15in">
+  <div>
+    <p class="kicker">Algonex 1.0 · Round 2 · 28 Nov 2026</p>
+    <h1 style="font-size:54pt;line-height:1.05">Himrakshak</h1>
+    <p style="font-family:Poppins;font-size:24pt;font-weight:600;margin:6px 0 20px">From a Char Dham prototype to a road-safety map for all of Uttarakhand</p>
+    <p style="font-size:16pt;opacity:.9">Working components · How we beat our blockers · Usability on a real phone</p>
+    <p style="font-size:13pt;opacity:.8;margin-top:28px">Team Elite Zero Division · Maya Devi University, Dehradun</p>
+  </div>
+</section>
+
+<!-- 2 Round 1 plan vs done -->
+<section class="slide">
+  <p class="kicker">Round 1 → Round 2</p>
+  <h2>What we promised at Round 1, and what is live now</h2>
+  <table>
+    <tr><th style="width:34%">Round 1 plan</th><th style="width:14%">Status</th><th>What we actually shipped</th></tr>
+    <tr><td>Deploy on Vercel, APK on the demo phone</td><td><span class="chip live">Live</span></td><td>himrakshak.vercel.app; the Android app loads it, so every fix reaches the phone without a reinstall</td></tr>
+    <tr><td>Real slope from elevation data</td><td><span class="chip live">Live</span></td><td>Slope map of the whole state (360 × 280 cells, ~1 km each) + NASA landslide history, scored every 10 km of any road</td></tr>
+    <tr><td>Road Rewards v1</td><td><span class="chip live">Live</span></td><td>10 points per report, +20 when a driver on another phone confirms it; three levels. Confirmation is automatic, not manual</td></tr>
+    <tr><td>Bug fixes, demo script</td><td><span class="chip live">Done</span></td><td>App stuck on splash, login loop, map reload, build failures fixed; 110-second backup demo video recorded</td></tr>
+    <tr><td>Push alerts for closures on your route</td><td><span class="chip key">Partly</span></td><td>In-app voice + vibration alert with reroute, home banner and phone notification while the app is open. Alerts with the app closed need Firebase (next)</td></tr>
+    <tr><td>Before-you-go summary</td><td><span class="chip key">Partly</span></td><td>"Safe time to leave" card + route cards that say steepest slope and past slides near the road</td></tr>
+    <tr><td>Field test on 2 phones, offline SOS</td><td><span class="chip todo">Before final</span></td><td>Tested on 1 real Android phone (results on slide 8); road test before 3 PM</td></tr>
+  </table>
+  <p class="muted" style="margin-top:.18in">Beyond the plan we added: search and routes for all of Uttarakhand, AI photo check, a satellite slide check, and Waze-style driving features.</p>
+  <p class="num">2</p>
+</section>
+
+<!-- 3 Working components -->
+<section class="slide small">
+  <p class="kicker">Working components</p>
+  <h2>Twelve components, all running on the live app today</h2>
+  <div class="grid comp" style="grid-template-columns:repeat(4,1fr);gap:.14in">
+    <div class="card"><span class="chip live">Live</span><h3>Risk map + safe time</h3><p class="muted">Badrinath highway by stretch, now and next 6 h; "Safe to leave now" or the hour to wait for</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>Search anywhere</h3><p class="muted">Any village, town, temple or hotel in Uttarakhand (OpenStreetMap)</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>Safest vs fastest routes</h3><p class="muted">Up to 3 real roads, each coloured by risk every 10 km</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>Turn-by-turn navigation</h3><p class="muted">Voice turns, hazard ahead, auto-reroute around a closed road</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>Driver reports</h3><p class="muted">One tap while driving or full form with photo; live on every phone</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>AI landslide check</h3><p class="muted">NASA LHASA rain index + our model trained on real slides, re-scored every 30 min</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>Satellite view + slide check</h3><p class="muted">Sentinel-2 photo now vs a month ago; flags lost vegetation</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>AI photo check</h3><p class="muted">Gemini looks at a report photo: road blocked or open, and how sure</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>SOS</h3><p class="muted">GPS to the rescue room; falls back to SMS when there is no data; 112 and 108</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>Rescue dashboard</h3><p class="muted">Live map of SOS calls and road reports for SDRF</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>Glacial lakes</h3><p class="muted">Real lakes above the roads and how fast they grow</p></div>
+    <div class="card"><span class="chip live">Live</span><h3>Login + Road Rewards</h3><p class="muted">Google, email and phone OTP; guest mode; points per phone</p></div>
+  </div>
+  <p class="num">3</p>
+</section>
+
+<!-- 4 Screens -->
+<section class="slide">
+  <p class="kicker">The app on a real Android phone</p>
+  <h2 style="margin-bottom:.25in">Search → choose the safe road → drive → get warned</h2>
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div><div class="phone s"><img src="shots2/search.jpg"></div><p class="cap">1 · Search any place</p></div>
+    <div><div class="phone s"><img src="shots2/routes.jpg"></div><p class="cap">2 · Route risk, slope, slides</p></div>
+    <div><div class="phone s"><img src="shots2/nav.jpg"></div><p class="cap">3 · Navigate</p></div>
+    <div><div class="phone s"><img src="shots2/alert.jpg"></div><p class="cap">4 · Slide ahead: reroute</p></div>
+    <div><div class="phone s"><img src="shots2/quick.jpg"></div><p class="cap">5 · One-tap report</p></div>
+    <div><div class="phone s"><img src="shots2/rewards.jpg"></div><p class="cap">6 · Road Rewards</p></div>
+  </div>
+  <p class="src">Screens 1–4 and 6 from the phone recording (28 Nov, 8:30 AM); 5 from the live web app</p><p class="num">4</p>
+</section>
+
+<!-- 5 Risk engine v2 -->
+<section class="slide">
+  <p class="kicker">Risk engine v2 · all of Uttarakhand</p>
+  <h2>Same formula; now every part is measured</h2>
+  <div class="card" style="text-align:center;padding:20px">
+    <p style="font-family:Poppins;font-size:24pt;font-weight:600">score = rain × slope × history <span class="muted" style="font-size:16pt">for every 10 km of road</span></p>
+  </div>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:.28in">
+    <div class="card white"><div class="icon">R</div><h3>Rain</h3><p class="muted">Open-Meteo, last 24 h + next 6 h. All route options share one request, so we stay inside the free limit.</p></div>
+    <div class="card white"><div class="icon">S</div><h3>Slope 1.0 → 2.0</h3><p class="muted">Our own slope map of the state from 110 AWS terrain tiles. 10° or less = 1.0, 35°+ = 2.0. Works offline, no API call. Haridwar 1°, Joshimath 25°, Gaurikund 33°.</p></div>
+    <div class="card white"><div class="icon">H</div><h3>History 1.0 → 1.8</h3><p class="muted">100 placed landslides in Uttarakhand (NASA catalog 2007–2017) within 2 km of the road: +0.4 per slide per 10 km.</p></div>
+  </div>
+  <div class="card" style="margin-top:.28in;display:flex;gap:.4in;align-items:center">
+    <p style="font-family:Poppins;font-weight:600;font-size:15pt;white-space:nowrap">Example</p>
+    <p>Rishikesh → Kedarnath, safest route: 212 km, 5.3 h, <b>steepest hills 29°, 23 past slides near the road</b>. Under 2 mm/h of rain the 21 stretches score 9 to 25, not one flat number: the driver sees where the danger is.</p>
+  </div>
+  <p class="num">5</p>
+</section>
+
+<!-- 6 AI layer -->
+<section class="slide">
+  <p class="kicker">Predict · three independent checks</p>
+  <h2 style="margin-bottom:.22in">Rain model, satellite and photos agree before we cry wolf</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1.5in 1.5in;gap:.25in;align-items:start">
+    <div class="card"><h3>1 · AI landslide check</h3><p class="muted">NASA LHASA 7-day rain index + a model trained on real slides on this road (2010–2014). Tested on 2015–2017: <b>AUC 0.75</b>; "High" caught 7 of 24 slide days, "Medium or High" 14 of 24.</p>
+      <h3 style="margin-top:14px">2 · Satellite slide check</h3><p class="muted">ESA Sentinel-2 (10 m, new pass ~5 days). Greenness (NDVI) and bare ground in 1 km, a month ago vs now. A slide strips plants, so a jump in bare ground flags it. No GPU, no paid service.</p></div>
+    <div class="card"><h3>3 · AI photo check</h3><p class="muted">Every report photo goes to Google Gemini (free tier): "road blocked / open / unclear" with a confidence. If the AI is down, the report still goes out.</p>
+      <h3 style="margin-top:14px">Why three?</h3><p class="muted">Rain says <i>when</i>, satellite says <i>where</i> the ground moved, photos say <i>what drivers see now</i>. Each one is shown with its source, so a judge or driver can check it.</p></div>
+    <div><div class="phone s"><img src="shots2/safe-ai.jpg"></div><p class="cap">AI check card</p></div>
+    <div><div class="phone s"><img src="shots2/satellite.jpg"></div><p class="cap">Satellite check</p></div>
+  </div>
+  <p class="src">LHASA: Kirschbaum &amp; Stanley 2018 (NASA). Satellite via Element84 Earth Search + TiTiler.</p><p class="num">6</p>
+</section>
+
+<!-- 7 Trust -->
+<section class="slide">
+  <p class="kicker">Crowd reports you can trust</p>
+  <h2>One prank must not close a highway</h2>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="card"><div class="icon">2</div><h3>Two different phones</h3><p class="muted">A road closes only when 2 phones report it within 1 km in 12 h. Each phone has a random id, nothing personal.</p></div>
+    <div class="card"><div class="icon">?</div><h3>"Still there?"</h3><p class="muted">Waze-style: drivers passing a report get one tap "Yes" or "No, road clear". "Clear" reopens the road for everyone.</p></div>
+    <div class="card"><div class="icon">AI</div><h3>Photo check</h3><p class="muted">The AI verdict is shown next to the report: "road looks blocked (90%)".</p></div>
+    <div class="card"><div class="icon">+</div><h3>Rewards for truth</h3><p class="muted">A report confirmed by another driver earns 3× the points, so true reports pay more than fake ones.</p></div>
+  </div>
+  <div class="card white" style="margin-top:.3in"><p><b>Reports work anywhere in the state.</b> On a watched highway they attach to the stretch; elsewhere they show by place name ("Near Mussoorie") and still reach every phone instantly.</p></div>
+  <p class="num">7</p>
+</section>
+
+<!-- 8 Usability -->
+<section class="slide small">
+  <p class="kicker">Usability · built for a taxi driver with one hand</p>
+  <h2 style="margin-bottom:.22in">What we tested on a real phone, and what we found</h2>
+  <div class="grid" style="grid-template-columns:1.1fr 1fr;gap:.35in">
+    <div>
+      <h3>Design choices</h3>
+      <ul class="tick" style="margin-top:6px">
+        <li>Report in 2 taps while driving: 6 big round icons, sent from the car's position</li>
+        <li>Screen stays on during a trip, like Google Maps</li>
+        <li>Phone vibrates on every hazard alert, longer for a closed road</li>
+        <li>Voice: "go to Badrinath", "start", "report", "SOS"</li>
+        <li>Every colour also in words ("High risk"); plain English; 48 px+ buttons</li>
+        <li>Offline: last map kept on the phone; SOS falls back to SMS</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Tested on Android (28 Nov)</h3>
+      <table style="margin-top:6px">
+        <tr><td>Screen-on during trip</td><td><span class="chip live">Pass</span> wake lock seen in Android power log</td></tr>
+        <tr><td>Vibration on alert</td><td><span class="chip live">Pass</span> vibrate call seen in system log</td></tr>
+        <tr><td>Search any place</td><td><span class="chip live">Pass</span> ~5 s first time, instant after</td></tr>
+        <tr><td>Route + slide alert</td><td><span class="chip live">Pass</span> reroute offered, 12 s auto-pick</td></tr>
+        <tr><td>App stuck on logo</td><td><span class="chip key">Found, fixed</span> now opens in ≤ 8 s</td></tr>
+        <tr><td>Map zooms out when keyboard opens</td><td><span class="chip todo">Open</span> fixes itself on pick</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:.3in;display:flex;gap:.4in;align-items:center">
+    <p style="font-family:Poppins;font-weight:600;font-size:15pt;white-space:nowrap">Next test</p>
+    <p>Before the final: two taxi drivers on the Rishikesh road, one hand, no help from us. We measure seconds to send a report, alerts they missed, and words they did not understand.</p>
+  </div>
+  <p class="num">8</p>
+</section>
+
+<!-- 9 Blockers -->
+<section class="slide small">
+  <p class="kicker">Blockers we hit, and how we handled them</p>
+  <h2 style="margin-bottom:.2in">Every blocker became a design rule</h2>
+  <table>
+    <tr><th style="width:30%">Blocker</th><th style="width:38%">What we did</th><th>Rule we kept</th></tr>
+    <tr><td>Google News did not answer Vercel's build server; the whole deploy failed</td><td>News and AI check return "unavailable" and retry in minutes instead of breaking the page</td><td>No outside service can take the app down</td></tr>
+    <tr><td>Open-Meteo rate limit (429) when we fetched slope for every route</td><td>Built our own slope map of the state (131 KB) and merged rain requests</td><td>Static facts live in the app, not behind an API</td></tr>
+    <tr><td>NASA's live LHASA servers returned 404</td><td>Re-implemented the published LHASA method and trained our own model on NASA slides</td><td>Use the science, not one server</td></tr>
+    <tr><td>App stuck on the splash logo on phones</td><td>Offline cache was breaking the video; skipped video chunks, added an 8 s exit</td><td>A driver is never trapped on a screen</td></tr>
+    <tr><td>Google login ended in a blank browser tab in the Android app</td><td>Bridge page that hands the login back to the app by deep link</td><td>Test every flow on the phone, not only the browser</td></tr>
+    <tr><td>Paid AI API for photo checks</td><td>Moved to Google Gemini free tier; report still sent if AI is off</td><td>Zero running cost for the prototype</td></tr>
+    <tr><td>Public router gives only one route</td><td>Ask again with a third of the road virtually closed to find the other valleys</td><td>Always show a real alternative</td></tr>
+    <tr><td>Prank or wrong reports</td><td>2 different phones, "still there?", AI photo check, rewards for confirmed reports</td><td>Trust needs more than one voice</td></tr>
+  </table>
+  <p class="num">9</p>
+</section>
+
+<!-- 10 Next -->
+<section class="slide">
+  <p class="kicker">Honest limits and next steps</p>
+  <h2>What is left before the 3 PM final, and after</h2>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card"><p class="pill" style="background:var(--red);color:#fff">Before 3 PM</p><ul class="tick" style="margin-top:10px"><li>Road test on 2 phones, offline SOS by SMS</li><li>Voice "go to" for any place, not only 23 towns</li><li>Fix keyboard zoom glitch</li><li>Rehearse demo 3 times</li></ul></div>
+    <div class="card"><p class="pill" style="background:var(--orange)">Next</p><ul class="tick" style="margin-top:10px"><li>Alerts with the app closed (Firebase push)</li><li>AI risk for every road, not only NH-7</li><li>Train on Geological Survey of India slide data</li></ul></div>
+    <div class="card"><p class="pill" style="background:var(--green);color:#fff">After funding</p><ul class="tick" style="margin-top:10px"><li>Apple login, street-level photos</li><li>Own map and image servers (no free demo servers)</li><li>Pilot with taxi unions and SDRF</li></ul></div>
+  </div>
+  <p class="muted" style="margin-top:.3in">Known limits we tell users: 10 m satellite pixels miss small rockfalls; clouds hide the ground in monsoon; the risk score is a guide, not a guarantee.</p>
+  <p class="num">10</p>
+</section>
+
+<!-- 11 Close -->
+<section class="slide dark" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+  <img src="../../public/logo-mark.png" style="width:1.6in;border-radius:24px;background:#fff;padding:.1in">
+  <h1 style="font-size:44pt;margin-top:.3in">Try it now</h1>
+  <p style="font-size:20pt;margin-top:10px;font-family:Poppins;font-weight:600">himrakshak.vercel.app</p>
+  <p style="font-size:15pt;margin-top:8px;opacity:.9">Live demo on the Android app · backup video ready</p>
+  <p style="font-size:13pt;margin-top:24px;opacity:.8">github.com/Surajrana-git/himrakshak · Team Elite Zero Division</p>
+</section>
+
+</body>
+</html>
