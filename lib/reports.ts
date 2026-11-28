@@ -75,7 +75,7 @@ export async function createReport(report: NewReport): Promise<void> {
 
   let photo_url: string | null = null;
   if (report.photo) {
-    if (report.photo.size > MAX_PHOTO_BYTES) throw new Error("Photo 5 MB se chhoti honi chahiye");
+    if (report.photo.size > MAX_PHOTO_BYTES) throw new Error("The photo must be under 5 MB");
     const ext = report.photo.name.split(".").pop() || "jpg";
     const path = `${crypto.randomUUID()}.${ext}`;
     const upload = await supabase.storage.from("report-photos").upload(path, report.photo);

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import RiskMap, { type BaseMap, type MapSegment } from "@/components/RiskMap";
 import ReportForm from "@/components/ReportForm";
+import QuickReport from "@/components/QuickReport";
+import StillThere from "@/components/StillThere";
 import SafeTimeCard from "@/components/SafeTimeCard";
 import TripTimeline from "@/components/TripTimeline";
 import LiveReports from "@/components/LiveReports";
@@ -37,7 +39,8 @@ import { useSavedPlaces } from "@/lib/saved-places";
 import { canListen, listen, parseCommand, say } from "@/lib/voice";
 import lakesData from "@/data/glacial-lakes.json";
 import { nearestPlace, useTrip, type Hazard } from "@/lib/trip";
-import { confirmedBlocks, recentJams, useReports } from "@/lib/reports";
+import { confirmedBlocks, createReport, recentJams, REPORT_KINDS, useReports, type Report } from "@/lib/reports";
+import { distanceKm } from "@/lib/geo";
 import { supabase } from "@/lib/supabase";
 import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
 import type { RainSeries } from "@/lib/weather";
@@ -53,6 +56,8 @@ type Props = { route: typeof route; rain: RainSeries; news: SlideNewsFeed | null
 export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const reports = useReports();
   const [reporting, setReporting] = useState(false);
+  const [quickReport, setQuickReport] = useState(false);
+  const [asked, setAsked] = useState<Set<string>>(new Set());
   const [storm, setStorm] = useState({ mmPerHour: 0, hours: 3 });
   const [focusId, setFocusId] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -106,7 +111,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const safeHour = safeDepartureHour(series, rain.nowIndex, route.segments);
   const safeTime = safeHour === null ? null : rain.times[rain.nowIndex + safeHour];
   const isTomorrow = safeTime !== null && safeTime.slice(0, 10) !== rain.times[rain.nowIndex].slice(0, 10);
-  const safeClock = safeTime === null ? null : `${isTomorrow ? "Kal " : ""}${safeTime.slice(11, 16)}`;
+  const safeClock = safeTime === null ? null : `${isTomorrow ? "Tomorrow " : ""}${safeTime.slice(11, 16)}`;
 
   // Closed spots: confirmed by drivers, plus the one picked in the demo control.
   const closures = useMemo(() => {
@@ -169,6 +174,35 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
     return [];
   }, [trip.stage, trip.active, trip.options, trip.selected]);
   const stopPlace = trip.car ? nearestPlace(trip.car) : null;
+
+  // A driver report the car is passing right now, not yet asked about (Waze's "Still there?").
+  const car = trip.stage === "nav" && !trip.arrived && !trip.alert ? trip.car : null;
+  const passing = car ? reports.find((r) => isAskable(r) && !asked.has(r.id) && distanceKm(car.lat, car.lon, r.lat, r.lon) < PASSING_KM) : undefined;
+  function answerPassing(report: Report, stillThere: boolean | null) {
+    setAsked((ids) => new Set(ids).add(report.id));
+    if (stillThere === null) return;
+    const kind = stillThere ? report.kind : "clear";
+    createReport({ segment_id: report.segment_id, kind, note: null, lat: report.lat, lon: report.lon, photo: null })
+      .then(() => note(stillThere ? "Thanks! Other drivers are warned." : "Thanks! Marked as clear for other drivers."))
+      .catch((e: Error) => note(e.message));
+  }
+
+  // Like Google Maps: the screen stays on while navigating, so the driver never has to unlock it.
+  const navigating = trip.stage === "nav";
+  useEffect(() => {
+    if (!navigating || !("wakeLock" in navigator)) return;
+    let lock: WakeLockSentinel | null = null;
+    const acquire = () => {
+      if (document.visibilityState === "visible") navigator.wakeLock.request("screen").then((l) => (lock = l)).catch(() => {});
+    };
+    acquire();
+    // The browser drops the lock when the app goes to the background; take it again on return.
+    document.addEventListener("visibilitychange", acquire);
+    return () => {
+      document.removeEventListener("visibilitychange", acquire);
+      lock?.release();
+    };
+  }, [navigating]);
 
   useEffect(() => {
     if (!closureKey) return;
@@ -237,7 +271,8 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
     } else if (cmd.type === "sos") {
       router.push("/sos");
     } else if (cmd.type === "report") {
-      setReporting(true);
+      if (trip.stage === "nav" && trip.car) setQuickReport(true);
+      else setReporting(true);
       say("What do you see on the road?");
     } else if (cmd.type === "stop") {
       if (trip.stage === "idle") return say("No trip is running");
@@ -356,6 +391,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
             </span>
           </div>
         )}
+        {passing && <StillThere key={passing.id} report={passing} onAnswer={(stillThere) => answerPassing(passing, stillThere)} />}
         {!online && (
           <p className="pointer-events-auto rounded-full bg-ink px-4 py-2 text-sm text-snow shadow-lg">
             Offline: showing the last saved data
@@ -475,7 +511,8 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
               halted={trip.halted}
               stopPlace={stopPlace ? stopPlace.name : "the last town"}
               onDemo={trip.demoHazard}
-              onReport={supabase ? () => setReporting(true) : null}
+              onReport={supabase ? () => (trip.car ? setQuickReport(true) : setReporting(true)) : null}
+              speedKmh={trip.speedKmh}
               onStop={trip.close}
             />
           )}
@@ -615,9 +652,31 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
       {layersOpen && <LayersMenu base={baseMap} data={layer} onBase={setBaseMap} onData={setLayer} onClose={() => setLayersOpen(false)} />}
       {satellite && <SatelliteView {...satellite} onClose={() => setSatellite(null)} />}
       <PermissionPrompt />
+      {quickReport && trip.car && (
+        <QuickReport
+          at={trip.car}
+          segments={route.segments}
+          onSent={(label) => {
+            setQuickReport(false);
+            note(`Report sent: ${label}. Thank you!`);
+          }}
+          onMore={() => {
+            setQuickReport(false);
+            setReporting(true);
+          }}
+          onClose={() => setQuickReport(false)}
+        />
+      )}
       {reporting && <ReportForm segments={route.segments} onClose={() => setReporting(false)} />}
     </div>
   );
+}
+
+const PASSING_KM = 0.5;
+// Only hazards (not "Road clear"), at least 2 min old (likely not this driver's own) and under 12 h old.
+function isAskable(r: Report): boolean {
+  const age = Date.now() - new Date(r.created_at).getTime();
+  return r.kind !== "clear" && r.kind in REPORT_KINDS && age > 2 * 60_000 && age < 12 * 3600_000;
 }
 
 const HAZARD_ICON = { jam: "jam", ai: "landslide", closure: "road_blocked" } as const;

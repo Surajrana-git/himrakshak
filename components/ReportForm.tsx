@@ -60,21 +60,23 @@ export default function ReportForm({ segments, onClose }: Props) {
       <form
         onSubmit={submit}
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[92dvh] w-full max-w-lg flex-col gap-5 overflow-y-auto bg-snow p-5"
+        className="animate-sheet flex max-h-[92dvh] w-full max-w-lg flex-col gap-5 overflow-y-auto rounded-t-3xl bg-snow p-5 pb-[max(20px,env(safe-area-inset-bottom))] md:rounded-3xl"
         aria-label="Road report"
       >
         <header className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="font-display text-3xl">Report a road problem</h2>
+            <h2 className="font-display text-2xl font-bold">Report a road problem</h2>
           </div>
-          <button type="button" onClick={onClose} className="min-h-12 px-3 text-lg" aria-label="Close">
-            ✕
+          <button type="button" onClick={onClose} aria-label="Close" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink/10">
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
           </button>
         </header>
 
         <fieldset className="flex flex-col gap-2">
           <legend className="font-semibold">Where</legend>
-          <button type="button" onClick={useMyLocation} className="min-h-12 border-2 border-ink px-4 font-semibold">
+          <button type="button" onClick={useMyLocation} className="min-h-12 rounded-full border-2 border-green px-4 font-semibold text-green-dark">
             Use my location
           </button>
           {gpsNote && <p className="text-sm text-muted">{gpsNote}</p>}
@@ -84,7 +86,7 @@ export default function ReportForm({ segments, onClose }: Props) {
               setSegmentId(e.target.value);
               setGps(null);
             }}
-            className="min-h-12 border-2 border-ink/30 bg-white px-3"
+            className="min-h-12 rounded-full border-2 border-ink/20 bg-white px-4"
           >
             {segments.map((s) => (
               <option key={s.id} value={s.id}>
@@ -139,7 +141,7 @@ export default function ReportForm({ segments, onClose }: Props) {
             maxLength={280}
             rows={2}
             placeholder="E.g. near km 42, one lane open"
-            className="border-2 border-ink/30 bg-white p-3"
+            className="rounded-2xl border-2 border-ink/20 bg-white p-3"
           />
         </label>
 
@@ -148,7 +150,7 @@ export default function ReportForm({ segments, onClose }: Props) {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="min-h-14 bg-ink px-4 font-display text-xl tracking-wide text-snow disabled:opacity-60"
+          className="min-h-14 rounded-full bg-green px-4 font-display text-xl font-semibold text-white disabled:opacity-60"
         >
           {status === "sending" ? "Sending…" : "Send report"}
         </button>

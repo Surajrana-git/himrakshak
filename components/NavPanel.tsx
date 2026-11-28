@@ -11,6 +11,7 @@ type Props = {
   stopPlace: string;
   onDemo: (kind: "jam" | "ai" | "closure") => void;
   onReport: (() => void) | null;
+  speedKmh: number | null;
   onStop: () => void;
 };
 
@@ -33,7 +34,7 @@ function duration(hours: number): string {
 }
 
 // Waze-style driving bar: round report button left, arrival time in the middle, stop right.
-export default function NavPanel({ destination, remainingKm, remainingHours, gps, arrived, halted, stopPlace, onDemo, onReport, onStop }: Props) {
+export default function NavPanel({ destination, remainingKm, remainingHours, gps, arrived, halted, stopPlace, onDemo, onReport, speedKmh, onStop }: Props) {
   const now = useSyncExternalStore(subscribeClock, clockNow, () => 0);
 
   if (arrived) {
@@ -90,7 +91,7 @@ export default function NavPanel({ destination, remainingKm, remainingHours, gps
       </div>
 
       <p className={`self-center rounded-full px-3 py-1 text-xs font-semibold ${gps ? "bg-teal text-ink" : "border-2 border-dashed border-ink/40"}`}>
-        {gps ? "GPS · live location" : "Demo drive (simulation, not live GPS)"}
+        {gps ? `GPS · live location${speedKmh === null ? "" : ` · ${speedKmh} km/h`}` : "Demo drive (simulation, not live GPS)"}
       </p>
 
       {!halted && (

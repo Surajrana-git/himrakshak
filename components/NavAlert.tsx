@@ -45,6 +45,8 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
   }
 
   useEffect(() => {
+    // A buzz the driver feels even with the sound off: longer for a closed road.
+    navigator.vibrate?.(kind === "closure" ? [400, 150, 400, 150, 400] : [250, 120, 250]);
     speak(
       kind === "jam"
         ? `Traffic jam ${alert.kmAhead} kilometres ahead.`

@@ -115,6 +115,7 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
   const [active, setActive] = useState<RouteOption | null>(null);
   const [progressKm, setProgressKm] = useState(0);
   const [gps, setGps] = useState(false);
+  const [speedKmh, setSpeedKmh] = useState<number | null>(null);
   const [halted, setHalted] = useState(false);
   const [demoHazards, setDemoHazards] = useState<Hazard[]>([]);
   const [handled, setHandled] = useState<Set<string>>(new Set());
@@ -188,6 +189,8 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
         const near = nearestIndex(active.coordinates, { lat: pos.coords.latitude, lon: pos.coords.longitude });
         if (near.km > GPS_ON_ROUTE_KM) return;
         setGps(true);
+        // Not every phone reports speed; then the panel just leaves it out.
+        setSpeedKmh(pos.coords.speed === null ? null : Math.round(pos.coords.speed * 3.6));
         setProgressKm(cum[near.index]);
       },
       // No permission or no fix: the demo drive simply keeps going.
@@ -222,6 +225,7 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
     setActive(null);
     setProgressKm(0);
     setGps(false);
+    setSpeedKmh(null);
     setHalted(false);
     setDemoHazards([]);
     setHandled(new Set());
@@ -239,6 +243,7 @@ export function useTrip(knownHazards: Hazard[], storm: Storm) {
     active,
     car,
     gps,
+    speedKmh: gps ? speedKmh : null,
     arrived,
     halted,
     remainingKm: Math.max(0, Math.round(totalKm - progressKm)),
