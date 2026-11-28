@@ -112,7 +112,7 @@ public class SosNativePlugin extends Plugin {
     }
 
     // For phones WITHOUT Himrakshak: the phone's Bluetooth name becomes "SOS HELP call 98…" and the
-    // phone turns visible for 5 minutes, so anyone who opens Bluetooth → Pair new device sees it.
+    // phone turns visible for 1 hour (Android's maximum), so anyone who opens Bluetooth → Pair new device sees it.
     // The real name is kept and put back when the SOS stops.
     private void showHelpName(String helpName) {
         android.bluetooth.BluetoothManager bm = getContext().getSystemService(android.bluetooth.BluetoothManager.class);
@@ -124,7 +124,7 @@ public class SosNativePlugin extends Plugin {
             a.setName(helpName.length() > 40 ? helpName.substring(0, 40) : helpName);
             if (getActivity() != null) {
                 getActivity().startActivity(new Intent(android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
-                        .putExtra(android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300));
+                        .putExtra(android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 3600)); // Android allows 1 hour at most
             }
         } catch (SecurityException | android.content.ActivityNotFoundException ignored) {
         }
