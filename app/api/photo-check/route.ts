@@ -14,6 +14,6 @@ export async function POST(request: Request) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("photo check failed:", message);
     if (message === "busy") return Response.json({ error: "AI is busy, try again in a minute" }, { status: 429 });
-    return Response.json({ error: "AI check failed" }, { status: 502 });
+    return Response.json({ error: "AI check failed", detail: message }, { status: 502 });
   }
 }

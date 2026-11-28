@@ -58,7 +58,10 @@ export async function checkRoadPhoto(photoUrl: string): Promise<PhotoVerdict | n
     }),
   });
   if (res.status === 429) throw new Error("busy");
-  if (!res.ok) throw new Error(`Gemini returned ${res.status}`);
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+    throw new Error(`Gemini returned ${res.status}: ${body?.error?.message?.slice(0, 200) ?? "no details"}`);
+  }
   const body: GeminiResponse = await res.json();
   const text = body.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) return { verdict: "unclear", confidence: 0, reason: "The AI could not check this photo." };
