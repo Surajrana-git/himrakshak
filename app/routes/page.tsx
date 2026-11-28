@@ -1,4 +1,5 @@
 import Screen, { MenuRow } from "@/components/Screen";
+import HillsArt from "@/components/HillsArt";
 
 export default function RoutesPage() {
   return (
@@ -6,6 +7,7 @@ export default function RoutesPage() {
       <MenuRow icon="plus" title="Create Route" subtitle="Plan a new route." href="/?plan" />
       <MenuRow icon="map" title="My Routes" subtitle="View saved routes." href="/routes/mine" />
       <MenuRow icon="car" title="My Vehicles" subtitle="Mileage and fuel price for trip cost." href="/vehicles" />
+      <HillsArt />
     </Screen>
   );
 }

@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Rescue room · Himrakshak" };
 
 export default function DashboardPage() {
   return (
-    <main className="h-dvh overflow-hidden bg-ink text-snow">
+    <main className="min-h-dvh bg-ink text-snow md:h-dvh md:overflow-hidden">
       <RescueDashboard />
     </main>
   );

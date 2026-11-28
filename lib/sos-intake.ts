@@ -10,7 +10,7 @@ export async function saveSosPacket(text: string, via: "app" | "sms" | "mesh"): 
   const p = parsePacket(text);
   if (!p) return { ok: false, status: 400, message: "Not an SOS packet" };
   if (!supabase) return { ok: false, status: 503, message: "Server not configured" };
-  const message = `${HAZARD_WORDS[p.hazard]} · sent ${new Date(p.ts * 1000).toISOString()} · via ${via}`;
+  const message = `${HAZARD_WORDS[p.hazard]} · via ${via}`;
   const { error } = await supabase.from("sos").insert({ lat: p.lat, lon: p.lon, accuracy_m: null, message, packet_id: p.id, via, hazard: p.hazard });
   if (!error) {
     // Every Himrakshak phone hears about it: someone nearby may reach them first.
