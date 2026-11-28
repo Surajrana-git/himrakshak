@@ -18,7 +18,7 @@ export default function GeoCamera({ onUse, onClose }: Props) {
   const [fix, setFix] = useState<Fix | null>(null);
   const [place, setPlace] = useState<PlaceName | null>(null);
   const [images, setImages] = useState<StampImages>({ tiles: [], logo: null });
-  const [now, setNow] = useState(() => new Date());
+  const [now, setNow] = useState<Date | null>(null); // set by the clock tick, never read at build time
   const [aspect, setAspect] = useState(3 / 4);
   const [shot, setShot] = useState<{ file: File; url: string; fix: Fix } | null>(null);
 
@@ -75,7 +75,7 @@ export default function GeoCamera({ onUse, onClose }: Props) {
   // Redraw the live stamp over the preview.
   useEffect(() => {
     const canvas = overlayRef.current;
-    if (!canvas || !fix) return;
+    if (!canvas || !fix || !now) return;
     canvas.width = canvas.clientWidth * devicePixelRatio;
     canvas.height = canvas.clientHeight * devicePixelRatio;
     const ctx = canvas.getContext("2d")!;

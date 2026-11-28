@@ -5,8 +5,9 @@ import GeoCamera from "@/components/GeoCamera";
 import Icon from "@/components/Icon";
 
 // Up to `max` photos, each taken in the Himrakshak Geo Cam (place, GPS and time printed on it).
-export default function PhotoSlots({ max, photos, onChange }: { max: number; photos: File[]; onChange: (photos: File[]) => void }) {
-  const [camera, setCamera] = useState(false);
+// openOnStart: the Map Camera screen goes straight into the camera.
+export default function PhotoSlots({ max, photos, onChange, openOnStart = false }: { max: number; photos: File[]; onChange: (photos: File[]) => void; openOnStart?: boolean }) {
+  const [camera, setCamera] = useState(openOnStart);
   const [urls, setUrls] = useState<string[]>([]);
 
   return (

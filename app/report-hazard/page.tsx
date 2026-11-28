@@ -14,6 +14,7 @@ export default function ReportHazardPage() {
         detailsLabel: "Add Details",
         detailsPlaceholder: "Describe the hazard (e.g., one lane open, big rocks on the road)",
         detailsRequired: true,
+        cameraFirst: true,
         submit: "Submit Report",
         done: "Your hazard report is live. Drivers near it are warned.",
       }}

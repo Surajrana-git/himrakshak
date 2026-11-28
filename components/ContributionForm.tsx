@@ -21,6 +21,7 @@ type Config = {
   detailsPlaceholder: string;
   detailsRequired: boolean;
   visibility?: boolean; // Post on Map only
+  cameraFirst?: boolean; // Map Camera and Report Hazard open the Geo Cam straight away
   submit: string;
   done: string;
 };
@@ -95,6 +96,12 @@ export default function ContributionForm({ config }: { config: Config }) {
     );
   }
 
+  const photoCard = (
+    <Card title="Photos · Himrakshak Geo Cam" hint={`Up to ${config.maxPhotos} photos. Place, GPS and time are printed on each one.`}>
+      <PhotoSlots max={config.maxPhotos} photos={photos} onChange={setPhotos} openOnStart={config.cameraFirst} />
+    </Card>
+  );
+
   return (
     <Screen
       icon={config.icon}
@@ -110,6 +117,7 @@ export default function ContributionForm({ config }: { config: Config }) {
         </>
       }
     >
+      {config.cameraFirst && photoCard}
       <Card title={`${config.categoryLabel} *`}>
         <Chips options={config.categories} value={category} onChange={setCategory} label={config.categoryLabel} />
       </Card>
@@ -132,9 +140,7 @@ export default function ContributionForm({ config }: { config: Config }) {
           </p>
         )}
       </Card>
-      <Card title={`Add Photos (optional)`} hint={`Up to ${config.maxPhotos} photos, taken with the Himrakshak Geo Cam`}>
-        <PhotoSlots max={config.maxPhotos} photos={photos} onChange={setPhotos} />
-      </Card>
+      {!config.cameraFirst && photoCard}
       <Card title={`${config.detailsLabel}${config.detailsRequired ? " *" : " (optional)"}`}>
         <textarea
           value={details}
