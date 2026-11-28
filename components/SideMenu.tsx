@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
+import { useRewards } from "@/lib/rewards";
 
 type Props = { user: User | null; onLakes: () => void; onReport: () => void; onClose: () => void };
 
@@ -11,6 +12,7 @@ const ROW = "flex min-h-13 items-center gap-3 rounded-2xl px-3 font-semibold hov
 // Hamburger menu: account, the safety tools, and the legal pages.
 export default function SideMenu({ user, onLakes, onReport, onClose }: Props) {
   const name = (user?.user_metadata?.full_name as string | undefined) ?? user?.email;
+  const rewards = useRewards();
   return (
     <div className="animate-fade fixed inset-0 z-40 bg-ink/40" onClick={onClose}>
       <nav
@@ -24,6 +26,22 @@ export default function SideMenu({ user, onLakes, onReport, onClose }: Props) {
           <p className="text-center text-sm text-muted">Predict. Avoid. Survive.</p>
           <p className="mt-2 truncate text-sm font-semibold">{user ? name : "Guest (not signed in)"}</p>
         </div>
+        <section aria-label="Road Rewards" className="mb-2 rounded-2xl border-2 border-green/30 p-3">
+          <p className="font-display text-xs font-semibold tracking-[0.2em] text-green uppercase">Road Rewards</p>
+          {rewards ? (
+            <>
+              <p className="font-display text-2xl font-bold">
+                {rewards.points} points · {rewards.level}
+              </p>
+              <p className="text-sm text-muted">
+                {rewards.reports} reports, {rewards.confirmed} confirmed by other drivers
+                {rewards.next !== null && ` · ${rewards.next - rewards.points} to the next level`}
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted">Send a road report to earn points. 10 per report, 20 more when another driver confirms it.</p>
+          )}
+        </section>
         <Link href="/sos" className={`${ROW} text-danger`}>
           SOS emergency help
         </Link>
