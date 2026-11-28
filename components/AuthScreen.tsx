@@ -79,14 +79,6 @@ function GoogleMark() {
   );
 }
 
-function AppleMark() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
-      <path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9a4.8 4.8 0 0 0-3.8-2c-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9a5 5 0 0 0-4.2 2.6c-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6s1.8-.8 3.3-.8 2 .8 3.3.8 2.2-1.3 3-2.5a10 10 0 0 0 1.4-2.8 4.3 4.3 0 0 1-2.4-4.2zM13.9 5a4.3 4.3 0 0 0 1-3.2 4.5 4.5 0 0 0-2.9 1.5 4.2 4.2 0 0 0-1 3.1A3.7 3.7 0 0 0 13.9 5z" />
-    </svg>
-  );
-}
-
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Sign in / create account (Supabase Auth). Social buttons only work once switched on in Supabase.
@@ -198,12 +190,8 @@ export default function AuthScreen() {
     }
   }
 
-  async function social(provider: "google" | "apple") {
-    if (!providers[provider]) {
-      return setSoonNote(
-        `${provider === "apple" ? "Apple ID" : "Google"} sign-in is coming soon. For now, sign in with ${provider === "apple" ? "Google (Gmail)" : "email"} or your mobile number.`,
-      );
-    }
+  async function social(provider: "google") {
+    if (!providers[provider]) return setSoonNote("Google sign-in is coming soon. For now, sign in with email or your mobile number.");
     const error = await socialSignIn(provider);
     if (error) setMessage({ text: error, ok: false });
   }
@@ -320,19 +308,14 @@ export default function AuthScreen() {
           {create ? "or sign up with" : "or continue with"}
           <span className="h-px flex-1 bg-ink/15" />
         </div>
-        <div className={create ? "grid grid-cols-2 gap-3" : "flex flex-col gap-3"}>
-          {(["google", "apple"] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => social(p)}
-              className="flex min-h-13 items-center justify-center gap-2 rounded-full border-2 border-green bg-white font-semibold text-green"
-            >
-              {p === "google" ? <GoogleMark /> : <AppleMark />}
-              {create ? (p === "google" ? "Google" : "Apple") : `Continue with ${p === "google" ? "Google" : "Apple"}`}
-              {!providers[p] && <span className="rounded-full bg-mint px-2 py-0.5 text-xs text-green-dark">Coming soon</span>}
-            </button>
-          ))}
-        </div>
+        <button
+          onClick={() => social("google")}
+          className={`flex min-h-13 items-center justify-center gap-2 rounded-full border-2 border-green bg-white font-semibold text-green ${create ? "mx-auto w-40" : ""}`}
+        >
+          <GoogleMark />
+          {create ? "Google" : "Continue with Google"}
+          {!providers.google && <span className="rounded-full bg-mint px-2 py-0.5 text-xs text-green-dark">Coming soon</span>}
+        </button>
         {soonNote && (
           <p role="status" className="animate-fade rounded-2xl bg-mint p-3 text-center text-sm text-green-dark">
             {soonNote}
