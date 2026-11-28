@@ -1,69 +1,142 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import { useRewards } from "@/lib/rewards";
+import { useSavedRoutes } from "@/lib/saved-routes";
+import { getGpsFix } from "@/lib/sos";
+import Icon, { type IconName } from "@/components/Icon";
+import type { PlaceName } from "@/lib/geocode";
 
-type Props = { user: User | null; onLakes: () => void; onReport: () => void; onClose: () => void };
+type Props = { user: User | null; savedCount: number; onSaves: () => void; onLakes: () => void; onClose: () => void };
 
-const ROW = "flex min-h-13 items-center gap-3 rounded-2xl px-3 font-semibold hover:bg-mint";
+type Row = { icon: IconName; label: string; href?: string; onClick?: () => void };
 
-// Hamburger menu: account, the safety tools, and the legal pages.
-export default function SideMenu({ user, onLakes, onReport, onClose }: Props) {
-  const name = (user?.user_metadata?.full_name as string | undefined) ?? user?.email;
+function Section({ title, rows }: { title: string; rows: Row[] }) {
+  return (
+    <section className="mt-3">
+      <h2 className="px-3 pb-1 text-sm font-semibold text-muted">{title}</h2>
+      {rows.map((r) => {
+        const body = (
+          <>
+            <Icon name={r.icon} className="h-5 w-5 text-ink" />
+            <span className="flex-1 text-left">{r.label}</span>
+            <Icon name="chevron" className="h-4 w-4 text-muted" />
+          </>
+        );
+        const cls = "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 font-medium hover:bg-mint active:bg-mint";
+        return r.href ? (
+          <Link key={r.label} href={r.href} className={cls}>
+            {body}
+          </Link>
+        ) : (
+          <button key={r.label} onClick={r.onClick} className={cls}>
+            {body}
+          </button>
+        );
+      })}
+    </section>
+  );
+}
+
+// Hamburger menu, as in the design: profile with counts, then navigation, safety tools and settings.
+export default function SideMenu({ user, savedCount, onSaves, onLakes, onClose }: Props) {
+  const name = (user?.user_metadata?.full_name as string | undefined) ?? user?.email ?? "Guest";
+  const verified = Boolean(user?.email_confirmed_at || user?.phone_confirmed_at);
   const rewards = useRewards();
+  const { routes } = useSavedRoutes(user?.id ?? null);
+  const [where, setWhere] = useState<string | null>(null);
+
+  useEffect(() => {
+    getGpsFix()
+      .then((f) => fetch(`/api/places?lat=${f.lat.toFixed(3)}&lon=${f.lon.toFixed(3)}`))
+      .then((r) => (r.ok ? r.json() : { place: null }))
+      .then((b: { place: PlaceName | null }) => setWhere(b.place?.title ?? null))
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="animate-fade fixed inset-0 z-40 bg-ink/40" onClick={onClose}>
       <nav
         aria-label="Menu"
         onClick={(e) => e.stopPropagation()}
-        className="flex h-full w-[82%] max-w-xs flex-col gap-1 overflow-y-auto bg-white p-4 pt-[max(20px,env(safe-area-inset-top))] shadow-2xl"
+        className="flex h-full w-[86%] max-w-sm flex-col overflow-y-auto bg-white p-4 pt-[max(20px,env(safe-area-inset-top))] shadow-2xl"
       >
-        <div className="mb-3 rounded-2xl bg-mint p-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-full.png" alt="Himrakshak" className="mx-auto mb-2 h-24 w-24 rounded-2xl bg-white object-contain" />
-          <p className="text-center text-sm text-muted">Predict. Avoid. Survive.</p>
-          <p className="mt-2 truncate text-sm font-semibold">{user ? name : "Guest (not signed in)"}</p>
+        <div className="flex items-center justify-between">
+          <p className="font-display text-2xl font-bold tracking-wide">HIMRAKSHAK</p>
+          <Link href="/sos" className="flex flex-col items-center text-danger">
+            <span className="rounded-full border-2 border-danger px-2 font-display text-sm font-bold">SOS</span>
+            <span className="text-[10px] text-muted">Only in an emergency</span>
+          </Link>
         </div>
-        <section aria-label="Road Rewards" className="mb-2 rounded-2xl border-2 border-green/30 p-3">
-          <p className="font-display text-xs font-semibold tracking-[0.2em] text-green uppercase">Road Rewards</p>
-          {rewards ? (
-            <>
-              <p className="font-display text-2xl font-bold">
-                {rewards.points} points · {rewards.level}
-              </p>
-              <p className="text-sm text-muted">
-                {rewards.reports} reports, {rewards.confirmed} confirmed by other drivers
-                {rewards.next !== null && ` · ${rewards.next - rewards.points} to the next level`}
-              </p>
-            </>
-          ) : (
-            <p className="text-sm text-muted">Send a road report to earn points. 10 per report, 20 more when another driver confirms it.</p>
-          )}
-        </section>
-        <Link href="/sos" className={`${ROW} text-danger`}>
-          SOS emergency help
+
+        <Link href={user ? "/settings" : "/login"} className="mt-4 flex items-center gap-3 rounded-2xl p-2 hover:bg-mint">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-ink/10">
+            <Icon name="user" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate font-semibold uppercase">{name}</span>
+            <span className="flex items-center gap-1 text-xs text-muted">
+              {where ? `Current state: ${where}` : user ? "Finding your location…" : "Sign in to save places and routes"}
+              {verified && <span className="rounded-full bg-green px-1.5 text-[10px] font-bold text-white">VERIFIED</span>}
+            </span>
+          </span>
+          <Icon name="chevron" className="h-4 w-4 text-muted" />
         </Link>
-        <button onClick={onReport} className={ROW}>
-          Report a road problem
-        </button>
-        <button onClick={onLakes} className={ROW}>
-          Glacial lakes
-        </button>
-        <Link href="/dashboard" className={ROW}>
-          Rescue dashboard
-        </Link>
-        <Link href="/terms" className={ROW}>
-          Terms and Privacy
-        </Link>
+
+        <div className="mt-3 grid grid-cols-3 divide-x divide-ink/10 rounded-2xl bg-snow py-2 text-center text-sm">
+          <button onClick={onSaves} className="flex flex-col items-center gap-0.5">
+            <Icon name="bookmark" className="h-5 w-5" />
+            {savedCount} Saved
+          </button>
+          <Link href="/routes" className="flex flex-col items-center gap-0.5">
+            <Icon name="route" className="h-5 w-5" />
+            {routes.length} Routes
+          </Link>
+          <Link href="/earn" className="flex flex-col items-center gap-0.5">
+            <Icon name="coin" className="h-5 w-5" />
+            {rewards ? `${rewards.points} Earn` : "Earn"}
+          </Link>
+        </div>
+
+        <Section
+          title="Navigation"
+          rows={[
+            { icon: "dashboard", label: "Dashboard", href: "/dashboard" },
+            { icon: "bookmark", label: "Saved Places", onClick: onSaves },
+            { icon: "map", label: "Offline Maps", href: "/offline-maps" },
+            { icon: "news", label: "Recent News", href: "/news" },
+          ]}
+        />
+        <Section
+          title="Safety & Alerts"
+          rows={[
+            { icon: "bell", label: "Disaster Alerts", href: "/alerts" },
+            { icon: "hazard", label: "Report Hazard", href: "/report-hazard" },
+            { icon: "share", label: "Share Live Location", href: "/share-location" },
+            { icon: "weather", label: "Weather Updates", href: "/weather" },
+            { icon: "mountain", label: "Glacial Lakes", onClick: onLakes },
+          ]}
+        />
+        <Section
+          title="Settings & Support"
+          rows={[
+            { icon: "settings", label: "Settings", href: "/settings" },
+            { icon: "language", label: "Language (English)", href: "/settings#language" },
+            { icon: "help", label: "Help & Support", href: "/help" },
+            { icon: "info", label: "About Himrakshak", href: "/about" },
+          ]}
+        />
+
         <div className="mt-auto pt-4">
           {user ? (
-            <button onClick={() => supabase?.auth.signOut()} className={`${ROW} w-full border-2 border-green text-green`}>
+            <button onClick={() => supabase?.auth.signOut()} className="min-h-12 w-full rounded-full border-2 border-green font-semibold text-green">
               Log out
             </button>
           ) : (
-            <Link href="/login" className={`${ROW} justify-center bg-green text-white hover:bg-green-dark`}>
+            <Link href="/login" className="flex min-h-12 items-center justify-center rounded-full bg-green font-semibold text-white">
               Sign In / Create Account
             </Link>
           )}

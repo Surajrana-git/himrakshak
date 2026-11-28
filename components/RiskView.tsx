@@ -623,9 +623,6 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
       )}
       {trip.stage === "idle" && plusOpen && (
         <QuickActions
-          reports={reports}
-          canReport={Boolean(supabase)}
-          onReport={() => setReporting(true)}
           onSatellite={(lat, lon) => setSatellite({ title: "Where you are", lat, lon })}
           onClose={() => setPlusOpen(false)}
         />
@@ -656,14 +653,16 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
       {menuOpen && (
         <SideMenu
           user={auth.user}
+          savedCount={saved.places.length}
+          onSaves={() => {
+            setMenuOpen(false);
+            setPlusOpen(false);
+            setTab("saves");
+          }}
           onLakes={() => {
             setMenuOpen(false);
             setLayer("lakes");
             setSheetOpen(true);
-          }}
-          onReport={() => {
-            setMenuOpen(false);
-            setReporting(true);
           }}
           onClose={() => setMenuOpen(false)}
         />

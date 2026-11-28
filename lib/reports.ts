@@ -81,7 +81,7 @@ function mergeReports(current: Report[], incoming: Report[]): Report[] {
 }
 
 // The AI look at the photo is a bonus: if it is off or fails, the report still goes out.
-async function checkPhoto(photoUrl: string): Promise<{ verdict: "blocked" | "clear" | "unclear" | "fake"; confidence: number; reason: string } | null> {
+export async function checkPhoto(photoUrl: string): Promise<{ verdict: "blocked" | "clear" | "unclear" | "fake"; confidence: number; reason: string } | null> {
   const res = await fetch("/api/photo-check", { method: "POST", body: JSON.stringify({ photoUrl }) }).catch(() => null);
   if (!res?.ok) return null;
   const body = await res.json();
