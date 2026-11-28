@@ -32,6 +32,7 @@ export default function ContributionForm({ config }: { config: Config }) {
   const router = useRouter();
   const [category, setCategory] = useState<string | null>(config.categories[0]);
   const [name, setName] = useState("");
+  const [otherType, setOtherType] = useState(""); // what "Other" means, in the user's words
   const [spot, setSpot] = useState<Spot | null>(null);
   const [photos, setPhotos] = useState<File[]>([]);
   const [details, setDetails] = useState("");
@@ -40,9 +41,12 @@ export default function ContributionForm({ config }: { config: Config }) {
   const [result, setResult] = useState<{ status: Status; reason: string | null } | null>(null);
   const [error, setError] = useState("");
 
+  const isOther = category === "Other";
   const missing = !category
     ? `Choose ${config.categoryLabel.toLowerCase()}`
-    : config.nameField && !name.trim()
+    : isOther && !otherType.trim()
+      ? "Write what kind of post this is"
+      : config.nameField && !name.trim()
       ? "Enter the place name"
       : config.detailsRequired && !details.trim()
         ? `${config.detailsLabel} is required`
@@ -57,7 +61,7 @@ export default function ContributionForm({ config }: { config: Config }) {
     try {
       const saved = await addContribution({
         kind: config.kind,
-        category,
+        category: isOther ? otherType.trim() : category,
         title: config.nameField ? name.trim() : null,
         details: details.trim() || null,
         lat: spot.lat,
@@ -120,6 +124,16 @@ export default function ContributionForm({ config }: { config: Config }) {
       {config.cameraFirst && photoCard}
       <Card title={`${config.categoryLabel} *`}>
         <Chips options={config.categories} value={category} onChange={setCategory} label={config.categoryLabel} />
+        {isOther && (
+          <input
+            value={otherType}
+            onChange={(e) => setOtherType(e.target.value)}
+            maxLength={40}
+            autoFocus
+            placeholder="Write the type (e.g., Fallen tree, Bridge damage)"
+            className="mt-3 min-h-12 w-full rounded-full border-2 border-green px-4"
+          />
+        )}
       </Card>
       {config.nameField && (
         <Card title={`${config.nameField.label} *`}>

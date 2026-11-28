@@ -25,7 +25,7 @@ type Event = {
   reason: string | null;
 };
 
-const SAFETY = ["Landslide", "Rockfall", "Blocked Road", "Closed / Blocked Road", "Road Condition", "Traffic", "Weather", "Safety Info", "Water on road", "Road Issue"];
+const SAFETY = ["Road Construction", "Landslide", "Rockfall", "Blocked Road", "Closed / Blocked Road", "Road Condition", "Traffic", "Weather", "Safety Info", "Water on road", "Road Issue"];
 
 function fromContribution(c: Contribution, all: Contribution[]): Event {
   const status = approval(c, all);

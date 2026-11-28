@@ -9,7 +9,7 @@ export default function FixMapPage() {
         title: "Fix Map",
         subtitle: "Help us improve the map by reporting an issue or updating incorrect information.",
         categoryLabel: "What's the issue?",
-        categories: ["Wrong Location", "Missing Place", "Incorrect Info", "Closed / Blocked Road", "Road Issue", "Other"],
+        categories: ["Wrong Location", "Missing Place", "Incorrect Info", "Closed / Blocked Road", "Road Construction", "Road Issue", "Other"],
         maxPhotos: 3,
         detailsLabel: "Details of the Issue",
         detailsPlaceholder: "Tell us what's wrong (e.g., place is shifted, road is closed, wrong name)",
