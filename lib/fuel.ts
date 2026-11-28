@@ -12,7 +12,7 @@ function samples(line: number[][]): { lat: number; lon: number; km: number }[] {
   let last = 0;
   for (let i = 1; i < line.length; i++) {
     km += distanceKm(line[i - 1][1], line[i - 1][0], line[i][1], line[i][0]);
-    if (km - last >= 20 || i === line.length - 1) {
+    if (km - last >= 25 || i === line.length - 1) {
       out.push({ lon: line[i][0], lat: line[i][1], km });
       last = km;
     }
@@ -57,9 +57,10 @@ export async function fuelAlong(line: number[][]): Promise<FuelStop[]> {
       raw.push({ name, lat, lon, cng: t["fuel:cng"] === "yes" || /cng/i.test(name) });
     }
   } else {
+    // Photon matches names, and Indian pumps are named "… Petrol Pump", "… Filling Station".
     const found = await Promise.all(
-      pts.map((p) => {
-        const params = new URLSearchParams({ q: "fuel", osm_tag: "amenity:fuel", limit: "15", bbox: `${p.lon - 0.1},${p.lat - 0.1},${p.lon + 0.1},${p.lat + 0.1}` });
+      pts.slice(0, 10).flatMap((p) => ["petrol", "pump", "station"].map((q) => ({ p, q }))).map(({ p, q }) => {
+        const params = new URLSearchParams({ q, osm_tag: "amenity:fuel", limit: "20", bbox: `${p.lon - 0.1},${p.lat - 0.1},${p.lon + 0.1},${p.lat + 0.1}` });
         return fetch(`https://photon.komoot.io/api/?${params}`, { headers: HEADERS, signal: AbortSignal.timeout(10000) })
           .then((r) => (r.ok ? (r.json() as Promise<{ features: PhotonFeature[] }>) : { features: [] }))
           .catch(() => ({ features: [] as PhotonFeature[] }));
