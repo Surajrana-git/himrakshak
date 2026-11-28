@@ -1,6 +1,7 @@
 import type { BaseMap } from "@/components/RiskMap";
 
-export type DataLayer = "risk" | "traffic" | "lakes";
+// "hazards": the plain map with approved reports, posts, news and past slides (the default, like a maps app).
+export type DataLayer = "hazards" | "risk" | "traffic" | "lakes";
 
 type Props = { base: BaseMap; data: DataLayer; onBase: (b: BaseMap) => void; onData: (d: DataLayer) => void; onClose: () => void };
 
@@ -10,7 +11,8 @@ const BASES: [BaseMap, string][] = [
   ["terrain", "Terrain"],
 ];
 const DATA: [DataLayer, string][] = [
-  ["risk", "Risk"],
+  ["hazards", "Hazards"],
+  ["risk", "Highway risk"],
   ["traffic", "Traffic"],
   ["lakes", "Lakes"],
 ];
@@ -19,7 +21,7 @@ function Choice<T extends string>({ title, items, value, onPick }: { title: stri
   return (
     <fieldset>
       <legend className="mb-2 text-sm font-semibold text-muted">{title}</legend>
-      <div className="grid grid-cols-3 gap-2">
+      <div className={`grid gap-2 ${items.length > 3 ? "grid-cols-2" : "grid-cols-3"}`}>
         {items.map(([id, label]) => (
           <button key={id} onClick={() => onPick(id)} aria-pressed={value === id} className={`min-h-12 rounded-2xl border-2 px-2 text-sm font-semibold ${value === id ? "border-green bg-mint text-green-dark" : "border-ink/10"}`}>
             {label}

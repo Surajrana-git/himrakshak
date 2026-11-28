@@ -72,6 +72,7 @@ type Props = {
   onSelectSegment: (id: string) => void;
   locateSignal: number;
   fitSignal: number;
+  startAtMe?: boolean; // open on the phone's own location, like a maps app
   baseMap: BaseMap;
   northSignal: number;
   focusPoint: { lat: number; lon: number } | null;
@@ -364,6 +365,7 @@ export default function RiskMap({
   onSelectSegment,
   locateSignal,
   fitSignal,
+  startAtMe = false,
   baseMap,
   northSignal,
   focusPoint,
@@ -448,6 +450,7 @@ export default function RiskMap({
     const geolocate = new GeolocateControl({
       positionOptions: { enableHighAccuracy: true },
       trackUserLocation: true,
+      fitBoundsOptions: { maxZoom: 14 },
     });
     map.addControl(geolocate, "top-left");
     geolocateRef.current = geolocate;
@@ -747,6 +750,14 @@ export default function RiskMap({
     // segments changes every render; only a new focus or a "fit" tap should move the camera.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded, focusId, fitSignal, towns]);
+
+  // First open: fly to the blue dot (the route overview stays if location is off or refused).
+  const startedAtMe = useRef(false);
+  useEffect(() => {
+    if (!loaded || !startAtMe || startedAtMe.current) return;
+    startedAtMe.current = true;
+    geolocateRef.current?.trigger();
+  }, [loaded, startAtMe]);
 
   // Only a new tap locates; coming back to this page must not fire an old one at an unloaded map.
   const locatedSignal = useRef(locateSignal);

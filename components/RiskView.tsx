@@ -91,7 +91,9 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const [locateSignal, setLocateSignal] = useState(0);
   const [fitSignal, setFitSignal] = useState(0);
   const [demoClosedId, setDemoClosedId] = useState<string | null>(null);
-  const [layer, setLayer] = useState<DataLayer>("risk");
+  const [layer, setLayer] = useState<DataLayer>("hazards");
+  // The Badrinath highway line shows only when asked for (Layers → Highway risk / Traffic) or on a trip.
+  const showHighway = layer === "risk" || layer === "traffic";
   const [baseMap, setBaseMap] = useState<BaseMap>(() => getSettings().mapType); // Settings → Map Preferences
   const [northSignal, setNorthSignal] = useState(0);
   const [focusPoint, setFocusPoint] = useState<{ lat: number; lon: number } | null>(null);
@@ -387,7 +389,8 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
     <div className="relative h-dvh w-full overflow-hidden bg-snow text-ink">
       <div className="absolute inset-0">
         <RiskMap
-          segments={segments}
+          segments={showHighway || trip.stage !== "idle" ? segments : NO_SEGMENTS}
+          startAtMe
           pastSlides={pastLandslides.landslides}
           news={news?.items ?? NO_NEWS}
           closures={mapClosures}
@@ -453,7 +456,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
           </span>
         </div>
         )}
-        {trip.stage === "idle" && (
+        {trip.stage === "idle" && showHighway && (
           <span
             className="pointer-events-auto self-start rounded-full px-3 py-1.5 text-sm font-semibold shadow-md"
             style={{ backgroundColor: worstStyle.color, color: worstStyle.text }}
@@ -674,7 +677,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
               See the closed spot from satellite
             </button>
           )}
-          <SafeTimeCard safeHour={safeHour} safeClock={safeClock} />
+          {showHighway && <SafeTimeCard safeHour={safeHour} safeClock={safeClock} />}
           <ThresholdCard
             stretches={route.segments.map((seg, i) => ({ id: seg.id, name: `${seg.from} → ${seg.to}`, hourlyMm: series[i] }))}
             nowIndex={rain.nowIndex}
@@ -832,6 +835,7 @@ const HAZARD_TEXT = { jam: "Jam", ai: "High slide risk", closure: "Road closed" 
 const NO_NEWS: SlideNewsFeed["items"] = [];
 const NO_LAKES: typeof lakesData.lakes = [];
 const NO_FUEL: FuelStop[] = [];
+const NO_SEGMENTS: MapSegment[] = [];
 const DANGER_KINDS: Report["kind"][] = ["landslide", "rockfall", "road_blocked", "water"];
 
 function VoiceButton({ listening, onClick }: { listening: boolean; onClick: () => void }) {
