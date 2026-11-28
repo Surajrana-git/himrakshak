@@ -79,7 +79,7 @@
     <tr><td>Bug fixes, demo script</td><td><span class="chip live">Done</span></td><td>App stuck on splash, login loop, map reload, build failures fixed; 110-second backup demo video recorded</td></tr>
     <tr><td>Push alerts for closures on your route</td><td><span class="chip key">Partly</span></td><td>In-app voice + vibration alert with reroute, home banner and phone notification while the app is open. Alerts with the app closed need Firebase (next)</td></tr>
     <tr><td>Before-you-go summary</td><td><span class="chip key">Partly</span></td><td>"Safe time to leave" card + route cards that say steepest slope and past slides near the road</td></tr>
-    <tr><td>Field test on 2 phones, offline SOS</td><td><span class="chip todo">Before final</span></td><td>Tested on 1 real Android phone (results on slide 8); road test before 3 PM</td></tr>
+    <tr><td>Field test on 2 phones, offline SOS</td><td><span class="chip todo">Before final</span></td><td>Tested on 1 real Android phone (results on slide 9); road test before 3 PM</td></tr>
   </table>
   <p class="muted" style="margin-top:.18in">Beyond the plan we added: search and routes for all of Uttarakhand, AI photo check, a satellite slide check, and Waze-style driving features.</p>
   <p class="num">2</p>
@@ -155,7 +155,38 @@
   <p class="src">LHASA: Kirschbaum &amp; Stanley 2018 (NASA). Satellite via Element84 Earth Search + TiTiler.</p><p class="num">6</p>
 </section>
 
-<!-- 7 Trust -->
+<!-- 7 Data and algorithms -->
+<section class="slide small">
+  <p class="kicker">Datasets and algorithms</p>
+  <h2 style="margin-bottom:.16in">All open data, all algorithms we can explain</h2>
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:.3in">
+    <table>
+      <tr><th style="width:42%">Dataset</th><th>Used for</th></tr>
+      <tr><td>Open-Meteo forecast + archive (2001–2020)</td><td>Live rain per 10 km; 20 years of daily rain to train the AI</td></tr>
+      <tr><td>NASA Global Landslide Catalog (2007–2017)</td><td>100 placed slides in Uttarakhand: history factor, map layer; 29 on NH-7 train the AI</td></tr>
+      <tr><td>AWS Terrain Tiles (SRTM-based, ~150 m)</td><td>Our slope map of the state, 360 × 280 cells</td></tr>
+      <tr><td>ESA Sentinel-2 L2A (10 m, ~5 days)</td><td>Satellite photos and greenness (NDVI) check</td></tr>
+      <tr><td>OpenStreetMap (Valhalla, Photon, OpenFreeMap)</td><td>Roads, routes, place search, map tiles</td></tr>
+      <tr><td>Google News RSS</td><td>Recent landslide news on the map</td></tr>
+      <tr><td>Glacial lake studies (e.g. Pandey 2026)</td><td>3 lakes: Vasudhara Tal, Balbala, Chorabari Tal</td></tr>
+      <tr><td>Driver reports (our app, Supabase)</td><td>Closures, jams, photos, Road Rewards</td></tr>
+    </table>
+    <table>
+      <tr><th style="width:36%">Algorithm</th><th>How it works</th></tr>
+      <tr><td>Risk score</td><td>rain_score × slope × history, per 10 km; 0–39 low, 40–69 medium, 70+ high</td></tr>
+      <tr><td>Safe time to leave</td><td>First hour in the next 12 when every stretch is below 70</td></tr>
+      <tr><td>AI landslide check</td><td>NASA LHASA 7-day rain index (weights 1/(i+1)²) vs local 95th percentile → logistic regression on 4 features; trained 2010–14, tested 2015–17, AUC 0.75</td></tr>
+      <tr><td>Slope</td><td>Height gradient between neighbouring terrain pixels → degrees; 10° → 1.0 … 35° → 2.0</td></tr>
+      <tr><td>Satellite slide check</td><td>NDVI = (NIR − Red) / (NIR + Red); bare ground +10 points and NDVI −0.1 in a month = possible slide</td></tr>
+      <tr><td>Routing + detours</td><td>Valhalla shortest path; closed spots sent as no-go areas; virtual closures find other valleys</td></tr>
+      <tr><td>Road closed</td><td>≥ 2 different phones within 1 km in 12 h, no later "clear"</td></tr>
+      <tr><td>Photo check</td><td>Google Gemini vision: blocked / open / unclear + confidence</td></tr>
+    </table>
+  </div>
+  <p class="num">7</p>
+</section>
+
+<!-- 8 Trust -->
 <section class="slide">
   <p class="kicker">Crowd reports you can trust</p>
   <h2>One prank must not close a highway</h2>
@@ -166,7 +197,7 @@
     <div class="card"><div class="icon">+</div><h3>Rewards for truth</h3><p class="muted">A report confirmed by another driver earns 3× the points, so true reports pay more than fake ones.</p></div>
   </div>
   <div class="card white" style="margin-top:.3in"><p><b>Reports work anywhere in the state.</b> On a watched highway they attach to the stretch; elsewhere they show by place name ("Near Mussoorie") and still reach every phone instantly.</p></div>
-  <p class="num">7</p>
+  <p class="num">8</p>
 </section>
 
 <!-- 8 Usability -->
@@ -180,7 +211,7 @@
         <li>Report in 2 taps while driving: 6 big round icons, sent from the car's position</li>
         <li>Screen stays on during a trip, like Google Maps</li>
         <li>Phone vibrates on every hazard alert, longer for a closed road</li>
-        <li>Voice: "go to Badrinath", "start", "report", "SOS"</li>
+        <li>Voice: "go to &lt;any place&gt;", "start", "report", "SOS"</li>
         <li>Every colour also in words ("High risk"); plain English; 48 px+ buttons</li>
         <li>Offline: last map kept on the phone; SOS falls back to SMS</li>
       </ul>
@@ -193,7 +224,7 @@
         <tr><td>Search any place</td><td><span class="chip live">Pass</span> ~5 s first time, instant after</td></tr>
         <tr><td>Route + slide alert</td><td><span class="chip live">Pass</span> reroute offered, 12 s auto-pick</td></tr>
         <tr><td>App stuck on logo</td><td><span class="chip key">Found, fixed</span> now opens in ≤ 8 s</td></tr>
-        <tr><td>Map zooms out when keyboard opens</td><td><span class="chip todo">Open</span> fixes itself on pick</td></tr>
+        <tr><td>Map zooms out when keyboard opens</td><td><span class="chip key">Found, fix shipped</span> re-test on phone</td></tr>
       </table>
     </div>
   </div>
@@ -201,7 +232,7 @@
     <p style="font-family:Poppins;font-weight:600;font-size:15pt;white-space:nowrap">Next test</p>
     <p>Before the final: two taxi drivers on the Rishikesh road, one hand, no help from us. We measure seconds to send a report, alerts they missed, and words they did not understand.</p>
   </div>
-  <p class="num">8</p>
+  <p class="num">9</p>
 </section>
 
 <!-- 9 Blockers -->
@@ -219,7 +250,7 @@
     <tr><td>Public router gives only one route</td><td>Ask again with a third of the road virtually closed to find the other valleys</td><td>Always show a real alternative</td></tr>
     <tr><td>Prank or wrong reports</td><td>2 different phones, "still there?", AI photo check, rewards for confirmed reports</td><td>Trust needs more than one voice</td></tr>
   </table>
-  <p class="num">9</p>
+  <p class="num">10</p>
 </section>
 
 <!-- 10 Next -->
@@ -227,12 +258,12 @@
   <p class="kicker">Honest limits and next steps</p>
   <h2>What is left before the 3 PM final, and after</h2>
   <div class="grid" style="grid-template-columns:repeat(3,1fr)">
-    <div class="card"><p class="pill" style="background:var(--red);color:#fff">Before 3 PM</p><ul class="tick" style="margin-top:10px"><li>Road test on 2 phones, offline SOS by SMS</li><li>Voice "go to" for any place, not only 23 towns</li><li>Fix keyboard zoom glitch</li><li>Rehearse demo 3 times</li></ul></div>
+    <div class="card"><p class="pill" style="background:var(--red);color:#fff">Before 3 PM</p><ul class="tick" style="margin-top:10px"><li>Road test on 2 phones, offline SOS by SMS</li><li>Re-test the keyboard zoom fix on the phone</li><li>Test AI photo check on a real report</li><li>Rehearse demo 3 times</li></ul></div>
     <div class="card"><p class="pill" style="background:var(--orange)">Next</p><ul class="tick" style="margin-top:10px"><li>Alerts with the app closed (Firebase push)</li><li>AI risk for every road, not only NH-7</li><li>Train on Geological Survey of India slide data</li></ul></div>
     <div class="card"><p class="pill" style="background:var(--green);color:#fff">After funding</p><ul class="tick" style="margin-top:10px"><li>Apple login, street-level photos</li><li>Own map and image servers (no free demo servers)</li><li>Pilot with taxi unions and SDRF</li></ul></div>
   </div>
   <p class="muted" style="margin-top:.3in">Known limits we tell users: 10 m satellite pixels miss small rockfalls; clouds hide the ground in monsoon; the risk score is a guide, not a guarantee.</p>
-  <p class="num">10</p>
+  <p class="num">11</p>
 </section>
 
 <!-- 11 Close -->
