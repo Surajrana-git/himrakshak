@@ -36,13 +36,13 @@ export function continueAsGuest() {
   } catch {}
 }
 
-// Which social logins are switched on in the Supabase dashboard (public endpoint).
-export async function enabledProviders(): Promise<{ google: boolean; apple: boolean; phone: boolean }> {
+// Whether mobile-number (OTP) login is switched on in the Supabase dashboard (public endpoint).
+export async function enabledProviders(): Promise<{ phone: boolean }> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) return { google: false, apple: false, phone: false };
+  if (!url || !key) return { phone: false };
   const res = await fetch(`${url}/auth/v1/settings`, { headers: { apikey: key } });
-  if (!res.ok) return { google: false, apple: false, phone: false };
+  if (!res.ok) return { phone: false };
   const { external } = await res.json();
-  return { google: Boolean(external?.google), apple: Boolean(external?.apple), phone: Boolean(external?.phone) };
+  return { phone: Boolean(external?.phone) };
 }

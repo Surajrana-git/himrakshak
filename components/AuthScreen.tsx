@@ -93,9 +93,8 @@ export default function AuthScreen() {
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
-  const [providers, setProviders] = useState({ google: false, apple: false, phone: false });
+  const [providers, setProviders] = useState({ phone: false });
   const [otpSent, setOtpSent] = useState(false);
-  const [soonNote, setSoonNote] = useState<string | null>(null);
   const [otp, setOtp] = useState("");
 
   useEffect(() => {
@@ -190,9 +189,9 @@ export default function AuthScreen() {
     }
   }
 
-  async function social(provider: "google") {
-    if (!providers[provider]) return setSoonNote("Google sign-in is coming soon. For now, sign in with email or your mobile number.");
-    const error = await socialSignIn(provider);
+  // Google is switched on in Supabase; if it ever fails, the error says why.
+  async function google() {
+    const error = await socialSignIn();
     if (error) setMessage({ text: error, ok: false });
   }
 
@@ -309,18 +308,12 @@ export default function AuthScreen() {
           <span className="h-px flex-1 bg-ink/15" />
         </div>
         <button
-          onClick={() => social("google")}
+          onClick={google}
           className={`flex min-h-13 items-center justify-center gap-2 rounded-full border-2 border-green bg-white font-semibold text-green ${create ? "mx-auto w-40" : ""}`}
         >
           <GoogleMark />
           {create ? "Google" : "Continue with Google"}
-          {!providers.google && <span className="rounded-full bg-mint px-2 py-0.5 text-xs text-green-dark">Coming soon</span>}
         </button>
-        {soonNote && (
-          <p role="status" className="animate-fade rounded-2xl bg-mint p-3 text-center text-sm text-green-dark">
-            {soonNote}
-          </p>
-        )}
 
         <p className="text-center">
           {create ? "Already have an account? " : "No account yet? "}

@@ -12,7 +12,8 @@ export const APP_CALLBACK = "in.himrakshak.app://login-callback";
 
 export const isApp = () => Capacitor.isNativePlatform();
 
-export async function socialSignIn(provider: "google" | "apple"): Promise<string | null> {
+export async function socialSignIn(): Promise<string | null> {
+  const provider = "google";
   if (!supabase) return "Sign-in is not available: the server is not configured";
   if (!isApp()) {
     const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin } });
