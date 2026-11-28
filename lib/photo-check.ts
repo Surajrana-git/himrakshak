@@ -17,9 +17,9 @@ const SCHEMA = {
 };
 
 const PROMPT = `This photo was sent by a driver in Uttarakhand as a road report (landslide, rockfall, blocked road, water on the road).
-It must be a live photo taken just now with the phone camera. Our app adds a dark band at the bottom with
-"Himrakshak · live camera", GPS and time: that band is expected. If the band is missing, the photo did not
-come from our camera: answer "fake".
+It must be a live photo taken just now in our app's camera. Our camera prints a stamp at the bottom: a small
+satellite map, a "Himrakshak Geo Cam" badge, the place name, Lat/Long and time. That stamp is expected.
+If the stamp is missing, the photo did not come from our camera: answer "fake".
 First decide if it is a real live camera photo of a real scene.
 - "fake": a screenshot, a photo of a TV, monitor or phone screen, a printed picture, a news or stock image,
   a photo with another app's watermark or logo, a drawing, cartoon, AI-made or clearly edited image.
