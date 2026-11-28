@@ -19,7 +19,6 @@ type Config = {
   maxPhotos: number;
   detailsLabel: string;
   detailsPlaceholder: string;
-  detailsRequired: boolean;
   visibility?: boolean; // Post on Map only
   cameraFirst?: boolean; // Map Camera and Report Hazard open the Geo Cam straight away
   submit: string;
@@ -48,7 +47,7 @@ export default function ContributionForm({ config }: { config: Config }) {
       ? "Write what kind of post this is"
       : config.nameField && !name.trim()
       ? "Enter the place name"
-      : config.detailsRequired && !details.trim()
+      : isOther && !details.trim()
         ? `${config.detailsLabel} is required`
         : !spot
           ? "Set the location on the map"
@@ -155,7 +154,7 @@ export default function ContributionForm({ config }: { config: Config }) {
         )}
       </Card>
       {!config.cameraFirst && photoCard}
-      <Card title={`${config.detailsLabel}${config.detailsRequired ? " *" : " (optional)"}`}>
+      <Card title={`${config.detailsLabel}${isOther ? " *" : " (optional)"}`}>
         <textarea
           value={details}
           onChange={(e) => setDetails(e.target.value.slice(0, 300))}

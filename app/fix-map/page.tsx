@@ -13,7 +13,6 @@ export default function FixMapPage() {
         maxPhotos: 3,
         detailsLabel: "Details of the Issue",
         detailsPlaceholder: "Tell us what's wrong (e.g., place is shifted, road is closed, wrong name)",
-        detailsRequired: true,
         submit: "Submit Report",
         done: "Your map fix is sent.",
       }}

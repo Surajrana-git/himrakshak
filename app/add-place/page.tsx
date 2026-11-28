@@ -14,7 +14,6 @@ export default function AddPlacePage() {
         maxPhotos: 5,
         detailsLabel: "Description",
         detailsPlaceholder: "Write a short description (e.g., road condition, facilities, timing)",
-        detailsRequired: false,
         submit: "Submit Place",
         done: "Your place is on the map.",
       }}
