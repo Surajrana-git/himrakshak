@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Himrakshak · Final</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: 13.333in 7.5in; margin: 0; }
+  :root { --green:#0E7A3D; --green-dark:#0A5C2E; --mint:#E6F4EC; --ink:#14231F; --muted:#5B6662; --orange:#F08A3E; --red:#B03030; --teal:#5FB3A1; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, Arial, sans-serif; color: var(--ink); background: #fff; }
+  .slide { width: 13.333in; height: 7.5in; padding: 0.6in 0.7in; position: relative; overflow: hidden; page-break-after: always; background: #fff; }
+  .slide.dark { background: var(--green-dark); color: #fff; }
+  h1, h2, h3 { font-family: Poppins, Arial, sans-serif; }
+  h2 { font-size: 34pt; font-weight: 700; line-height: 1.1; margin-bottom: 0.3in; }
+  h3 { font-size: 15pt; font-weight: 600; margin-bottom: 4px; }
+  p, li { font-size: 13pt; line-height: 1.45; }
+  .kicker { font-family: Poppins; font-size: 11pt; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .dark .kicker { color: #9FE0B8; }
+  .muted { color: var(--muted); }
+  .src { position: absolute; left: .7in; bottom: .3in; font-size: 9pt; color: var(--muted); }
+  .num { position: absolute; right: .7in; bottom: .3in; font-size: 9pt; color: var(--muted); }
+  .grid { display: grid; gap: 0.25in; }
+  .card { background: var(--mint); border-radius: 18px; padding: 18px 20px; }
+  .card.white { background: #fff; box-shadow: 0 2px 10px rgba(20,35,31,.12); }
+  .stat { font-family: Poppins; font-size: 44pt; font-weight: 700; color: var(--green); line-height: 1; }
+  .stat.red { color: var(--red); }
+  .icon { width: 44px; height: 44px; border-radius: 50%; background: var(--green); color: #fff; display: flex; align-items: center; justify-content: center; font-family: Poppins; font-weight: 700; font-size: 16pt; margin-bottom: 10px; }
+  .phone { width: 1.78in; border-radius: 22px; border: 6px solid var(--ink); overflow: hidden; background: #000; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+  .phone img { width: 100%; display: block; }
+  .cap { font-family: Poppins; font-weight: 600; font-size: 11pt; text-align: center; margin-top: 8px; }
+  .pill { display: inline-block; border-radius: 999px; padding: 3px 12px; font-size: 10.5pt; font-weight: 600; }
+  ul.tick { list-style: none; }
+  ul.tick li { padding-left: 28px; position: relative; margin-bottom: 6px; }
+  ul.tick li::before { content: ""; position: absolute; left: 0; top: 5px; width: 16px; height: 16px; border-radius: 50%; background: var(--green); box-shadow: inset 0 0 0 4px var(--mint); }
+  .arrow { font-family: Poppins; font-size: 22pt; color: var(--green); align-self: center; padding-top: 0; }
+
+  .chip { display:inline-block; border-radius:999px; padding:2px 10px; font-size:9.5pt; font-weight:700; }
+  .live { background:var(--green); color:#fff; }
+  .key { background:var(--orange); color:var(--ink); }
+  .todo { background:#E4E7E5; color:var(--ink); }
+  table { border-collapse: collapse; width: 100%; }
+  td, th { text-align:left; vertical-align:top; padding:7px 10px; font-size:11.5pt; line-height:1.35; border-bottom:1px solid #DDE5E0; }
+  th { font-family:Poppins; font-size:10.5pt; letter-spacing:.08em; text-transform:uppercase; color:var(--green); }
+  h2 { font-size: 28pt; margin-bottom: .22in; }
+  .phone { box-shadow: none; }
+  .card.white { box-shadow: none; border: 1.5px solid #D5E3DA; }
+  .phone.s { width:1.55in; border-width:5px; border-radius:18px; }
+  .phone.s img { height:3.3in; object-fit:cover; object-position:top; }
+  .small p, .small li { font-size:11.5pt; }
+  .comp .card { padding:12px 16px; }
+  .tight td, .tight th { font-size:10pt; padding:4px 8px; line-height:1.3; }
+  .comp h3 { font-size:13pt; margin:4px 0 2px; }
+  .comp p { font-size:10.5pt; line-height:1.35; }
+</style>
+</head>
+<body><style>
+  .feat { display:grid; grid-template-columns:repeat(4,1fr); gap:.12in; }
+  .feat .card { padding:10px 13px; }
+  .feat h3 { font-size:12pt; margin:0 0 2px; }
+  .feat p { font-size:9.8pt; line-height:1.32; }
+  .flow { display:flex; align-items:stretch; gap:.1in; }
+  .flow .card { flex:1; padding:12px 14px; }
+  .flow .card h3 { font-size:12.5pt; }
+  .flow .card p { font-size:10.5pt; line-height:1.35; }
+  .tag { font-family:Poppins; font-size:9pt; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--green); }
+  .mono { font-family: ui-monospace, Menlo, monospace; font-size:10.5pt; }
+</style>
+
+<!-- 1 Problem -->
+<section class="slide">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:.18in">
+    <img src="../../public/logo-full.png" style="width:.9in;border-radius:14px">
+    <div>
+      <p class="kicker" style="margin:0">Algonex 1.0 · Final · 28 Nov 2026 · Team Elite Zero Division</p>
+      <p style="font-family:Poppins;font-size:20pt;font-weight:700">Himrakshak: the safest way through Himalayan roads</p>
+    </div>
+  </div>
+  <p class="kicker">1 · Problem statement</p>
+  <h2>In Uttarakhand, roads close without warning, and drivers find out at the debris</h2>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card"><div class="stat red">149</div><p style="margin-top:8px"><b>roads blocked by landslides</b> in Uttarakhand in one monsoon spell (July 2026)</p></div>
+    <div class="card"><div class="stat">45 lakh+</div><p style="margin-top:8px"><b>pilgrims</b> on the Char Dham routes by 25 July 2026; the yatra was halted several times</p></div>
+    <div class="card"><div class="stat red">29</div><p style="margin-top:8px"><b>recorded landslides within 2 km</b> of the Rishikesh–Badrinath highway alone (NASA catalogue)</p></div>
+  </div>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:.28in">
+    <div><h3>No warning before you leave</h3><p class="muted">Rain forecasts exist, but nobody turns them into "is my road safe at 6 AM?"</p></div>
+    <div><h3>No alert on the way</h3><p class="muted">Normal maps do not know a road closed 20 minutes ago in a valley.</p></div>
+    <div><h3>No signal when stuck</h3><p class="muted">Calls for help fail exactly where slides happen: deep valleys, no data, often no network.</p></div>
+  </div>
+  <p class="src">Sources: Free Press Journal, NewsOnAir (July 2026); NASA Global Landslide Catalog</p><p class="num">1</p>
+</section>
+
+<!-- 2 Solution -->
+<section class="slide">
+  <p class="kicker">2 · Proposed solution</p>
+  <h2>One app for every Uttarakhand road</h2>
+  <div style="display:flex;gap:.35in;align-items:flex-start">
+    <div style="flex:1" class="grid">
+      <div class="card"><p class="tag">Predict</p><h3>Risk for every 10 km of road, now and next 6 hours</h3><p class="muted">Live rain × hillside slope × past landslides, checked against Indian rainfall thresholds and a NASA-based AI model. "Safe time to leave" tells the driver when to start.</p></div>
+      <div class="card"><p class="tag">Avoid</p><h3>Safest route, not just fastest, with live driver reports</h3><p class="muted">Up to 3 real roads coloured by risk; turn-by-turn voice navigation; a road closes when 2 different phones report it, and the app reroutes everyone.</p></div>
+      <div class="card"><p class="tag">Survive</p><h3>SOS that works with no internet and no signal</h3><p class="muted">One press: internet + SMS to family + Bluetooth to phones nearby, all at once.</p></div>
+    </div>
+    <div style="display:flex;gap:.14in">
+      <div><div class="phone s"><img src="shots3/home.jpg"></div><p class="cap">Live risk map</p></div>
+      <div><div class="phone s"><img src="shots2/routes.jpg"></div><p class="cap">Safest vs fastest</p></div>
+      <div><div class="phone s"><img src="shots3/sos.jpg"></div><p class="cap">One-press SOS</p></div>
+    </div>
+  </div>
+  <p class="src">Screens from the Android app on a real phone, 28 Nov 2026</p><p class="num">2</p>
+</section>
+
+<!-- 3 Technical approach -->
+<section class="slide">
+  <p class="kicker">3 · Technical approach</p>
+  <h2>Explainable risk from real data, not a black box</h2>
+  <div class="card white" style="text-align:center;margin-bottom:.18in">
+    <p style="font-family:Poppins;font-size:19pt;font-weight:700">risk = rain_score × slope_factor × history_factor <span class="muted" style="font-size:13pt;font-weight:500">(0–100, every 10 km)</span></p>
+    <p class="muted">rain = 1.5 × last 24 h + 4 × next 6 h (Open-Meteo) · slope 10° → 1.0 … 35° → 2.0 (elevation tiles, whole state) · history up to 1.8 (NASA slides within 2 km) · 0–39 Low, 40–69 Medium, 70+ High</p>
+  </div>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:.14in">
+    <div class="card"><h3>Indian thresholds</h3><p class="muted" style="font-size:10.5pt">NH-58 study I = 58.7·D<sup>−1.12</sup> and Chamoli–Joshimath I = 1.82·D<sup>−0.23</sup>, checked over 1–72 h</p></div>
+    <div class="card"><h3>AI landslide check</h3><p class="muted" style="font-size:10.5pt">NASA LHASA 7-day rain index + logistic regression trained on 2010–14 slides; AUC 0.75 on 2015–17</p></div>
+    <div class="card"><h3>Satellite slide check</h3><p class="muted" style="font-size:10.5pt">Sentinel-2 NDVI now vs a month ago; bare ground +10 points flags a possible new slide</p></div>
+    <div class="card"><h3>AI photo check</h3><p class="muted" style="font-size:10.5pt">Gemini reads each report photo: road blocked or open, and rejects screenshots or gallery photos</p></div>
+  </div>
+  <div class="flow" style="margin-top:.18in">
+    <div class="card white"><h3>App</h3><p class="muted">Next.js + React + Tailwind on Vercel; Android app (Capacitor) with native SMS and Bluetooth</p></div>
+    <div class="card white"><h3>Data &amp; live sync</h3><p class="muted">Supabase: Postgres, realtime reports, photo storage, row-level security</p></div>
+    <div class="card white"><h3>Maps &amp; routes</h3><p class="muted">MapLibre + OpenStreetMap, Valhalla routing (car, bus, bike, walk), Esri satellite</p></div>
+    <div class="card white"><h3>Alerts</h3><p class="muted">Firebase push for SOS and confirmed closures; voice + vibration in the app</p></div>
+  </div>
+  <p class="src">Full dataset and algorithm list with links: Himrakshak-Data-and-Algorithms.pdf</p><p class="num">3</p>
+</section>
+
+<!-- 4 Implementation -->
+<section class="slide">
+  <p class="kicker">4 · Implementation</p>
+  <h2>Built, deployed and tested on a real Android phone</h2>
+  <div style="display:flex;gap:.35in">
+    <div style="flex:1">
+      <table class="tight">
+        <tr><th style="width:36%">Part</th><th>What runs today</th></tr>
+        <tr><td><b>Live risk map</b></td><td>Badrinath highway by stretch + any route in Uttarakhand scored every 10 km</td></tr>
+        <tr><td><b>Routes &amp; navigation</b></td><td>Search any place; safest vs fastest; voice turns; auto-reroute around closures; trip fuel cost</td></tr>
+        <tr><td><b>Reports</b></td><td>One-tap reports while driving; 2-phone rule closes a road; "Still there?" reopens it</td></tr>
+        <tr><td><b>Geo Cam + approval</b></td><td>Photos only from our camera with GPS/time stamp; AI approves or rejects; approved posts go on the map</td></tr>
+        <tr><td><b>Offline SOS</b></td><td>Internet + native SMS + Bluetooth mesh at once; gateway phone uploads; rescue dashboard</td></tr>
+        <tr><td><b>Accounts</b></td><td>Google, email and phone OTP; saved places and routes; Road Rewards</td></tr>
+      </table>
+      <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:.12in;margin-top:.18in">
+        <div class="card"><div class="stat" style="font-size:30pt">33</div><p style="font-size:10.5pt">screens from the final design, every button wired</p></div>
+        <div class="card"><div class="stat" style="font-size:30pt">10+</div><p style="font-size:10.5pt">real data sources, all free and open</p></div>
+        <div class="card"><div class="stat" style="font-size:30pt">₹0</div><p style="font-size:10.5pt">running cost on free tiers today</p></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.14in">
+      <div><div class="phone s"><img src="shots2/alert.jpg"></div><p class="cap">Slide ahead: reroute</p></div>
+      <div><div class="phone s"><img src="shots2/safe-ai.jpg"></div><p class="cap">Safe time + AI check</p></div>
+    </div>
+  </div>
+  <p class="src">Live: himrakshak.vercel.app · Code: github.com/Surajrana-git/himrakshak</p><p class="num">4</p>
+</section>
+
+<!-- 5 Extra features -->
+<section class="slide">
+  <p class="kicker">5 · Extra features we added since Round 2</p>
+  <h2>From a risk map to a full road-safety app</h2>
+  <div class="feat">
+    <div class="card"><h3>Himrakshak Geo Cam</h3><p class="muted">Live camera with logo, satellite map, place, Lat/Long and time printed on every photo; no gallery uploads</p></div>
+    <div class="card"><h3>Post approval</h3><p class="muted">Approved / Waiting / Not approved; only approved posts show on the map with their photo</p></div>
+    <div class="card"><h3>Add a Place · Fix Map</h3><p class="muted">Shelters, hospitals, fuel; wrong or closed roads; with category, pin and photos</p></div>
+    <div class="card"><h3>Map Camera · Report Hazard</h3><p class="muted">Road condition, landslide, road construction, or "Other" in your own words</p></div>
+    <div class="card"><h3>View Posted Events</h3><p class="muted">Search and filter Safety, Travel, Community; tap to see the spot</p></div>
+    <div class="card"><h3>Get Map Pin · DigiPin</h3><p class="muted">Exact coordinates and India Post's DigiPin for any spot, ready to share</p></div>
+    <div class="card"><h3>Trip cost &amp; vehicles</h3><p class="muted">Car, bus, bike, walk; fuel = km ÷ mileage, cost = fuel × price + upkeep</p></div>
+    <div class="card"><h3>My Routes · Saves</h3><p class="muted">Save and re-open routes; Home, Work, Favourites, Point on Map</p></div>
+    <div class="card"><h3>Offline Maps</h3><p class="muted">Download Uttarakhand, Haridwar, Rudraprayag, Chamoli to use without internet</p></div>
+    <div class="card"><h3>Disaster Alerts · Weather · News</h3><p class="muted">Driver reports, heavy rain and snow forecasts for 9 towns, live headlines</p></div>
+    <div class="card"><h3>Earn (Road Rewards)</h3><p class="muted">1 point = ₹1; approved only when another phone confirms; fakes earn nothing</p></div>
+    <div class="card"><h3>Hotels · Share location</h3><p class="muted">Real places to stay nearby; send your live spot to family in one tap</p></div>
+  </div>
+  <div style="display:flex;gap:.2in;align-items:center;margin-top:.16in">
+    <img src="shots3/stamp.jpg" style="height:1.25in;border-radius:12px">
+    <p class="muted" style="font-size:11pt">Plus: full settings (account, alerts, map type, privacy), voice commands ("go to Kedarnath"), screen stays on while driving, and Google sign-in in the Android app.</p>
+  </div>
+  <p class="num">5</p>
+</section>
+
+<!-- 6 Offline SOS + next -->
+<section class="slide dark">
+  <p class="kicker">6 · Survive without signal, and what comes next</p>
+  <h2>When the slide comes down, one press reaches help three ways at once</h2>
+  <div class="flow" style="color:var(--ink)">
+    <div class="card"><h3>① Internet</h3><p>Pin on the rescue dashboard + push alert to every Himrakshak phone</p></div>
+    <div class="arrow" style="color:#9FE0B8">+</div>
+    <div class="card"><h3>② SMS</h3><p>Sent by the app itself to family, with GPS; needs only a phone signal, no data; retries 3 times</p></div>
+    <div class="arrow" style="color:#9FE0B8">+</div>
+    <div class="card"><h3>③ Bluetooth mesh</h3><p>No signal at all: phone to phone, ~50–100 m a hop, up to 6 hops; the first phone with internet uploads it once</p></div>
+  </div>
+  <p style="margin-top:.16in;opacity:.9">Compact packet, one SMS or one Bluetooth advert: <span class="mono" style="background:rgba(255,255,255,.12);padding:2px 8px;border-radius:6px">HIM|k3j9a2|30.35800,77.84940|STUCK|1795849329|6</span> · the same id on every copy, so the dashboard shows one pin</p>
+  <div style="display:flex;gap:.3in;margin-top:.22in;align-items:flex-start">
+    <div class="grid" style="flex:1;grid-template-columns:1fr 1fr;gap:.18in">
+      <div><h3>Next 3 months</h3><p style="opacity:.85;font-size:11.5pt">Field test on Char Dham roads with taxi unions; Hindi and Garhwali voice; iOS app</p></div>
+      <div><h3>With SDRF and PWD</h3><p style="opacity:.85;font-size:11.5pt">Rescue dashboard for SDRF; official road status from PWD next to driver reports</p></div>
+      <div style="grid-column:span 2"><h3>Impact</h3><p style="opacity:.85;font-size:11.5pt">If one car avoids one landslide, one family gets home.</p></div>
+    </div>
+    <div style="display:flex;gap:.2in;text-align:center">
+      <div><img src="shots3/qr-apk.png" style="width:1.55in;background:#fff;padding:8px;border-radius:12px"><p style="font-family:Poppins;font-weight:600;font-size:11pt;margin-top:4px">Android app (APK)</p></div>
+      <div><img src="shots3/qr-web.png" style="width:1.55in;background:#fff;padding:8px;border-radius:12px"><p style="font-family:Poppins;font-weight:600;font-size:11pt;margin-top:4px">Open in browser</p></div>
+    </div>
+  </div>
+  <p class="num" style="color:#cfe">6</p>
+</section>
+
+</body>
+</html>
