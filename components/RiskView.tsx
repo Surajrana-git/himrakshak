@@ -50,7 +50,7 @@ import type { Detour } from "@/lib/detour";
 import type { TrafficFeed } from "@/lib/traffic";
 import { TRAFFIC_STYLE, trafficLevel } from "@/lib/traffic-status";
 import type route from "@/data/route-badrinath.json";
-import pastLandslides from "@/data/landslides-badrinath.json";
+import pastLandslides from "@/data/landslides-uttarakhand.json";
 
 type Props = { route: typeof route; rain: RainSeries; news: SlideNewsFeed | null; traffic: TrafficFeed | null; ai: AiRiskFeed | null };
 
@@ -168,9 +168,9 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   );
   const mapJams = useMemo(() => trip.demoHazards.filter((h) => h.kind === "jam"), [trip.demoHazards]);
   const tripLines = useMemo(() => {
-    if (trip.stage === "nav" && trip.active) return [{ id: "active", coordinates: trip.active.coordinates, selected: true }];
+    if (trip.stage === "nav" && trip.active) return [{ id: "active", coordinates: trip.active.coordinates, selected: true, stretches: trip.active.stretches }];
     if (trip.stage === "plan" && trip.options) {
-      return trip.options.map((o) => ({ id: o.id, coordinates: o.coordinates, selected: o.id === trip.selected?.id }));
+      return trip.options.map((o) => ({ id: o.id, coordinates: o.coordinates, selected: o.id === trip.selected?.id, stretches: o.stretches }));
     }
     return [];
   }, [trip.stage, trip.active, trip.options, trip.selected]);

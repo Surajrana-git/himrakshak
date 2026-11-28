@@ -1,8 +1,9 @@
 import { getRouteOptions } from "@/lib/routes";
 import type { Point } from "@/lib/valhalla";
+import { inUttarakhand } from "@/lib/area";
 
 // Only Uttarakhand: this is not a general routing proxy.
-const inArea = ({ lat, lon }: Point) => lat > 29.5 && lat < 31.5 && lon > 77.5 && lon < 80.5;
+const inArea = ({ lat, lon }: Point) => inUttarakhand(lat, lon);
 
 function parsePoint(text: string | null): Point | null {
   const [lat, lon] = (text ?? "").split(",").map(Number);

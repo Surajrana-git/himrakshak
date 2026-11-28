@@ -2,22 +2,17 @@
 
 import { useState, useSyncExternalStore } from "react";
 import { canListen } from "@/lib/voice";
-import { PLACES, type Place } from "@/lib/trip";
+import { usePlaceSearch } from "@/lib/place-search";
+import type { Place } from "@/lib/trip";
 
 type Props = { onMenu: () => void; onPick: (place: Place) => void; onDirections: () => void; onVoice: () => void; listening: boolean };
 
 const noSubscribe = () => () => {};
 
-function match(query: string): Place[] {
-  const q = query.trim().toLowerCase();
-  if (!q) return [];
-  return PLACES.filter((p) => p.name.toLowerCase().includes(q) || p.hindi.includes(query.trim())).slice(0, 6);
-}
-
 // Floating top bar: menu, "Search Himrakshak" with voice, and the green directions button.
 export default function SearchBar({ onMenu, onPick, onDirections, onVoice, listening }: Props) {
   const [query, setQuery] = useState("");
-  const results = match(query);
+  const { results, searching } = usePlaceSearch(query);
   // Only known in the browser; the server renders without the mic so hydration matches.
   const hasSpeech = useSyncExternalStore(noSubscribe, canListen, () => false);
 
@@ -38,7 +33,7 @@ export default function SearchBar({ onMenu, onPick, onDirections, onVoice, liste
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && results[0] && pick(results[0])}
-          placeholder={listening ? "Listening…" : "Search Himrakshak"}
+          placeholder={listening ? "Listening…" : "Search any place in Uttarakhand"}
           aria-label="Search Himrakshak"
           className="min-h-12 min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted"
         />
@@ -57,12 +52,13 @@ export default function SearchBar({ onMenu, onPick, onDirections, onVoice, liste
       </div>
       {query.trim() && (
         <ul className="absolute inset-x-0 top-full mt-2 overflow-hidden rounded-3xl bg-white shadow-xl">
-          {results.length === 0 && <li className="p-4 text-sm text-muted">No place with that name in the list.</li>}
+          {searching && results.length === 0 && <li className="p-4 text-sm text-muted">Searching Uttarakhand…</li>}
+          {!searching && results.length === 0 && <li className="p-4 text-sm text-muted">No place found in Uttarakhand.</li>}
           {results.map((p) => (
-            <li key={p.name}>
+            <li key={`${p.name}-${p.lat}`}>
               <button onClick={() => pick(p)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left hover:bg-mint">
                 <span className="h-2.5 w-2.5 rounded-full bg-green" />
-                {p.name}
+                <span className="truncate">{p.name}</span>
                 {p.dham && <span className="ml-auto text-xs text-muted">Dham</span>}
               </button>
             </li>

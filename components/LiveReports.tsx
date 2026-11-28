@@ -1,5 +1,6 @@
 import ReportIcon from "@/components/ReportIcon";
-import { REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
+import { OFF_HIGHWAY, REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
+import { nearestPlace } from "@/lib/trip";
 
 type Props = { reports: Report[]; segmentName: (id: string) => string };
 
@@ -24,7 +25,7 @@ export default function LiveReports({ reports, segmentName }: Props) {
                 {REPORT_KINDS[r.kind].label}
               </p>
               <p className="text-sm text-muted">
-                {segmentName(r.segment_id)} · {timeAgo(r.created_at)}
+                {r.segment_id === OFF_HIGHWAY ? `Near ${nearestPlace(r).name}` : segmentName(r.segment_id)} · {timeAgo(r.created_at)}
               </p>
               {r.note && <p className="mt-1">{r.note}</p>}
             </div>

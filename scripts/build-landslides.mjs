@@ -74,6 +74,7 @@ for (const r of rows) {
       title: r[col("event_title")],
       place: r[col("location_description")],
       accuracy: r[col("location_accuracy")],
+      size: r[col("landslide_size")],
       deaths: Number(r[col("fatality_count")]) || 0,
       lat,
       lon,

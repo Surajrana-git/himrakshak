@@ -12,7 +12,7 @@ import {
   type PaddingOptions,
 } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { RiskLevel } from "@/lib/risk";
+import { RISK_STYLE, type RiskLevel } from "@/lib/risk";
 import type { Turn } from "@/lib/trip";
 import { REPORT_KINDS, timeAgo, type Report } from "@/lib/reports";
 import { iconElement, LAKE_ICON, REPORT_ICONS } from "@/lib/report-icons";
@@ -54,7 +54,8 @@ type Props = {
   detour: number[][] | null;
   detourSignal: number;
   // Trip: route options (one selected) or the route being driven, the car, and camera behaviour.
-  tripLines: { id: string; coordinates: number[][]; selected: boolean }[];
+  // stretches: risk of each ~10 km piece, drawn in risk colours on top of the chosen route.
+  tripLines: { id: string; coordinates: number[][]; selected: boolean; stretches?: { start: number; end: number; level: RiskLevel }[] }[];
   fitLine: number[][] | null;
   car: { lat: number; lon: number } | null;
   // Within ~600 m of a turn: tilt into a 3D view along the road and draw the arrow through the junction.
@@ -401,7 +402,7 @@ export default function RiskMap({
         id: "trip-other",
         type: "line",
         source: "trip",
-        filter: ["!", ["get", "selected"]],
+        filter: ["all", ["!", ["get", "selected"]], ["!", ["has", "riskColor"]]],
         layout: { "line-cap": "round", "line-join": "round" },
         paint: { "line-color": "#4B5A55", "line-width": 6, "line-opacity": 0.55 },
       });
@@ -409,10 +410,19 @@ export default function RiskMap({
         id: "trip-selected",
         type: "line",
         source: "trip",
-        filter: ["get", "selected"],
+        filter: ["all", ["get", "selected"], ["!", ["has", "riskColor"]]],
         layout: { "line-cap": "round", "line-join": "round" },
         // Wider than the risk line, so on NH-7 it shows as a halo and elsewhere as the road to take.
         paint: { "line-color": "#A9481A", "line-width": 14 },
+      });
+      // Google-Maps-traffic style: each ~10 km of the chosen road in its landslide-risk colour.
+      map.addLayer({
+        id: "trip-risk",
+        type: "line",
+        source: "trip",
+        filter: ["has", "riskColor"],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": ["get", "riskColor"], "line-width": 7 },
       });
 
       map.addSource("segments", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
@@ -528,7 +538,14 @@ export default function RiskMap({
       // Selected last so it draws on top of the faint options.
       features: [...tripLines]
         .sort((a, b) => Number(a.selected) - Number(b.selected))
-        .map((l) => ({ type: "Feature", properties: { selected: l.selected }, geometry: { type: "LineString", coordinates: l.coordinates } })),
+        .flatMap((l) => [
+          { type: "Feature" as const, properties: { selected: l.selected }, geometry: { type: "LineString" as const, coordinates: l.coordinates } },
+          ...(l.selected && l.stretches ? l.stretches : []).map((s) => ({
+            type: "Feature" as const,
+            properties: { selected: true, riskColor: RISK_STYLE[s.level].color },
+            geometry: { type: "LineString" as const, coordinates: l.coordinates.slice(s.start, s.end + 1) },
+          })),
+        ]),
     });
   }, [loaded, tripLines]);
 

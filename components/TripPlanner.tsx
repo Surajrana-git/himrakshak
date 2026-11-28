@@ -1,6 +1,8 @@
 import { useState } from "react";
 import RouteOptionCard from "@/components/RouteOptionCard";
+import PlaceField from "@/components/PlaceField";
 import { PLACES, type Place } from "@/lib/trip";
+import { inUttarakhand } from "@/lib/area";
 import type { RouteOption } from "@/lib/routes";
 import { googleDirectionsUrl } from "@/lib/google-maps";
 
@@ -19,11 +21,9 @@ type Props = {
   onClose: () => void;
 };
 
-const byName = (name: string) => PLACES.find((p) => p.name === name)!;
 const DHAMS = PLACES.filter((p) => p.dham);
-const TOWNS = PLACES.filter((p) => !p.dham);
 
-// "Kahan jaana hai?" → route options (safest / fastest) → Start.
+// "Where to?" → route options (safest / fastest) → Start.
 export default function TripPlanner({ from, to, options, loading, failed, selected, avoidsClosures, onFrom, onTo, onPick, onStart, onClose }: Props) {
   const [gpsError, setGpsError] = useState<string | null>(null);
 
@@ -33,13 +33,13 @@ export default function TripPlanner({ from, to, options, loading, failed, select
       (pos) => {
         const { latitude: lat, longitude: lon } = pos.coords;
         // The router only covers Uttarakhand.
-        if (lat < 29.5 || lat > 31.5 || lon < 77.5 || lon > 80.5) {
-          setGpsError("You are outside Uttarakhand. Pick a starting point from the list.");
+        if (!inUttarakhand(lat, lon)) {
+          setGpsError("You are outside Uttarakhand. Search a starting place instead.");
           return;
         }
         onFrom({ name: "My location", hindi: "My location", lat, lon, dham: false });
       },
-      () => setGpsError("Could not get your location. Pick from the list."),
+      () => setGpsError("Could not get your location. Search a starting place instead."),
       { enableHighAccuracy: true, timeout: 10000 },
     );
   }
@@ -55,57 +55,32 @@ export default function TripPlanner({ from, to, options, loading, failed, select
         </button>
       </div>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-semibold">From</span>
-        <div className="flex gap-2">
-          <select
-            value={from.name}
-            onChange={(e) => onFrom(byName(e.target.value))}
-            className="min-h-12 flex-1 rounded-xl border-2 border-ink/20 bg-snow px-3"
-          >
-            {from.name === "My location" && <option value="My location">My location</option>}
-            {TOWNS.map((p) => (
-              <option key={p.name} value={p.name}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          <button onClick={useMyLocation} aria-label="My location" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-ink text-snow">
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-            </svg>
-          </button>
+      <div className="flex items-end gap-2">
+        <div className="min-w-0 flex-1">
+          <PlaceField label="From" value={from} placeholder="Search a starting place" onPick={onFrom} />
         </div>
-        {gpsError && <span className="text-sm text-danger">{gpsError}</span>}
-      </label>
-
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-semibold">To</span>
-        <select
-          value={to?.name ?? ""}
-          onChange={(e) => onTo(byName(e.target.value))}
-          className="min-h-12 rounded-xl border-2 border-ink/20 bg-snow px-3 font-semibold"
-        >
-          <option value="" disabled>
-            Choose a dham or town
-          </option>
-          <optgroup label="Char Dham">
-            {DHAMS.map((p) => (
-              <option key={p.name} value={p.name}>
-                {p.name}
-              </option>
-            ))}
-          </optgroup>
-          <optgroup label="Towns">
-            {TOWNS.map((p) => (
-              <option key={p.name} value={p.name}>
-                {p.name}
-              </option>
-            ))}
-          </optgroup>
-        </select>
-      </label>
+        <button onClick={useMyLocation} aria-label="Start from my location" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green text-white">
+          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+          </svg>
+        </button>
+      </div>
+      {gpsError && <span className="text-sm text-danger">{gpsError}</span>}
+      <PlaceField label="To" value={to} placeholder="Search any place in Uttarakhand" onPick={onTo} />
+      <div className="flex flex-wrap gap-2">
+        {DHAMS.map((p) => (
+          <button
+            key={p.name}
+            onClick={() => onTo(p)}
+            aria-pressed={to?.name === p.name}
+            className={`min-h-10 rounded-full border-2 px-3 text-sm font-semibold ${to?.name === p.name ? "border-green bg-mint text-green-dark" : "border-ink/15"}`}
+          >
+            {/* "Gaurikund (Kedarnath)" → "Kedarnath": drivers know the dham name */}
+            {p.name.match(/\((.*)\)/)?.[1] ?? p.name}
+          </button>
+        ))}
+      </div>
 
       {loading && <p className="text-sm text-muted">Checking routes and rain…</p>}
       {failed && <p className="text-sm text-danger">Cannot get routes right now (routing server). Try again shortly.</p>}
@@ -120,7 +95,7 @@ export default function TripPlanner({ from, to, options, loading, failed, select
               </li>
             ))}
           </ul>
-          <p className="text-xs text-muted">Risk = live rain every 25 km along the route (Open-Meteo), now and the next 6 hours.</p>
+          <p className="text-xs text-muted">Risk for every 10 km of road = live rain now and in the next 6 h (Open-Meteo) × hillside slope × past landslides nearby (NASA).</p>
           <button onClick={onStart} disabled={!selected} className="min-h-14 rounded-full bg-orange font-display text-xl text-ink shadow-lg">
             Start
           </button>

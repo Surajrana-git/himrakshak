@@ -2,15 +2,12 @@
 
 import { useState } from "react";
 import ReportIcon from "@/components/ReportIcon";
-import { createReport, REPORT_KINDS, type ReportKind } from "@/lib/reports";
+import { createReport, OFF_HIGHWAY, ON_HIGHWAY_KM, REPORT_KINDS, type ReportKind } from "@/lib/reports";
 import { nearestSegment } from "@/lib/geo";
 
 type Segment = { id: string; from: string; to: string; coordinates: number[][]; rainPoint: { lat: number; lon: number } };
 
 type Props = { segments: Segment[]; onClose: () => void };
-
-// GPS further than this from the route is not "on the road": ask the user to pick.
-const ON_ROUTE_KM = 5;
 
 export default function ReportForm({ segments, onClose }: Props) {
   const [segmentId, setSegmentId] = useState(segments[0].id);
@@ -27,13 +24,13 @@ export default function ReportForm({ segments, onClose }: Props) {
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         const nearest = nearestSegment(coords.latitude, coords.longitude, segments);
-        if (nearest.km <= ON_ROUTE_KM) {
+        setGps({ lat: coords.latitude, lon: coords.longitude });
+        if (nearest.km <= ON_HIGHWAY_KM) {
           setSegmentId(nearest.id);
-          setGps({ lat: coords.latitude, lon: coords.longitude });
           setGpsNote("Stretch picked from your location.");
         } else {
-          setGps(null);
-          setGpsNote(`You are ${Math.round(nearest.km)} km from the route. Pick the stretch below.`);
+          setSegmentId(OFF_HIGHWAY);
+          setGpsNote("Your location is set. It is away from the watched highways, so it is filed under its place name.");
         }
       },
       () => setGpsNote("Could not get your location. Pick the stretch below."),
@@ -43,8 +40,8 @@ export default function ReportForm({ segments, onClose }: Props) {
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
-    const segment = segments.find((s) => s.id === segmentId)!;
-    const point = gps ?? segment.rainPoint;
+    const point = gps ?? segments.find((s) => s.id === segmentId)?.rainPoint;
+    if (!point) return setGpsNote("Tap \"Use my location\" or pick a stretch.");
     setStatus("sending");
     try {
       await createReport({ segment_id: segmentId, kind, note: note.trim() || null, lat: point.lat, lon: point.lon, photo });
@@ -88,6 +85,7 @@ export default function ReportForm({ segments, onClose }: Props) {
             }}
             className="min-h-12 rounded-full border-2 border-ink/20 bg-white px-4"
           >
+            {segmentId === OFF_HIGHWAY && <option value={OFF_HIGHWAY}>My location (off the highways)</option>}
             {segments.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.from} → {s.to}

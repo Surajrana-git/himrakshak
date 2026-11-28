@@ -32,6 +32,11 @@ export type Report = {
 
 export type NewReport = Omit<Report, "id" | "created_at" | "photo_url"> & { photo: File | null };
 
+// segment_id for a report away from the watched highways: it still shows on every map by its GPS point.
+export const OFF_HIGHWAY = "other";
+// A report this far from every watched highway stretch is filed as OFF_HIGHWAY.
+export const ON_HIGHWAY_KM = 5;
+
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
 // Recent reports, kept live: new ones from any phone appear instantly.

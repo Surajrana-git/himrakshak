@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ReportIcon from "@/components/ReportIcon";
-import { createReport, REPORT_KINDS, type ReportKind } from "@/lib/reports";
+import { createReport, OFF_HIGHWAY, ON_HIGHWAY_KM, REPORT_KINDS, type ReportKind } from "@/lib/reports";
 import { nearestSegment } from "@/lib/geo";
 
 type Props = {
@@ -22,7 +22,8 @@ export default function QuickReport({ at, segments, onSent, onMore, onClose }: P
     setSending(kind);
     setError("");
     try {
-      const segment_id = nearestSegment(at.lat, at.lon, segments).id;
+      const nearest = nearestSegment(at.lat, at.lon, segments);
+      const segment_id = nearest.km <= ON_HIGHWAY_KM ? nearest.id : OFF_HIGHWAY;
       await createReport({ segment_id, kind, note: null, lat: at.lat, lon: at.lon, photo: null });
       navigator.vibrate?.(80);
       onSent(REPORT_KINDS[kind].label);
