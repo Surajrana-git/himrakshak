@@ -58,6 +58,7 @@ type Props = {
   tripLines: { id: string; coordinates: number[][]; selected: boolean; stretches?: { start: number; end: number; level: RiskLevel }[] }[];
   fitLine: number[][] | null;
   car: { lat: number; lon: number } | null;
+  vehicle: "auto" | "bus" | "motorcycle" | "pedestrian"; // the icon the car marker shows
   // Within ~600 m of a turn: tilt into a 3D view along the road and draw the arrow through the junction.
   junction: Turn | null;
   lakes: { id: string; name: string; lat: number; lon: number }[];
@@ -309,14 +310,19 @@ function fuelPin(cng: boolean): HTMLElement {
   return pin;
 }
 
-function carPin(): HTMLElement {
+// Bike, car, bus or walker (the mode picked for the trip), white on green, like a maps app.
+const VEHICLE_PATHS = {
+  auto: "M5 16h14v-4l-2-5H7l-2 5zM5 16v3M19 16v3M7.5 13.5h.5M16 13.5h.5",
+  motorcycle: "M6 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 15l4-6h5l3 6M10 9l2 6",
+  bus: "M6 4h12a1 1 0 0 1 1 1v12H5V5a1 1 0 0 1 1-1zM5 11h14M8 17v3M16 17v3M8 14h.5M15.5 14h.5",
+  pedestrian: "M13 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM10 21l2-6 3 2v4M8 12l2-4h4l2 4M12 8l-1 7",
+};
+function carPin(vehicle: Props["vehicle"]): HTMLElement {
   const pin = document.createElement("div");
   pin.setAttribute("role", "img");
-  pin.setAttribute("aria-label", "Your vehicle");
-  pin.className = "relative z-30 flex h-9 w-9 items-center justify-center rounded-full border-4 border-snow bg-ink shadow-xl";
-  const dot = document.createElement("span");
-  dot.className = "h-3 w-3 rounded-full bg-orange";
-  pin.append(dot);
+  pin.setAttribute("aria-label", `You (${vehicle === "motorcycle" ? "bike" : vehicle === "pedestrian" ? "walking" : vehicle === "bus" ? "bus" : "car"})`);
+  pin.className = "relative z-30 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-green text-white shadow-xl";
+  pin.innerHTML = `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${VEHICLE_PATHS[vehicle]}"/></svg>`;
   return pin;
 }
 
@@ -346,6 +352,7 @@ export default function RiskMap({
   tripLines,
   fitLine,
   car,
+  vehicle,
   junction,
   lakes,
   onSelectLake,
@@ -412,7 +419,8 @@ export default function RiskMap({
     fuelMarkers.current = fuel.map((f) => {
       const box = document.createElement("div");
       box.className = "text-sm text-ink";
-      box.innerHTML = `<b></b><br><span></span>`;
+      box.innerHTML = `<b></b><br><span></span><br><a target="_blank" rel="noopener noreferrer" style="color:#0E7A3D;font-weight:600">Go here to refill</a>`;
+      box.querySelector("a")!.setAttribute("href", `https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lon}&travelmode=driving`);
       box.querySelector("b")!.textContent = f.name;
       box.querySelector("span")!.textContent = `${f.cng ? "Petrol + CNG" : "Petrol"} · km ${f.km} on your route`;
       return new Marker({ element: fuelPin(f.cng) }).setLngLat([f.lon, f.lat]).setPopup(new Popup({ offset: 18 }).setDOMContent(box)).addTo(map);
@@ -659,7 +667,7 @@ export default function RiskMap({
       carMarker.current = null;
       return;
     }
-    if (!carMarker.current) carMarker.current = new Marker({ element: carPin() }).setLngLat([carLon, carLat]).addTo(map);
+    if (!carMarker.current) carMarker.current = new Marker({ element: carPin(vehicle) }).setLngLat([carLon, carLat]).addTo(map);
     carMarker.current.setLngLat([carLon, carLat]);
     if (junctionBearing !== undefined) {
       // Real OSM geometry and 3D buildings (OpenFreeMap), tilted along the direction of travel.
@@ -667,6 +675,8 @@ export default function RiskMap({
     } else {
       map.easeTo({ center: [carLon, carLat], zoom: Math.max(Math.min(map.getZoom(), 14), 10), pitch: 0, bearing: 0, padding: viewPadding(), duration: 380 });
     }
+    // vehicle is fixed for a trip; the marker is rebuilt when the next trip starts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded, carLat, carLon, junctionBearing]);
 
   useEffect(() => {

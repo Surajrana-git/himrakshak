@@ -1,14 +1,12 @@
 import { getSettings } from "@/lib/settings";
 import { playSiren } from "@/lib/siren";
 import { useEffect, useRef, useState } from "react";
-import RouteOptionCard from "@/components/RouteOptionCard";
 import ReportIcon from "@/components/ReportIcon";
 import type { TripAlert } from "@/lib/trip";
 import type { RouteOption } from "@/lib/routes";
 
 type Props = {
   alert: TripAlert;
-  current: { km: number; hours: number };
   stopPlace: string;
   onResolve: (option: RouteOption | null) => void;
 };
@@ -27,7 +25,7 @@ function speak(text: string) {
   window.speechSynthesis.speak(utterance);
 }
 
-export default function NavAlert({ alert, current, stopPlace, onResolve }: Props) {
+export default function NavAlert({ alert, stopPlace, onResolve }: Props) {
   const kind = alert.hazard.kind;
   const isJam = kind === "jam";
   // Jam and AI warnings leave the road open, so doing nothing keeps the driver on it.
@@ -74,62 +72,52 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
 
   const noWayAround = ready && options.length === 0;
 
+  const title = isJam ? "Traffic jam ahead" : kind === "ai" ? "High landslide risk ahead" : noWayAround ? "Road closed: stop" : "Landslide: road closed ahead";
+  const line = !ready
+    ? "Finding another route…"
+    : alert.failed
+      ? "Cannot find a new route right now."
+      : isJam
+        ? fastest
+          ? `Other route ${fastest.hours} h · ${fastest.km} km`
+          : "No faster route. Stay on this road."
+        : noWayAround
+          ? soft
+            ? "No other route. Drive slowly, watch for falling rocks."
+            : `No other route. Wait at ${stopPlace}.`
+          : safest
+            ? `Safer route: ${safest.hours} h · ${safest.km} km`
+            : "";
+
+  // A slim card at the top, under the turn arrow, so most of the road stays in view.
   return (
-    <div role="alertdialog" aria-live="assertive" className={`rounded-3xl p-4 shadow-2xl ${soft ? "bg-orange text-ink" : "bg-danger text-snow"}`}>
+    <div role="alertdialog" aria-live="assertive" className={`rounded-2xl p-3 shadow-xl ${soft ? "bg-orange text-ink" : "bg-danger text-snow"}`}>
       <div className="flex items-center gap-3">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-snow text-ink">
-          <ReportIcon kind={isJam ? "jam" : "landslide"} className="h-9 w-9" />
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-snow text-ink">
+          <ReportIcon kind={isJam ? "jam" : "landslide"} className="h-7 w-7" />
         </span>
-        <div>
-          <p className="font-display text-xs uppercase tracking-[0.2em]">
-            {isJam ? "Traffic jam ahead" : kind === "ai" ? "AI landslide warning" : "Landslide ahead"} · {alert.kmAhead} km
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-lg leading-tight font-bold">
+            {title} · {alert.kmAhead} km
           </p>
-          <p className="font-display text-3xl leading-tight">{isJam ? "Jam ahead" : kind === "ai" ? "High risk ahead" : "Road closed"}</p>
+          <p className="truncate text-sm">{line}</p>
         </div>
       </div>
-
-      {kind === "ai" && <p className="mt-2">Heavy rain makes slides likely on this stretch today. The road is still open.</p>}
-      {!ready && <p className="mt-2">Finding another route…</p>}
-      {alert.failed && <p className="mt-2">Cannot find a new route right now (routing server).</p>}
-
-      {isJam && ready && fastest && (
-        <p className="mt-2">
-          Other route: {fastest.hours} h · {fastest.km} km. Current: {current.hours} h · {current.km} km (plus jam delay).
-        </p>
-      )}
-      {soft && noWayAround && <p className="mt-2">No other route. Drive slowly and watch for falling rocks.</p>}
-
-      {kind === "closure" && noWayAround && (
-        <p className="mt-2">
-          There is no other route. Do not go ahead: stop at {stopPlace} and wait for the road to reopen.
-        </p>
-      )}
-      {!isJam && options.length > 0 && (
-        <ul className="mt-3 flex flex-col gap-2 text-ink">
-          {options.map((o) => (
-            <li key={o.id}>
-              <RouteOptionCard option={o} selected={o.id === safest?.id} onSelect={() => resolve(o)} />
-            </li>
-          ))}
-        </ul>
-      )}
-
       {ready && (
-        <div className="mt-3 flex flex-col gap-2">
+        <div className="mt-2 flex gap-2">
           {isJam && fastest && (
-            <button onClick={() => resolve(fastest)} className="min-h-12 rounded-full bg-ink font-semibold text-snow">
-              Take other route
+            <button onClick={() => resolve(fastest)} className="min-h-11 flex-1 rounded-full bg-ink text-sm font-semibold text-snow">
+              Other route
             </button>
           )}
-          <button onClick={() => resolve(soft ? null : safest)} className="min-h-12 rounded-full bg-snow font-semibold text-ink">
-            {soft ? "Stay on this route" : safest ? "Take the safest route" : "OK, I will stop"}
+          {!isJam && safest && soft && (
+            <button onClick={() => resolve(safest)} className="min-h-11 flex-1 rounded-full bg-ink text-sm font-semibold text-snow">
+              Safer route
+            </button>
+          )}
+          <button onClick={() => resolve(soft ? null : safest)} className="min-h-11 flex-1 rounded-full bg-snow text-sm font-semibold text-ink">
+            {soft ? "Stay" : safest ? "Take safer route" : "OK, I will stop"} · {left}s
           </button>
-          <div className="h-1.5 overflow-hidden rounded-full bg-ink/20" aria-hidden>
-            <div className="h-full bg-snow transition-[width] duration-1000 ease-linear" style={{ width: `${(left / seconds) * 100}%` }} />
-          </div>
-          <p className="text-xs">
-            {left} s{soft ? " · no answer keeps this route" : safest ? " · no answer picks the safest route" : ""}
-          </p>
         </div>
       )}
     </div>

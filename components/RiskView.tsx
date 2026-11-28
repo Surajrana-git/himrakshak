@@ -188,7 +188,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const trip = useTrip(knownHazards, storm);
 
   // Petrol and CNG pumps along the chosen road (planner list and map icons).
-  const fuelRoute = trip.stage !== "idle" ? (trip.selected ?? null) : null;
+  const fuelRoute = trip.stage === "nav" ? trip.active : trip.stage === "plan" ? trip.selected : null;
   const fuelKey = fuelRoute ? `${fuelRoute.id}|${fuelRoute.km}|${fuelRoute.coordinates.length}` : "";
   const [fuel, setFuel] = useState<{ key: string; stops: FuelStop[] } | null>(null);
   useEffect(() => {
@@ -206,6 +206,10 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fuelKey]);
   const fuelStops = fuel?.key === fuelKey ? fuel.stops : null;
+  // The next pump ahead of the car (stops are measured in km from the start of the route).
+  const drivenKm = trip.active ? trip.active.km - trip.remainingKm : 0;
+  const nextStop = trip.stage === "nav" ? fuelStops?.find((f) => f.km > drivenKm) : undefined;
+  const nextFuel = nextStop ? { stop: nextStop, km: Math.max(1, Math.round(nextStop.km - drivenKm)) } : null;
 
   // Links from other screens: /?plan opens the planner, /?trip=fromLat,fromLon,toLat,toLon,mode|From|To
   // re-plans a saved route. Read once, then cleared from the address bar.
@@ -393,6 +397,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
           tripLines={tripLines}
           fitLine={trip.stage === "plan" ? (trip.selected?.coordinates ?? null) : layer === "lakes" ? lakeLine : null}
           car={trip.stage === "nav" ? trip.car : null}
+          vehicle={trip.mode}
           junction={trip.stage === "nav" ? trip.junction : null}
           lakes={layer === "lakes" ? lakesData.lakes : NO_LAKES}
           onSelectLake={(id) => {
@@ -467,7 +472,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
           </button>
         )}
         {trip.stage === "nav" && trip.turn && <TurnBanner turn={trip.turn} />}
-        {trip.stage === "nav" && !trip.arrived && (
+        {trip.stage === "nav" && !trip.arrived && trip.ahead && !trip.alert && (
           <div
             role="status"
             className={`pointer-events-auto flex items-center gap-3 rounded-2xl p-3 shadow-lg ${
@@ -496,11 +501,10 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
       </header>
 
       {trip.alert && (
-        <div className="absolute inset-x-3 top-[76px] z-30 max-h-[calc(100dvh-96px)] overflow-y-auto md:right-auto md:left-[432px] md:w-[400px]">
+        <div className="absolute inset-x-3 top-[max(12px,env(safe-area-inset-top))] z-30 md:right-auto md:left-[432px] md:w-[400px]">
           <NavAlert
             key={trip.alert.hazard.id}
             alert={trip.alert}
-            current={{ km: trip.remainingKm, hours: trip.remainingHours }}
             stopPlace={stopPlace?.name ?? "the last town"}
             onResolve={trip.resolveAlert}
           />
@@ -509,6 +513,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
 
       {/* Floating map buttons: SOS always on top, then the design's green stack */}
       <div className="absolute top-[124px] right-3 z-10 flex flex-col gap-2 md:top-4 md:right-4">
+        {!navigating && (
         <Link
           href="/sos"
           aria-label="SOS emergency help"
@@ -516,6 +521,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
         >
           SOS
         </Link>
+        )}
         {trip.stage !== "nav" && (
           <MapButton label="Map layers" onClick={() => setLayersOpen(true)}>
             <path d="M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5" />
@@ -525,12 +531,13 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
           <circle cx="12" cy="12" r="9" />
           <path d="m12 5 3 7h-6zM12 19l-3-7h6z" fill="currentColor" />
         </MapButton>
-        {supabase && (
+        {supabase && !navigating && (
           <MapButton label="Map Camera: post a photo" onClick={() => router.push("/post")}>
             <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
             <circle cx="12" cy="13" r="3.5" />
           </MapButton>
         )}
+        {!navigating && (
         <MapButton
           label="Share location"
           onClick={async () => {
@@ -548,6 +555,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
           <circle cx="18" cy="18" r="2.5" />
           <path d="m8.2 10.9 7.6-3.8M8.2 13.1l7.6 3.8" />
         </MapButton>
+        )}
         <MapButton label="My location" onClick={() => setLocateSignal((n) => n + 1)}>
           <circle cx="12" cy="12" r="4" />
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
@@ -563,9 +571,29 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
         </p>
       )}
 
+      {navigating && (
+        <div className="absolute inset-x-0 bottom-0 z-20 md:right-auto md:left-4 md:w-[400px]">
+          <NavPanel
+            destination={trip.to ? trip.to.name : ""}
+            remainingKm={trip.remainingKm}
+            remainingHours={trip.remainingHours}
+            gps={trip.gps}
+            arrived={trip.arrived}
+            halted={trip.halted}
+            stopPlace={stopPlace ? stopPlace.name : "the last town"}
+            onDemo={trip.demoHazard}
+            onReport={supabase ? () => (trip.car ? setQuickReport(true) : setReporting(true)) : null}
+            speedKmh={trip.speedKmh}
+            nextFuel={nextFuel?.stop ?? null}
+            fuelKmAway={nextFuel?.km ?? null}
+            onStop={trip.close}
+          />
+        </div>
+      )}
+
       {/* Bottom sheet on phones, side panel on desktop */}
       <section
-        hidden={trip.stage === "idle" && (tab !== "home" || plusOpen)}
+        hidden={(trip.stage === "idle" && (tab !== "home" || plusOpen)) || navigating}
         className={`absolute inset-x-0 bottom-0 z-20 flex flex-col rounded-t-3xl bg-white shadow-[0_-8px_24px_rgba(20,35,31,0.18)] transition-[max-height] duration-300 ${
           trip.stage === "plan" ? "max-h-[58dvh]" : sheetOpen ? "max-h-[85dvh]" : trip.stage === "idle" ? "max-h-[36dvh]" : "max-h-[44dvh]"
         } md:inset-x-auto md:top-[144px] md:bottom-4 md:left-4 md:max-h-none md:w-[400px] md:rounded-3xl md:shadow-lg`}
@@ -618,21 +646,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
               onClose={trip.close}
             />
           )}
-          {trip.stage === "nav" && (
-            <NavPanel
-              destination={trip.to ? trip.to.name : ""}
-              remainingKm={trip.remainingKm}
-              remainingHours={trip.remainingHours}
-              gps={trip.gps}
-              arrived={trip.arrived}
-              halted={trip.halted}
-              stopPlace={stopPlace ? stopPlace.name : "the last town"}
-              onDemo={trip.demoHazard}
-              onReport={supabase ? () => (trip.car ? setQuickReport(true) : setReporting(true)) : null}
-              speedKmh={trip.speedKmh}
-              onStop={trip.close}
-            />
-          )}
+
           {trip.stage === "idle" && layer === "lakes" && (
             <section className="flex flex-col gap-3">
               <h2 className="font-display text-xl">Glacier jheel · Glacial lakes above the roads</h2>
@@ -775,6 +789,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
       {danger && (
         <DangerPopup
           danger={danger}
+          compact={navigating}
           onShow={() => {
             setFocusPoint({ lat: danger.lat, lon: danger.lon });
             setDanger(null);

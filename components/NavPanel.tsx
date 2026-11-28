@@ -1,5 +1,8 @@
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
+import Link from "next/link";
+import Icon from "@/components/Icon";
 import ReportIcon from "@/components/ReportIcon";
+import type { FuelStop } from "@/lib/fuel";
 
 type Props = {
   destination: string;
@@ -12,6 +15,8 @@ type Props = {
   onDemo: (kind: "jam" | "ai" | "closure") => void;
   onReport: (() => void) | null;
   speedKmh: number | null;
+  nextFuel: FuelStop | null; // the next pump ahead on this road
+  fuelKmAway: number | null;
   onStop: () => void;
 };
 
@@ -24,89 +29,101 @@ const clockNow = () => Math.floor(Date.now() / 30_000) * 30_000;
 
 function arrivalClock(now: number, hours: number): string {
   if (now === 0) return "--:--";
-  return new Date(now + hours * 3600_000).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Kolkata" });
+  return new Date(now + hours * 3600_000).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "Asia/Kolkata" });
 }
 
 function duration(hours: number): string {
   const h = Math.floor(hours);
   const m = Math.round((hours - h) * 60);
-  return h > 0 ? `${h} h ${m} min` : `${m} min`;
+  return h > 0 ? `${h} hr ${m} min` : `${m} min`;
 }
 
-// Waze-style driving bar: round report button left, arrival time in the middle, stop right.
-export default function NavPanel({ destination, remainingKm, remainingHours, gps, arrived, halted, stopPlace, onDemo, onReport, speedKmh, onStop }: Props) {
-  const now = useSyncExternalStore(subscribeClock, clockNow, () => 0);
+const pumpLink = (f: FuelStop) => `https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lon}&travelmode=driving`;
 
-  if (arrived) {
+// Driving screen, kept minimal so the driver looks at the road: speed and buttons float on the
+// map, one slim bar at the bottom (end trip · time left · SOS).
+export default function NavPanel(p: Props) {
+  const now = useSyncExternalStore(subscribeClock, clockNow, () => 0);
+  const [demoOpen, setDemoOpen] = useState(false);
+
+  if (p.arrived) {
     return (
-      <section className="flex flex-col gap-3">
+      <div className="pointer-events-auto flex flex-col gap-3 rounded-t-3xl bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(20,35,31,0.18)]">
         <div className="rounded-2xl bg-teal p-4 text-ink">
           <p className="font-display text-3xl">You have arrived!</p>
-          <p>{destination}</p>
+          <p>{p.destination}</p>
           <p className="mt-1 text-sm">In the mountains, safety comes before speed.</p>
         </div>
-        <button onClick={onStop} className="min-h-14 rounded-full bg-ink font-display text-xl text-snow">
+        <button onClick={p.onStop} className="min-h-14 rounded-full bg-ink font-display text-xl text-snow">
           Done
         </button>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="flex flex-col gap-3">
-      {halted && (
-        <div className="rounded-2xl bg-danger p-4 text-snow">
-          <p className="font-display text-2xl">Road closed: do not go ahead</p>
-          <p>Stop at {stopPlace}. The app will tell you when the road reopens.</p>
+    <div className="pointer-events-none flex flex-col gap-2">
+      {/* Floating over the map: speed on the left; report and refill on the right */}
+      <div className="flex items-end justify-between px-3">
+        <div className="pointer-events-auto flex h-16 w-16 flex-col items-center justify-center rounded-full bg-white shadow-lg">
+          <span className="font-display text-2xl leading-none font-bold">{p.gps && p.speedKmh !== null ? p.speedKmh : "–"}</span>
+          <span className="text-[10px] font-semibold">km/h</span>
         </div>
-      )}
-
-      <div className="flex items-center gap-3">
-        {onReport && (
-          <button
-            onClick={onReport}
-            aria-label="Report"
-            className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-full bg-orange text-ink shadow-lg"
-          >
-            <ReportIcon kind="landslide" className="h-8 w-8" />
-            <span className="text-[10px] font-bold">Report</span>
-          </button>
-        )}
-        <div className="min-w-0 flex-1 text-center">
-          <p className="font-display text-4xl leading-none">{arrivalClock(now, remainingHours)}</p>
-          <p className="mt-1 text-sm font-semibold">
-            {duration(remainingHours)} · {remainingKm} km
-          </p>
-          <p className="truncate text-xs text-muted">{destination}</p>
+        <div className="pointer-events-auto flex flex-col items-end gap-2">
+          {p.nextFuel && p.fuelKmAway !== null && (
+            <a
+              href={pumpLink(p.nextFuel)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex max-w-[60vw] items-center gap-2 rounded-full bg-white py-2 pr-3 pl-2 text-sm font-semibold shadow-lg"
+            >
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${p.nextFuel.cng ? "bg-teal text-ink" : "bg-green text-white"}`}>
+                <Icon name="fuel" className="h-5 w-5" />
+              </span>
+              <span className="truncate">
+                {p.nextFuel.cng ? "CNG" : "Petrol"} in {p.fuelKmAway} km
+              </span>
+            </a>
+          )}
+          {p.onReport && (
+            <button onClick={p.onReport} aria-label="Report a hazard" className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-orange shadow-lg">
+              <ReportIcon kind="landslide" className="h-8 w-8" />
+            </button>
+          )}
         </div>
-        <button
-          onClick={onStop}
-          aria-label="End trip"
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-ink/10 text-ink"
-        >
-          <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden>
-            <path d="M6 6l12 12M18 6 6 18" />
-          </svg>
-        </button>
       </div>
 
-      <p className={`self-center rounded-full px-3 py-1 text-xs font-semibold ${gps ? "bg-teal text-ink" : "border-2 border-dashed border-ink/40"}`}>
-        {gps ? `GPS · live location${speedKmh === null ? "" : ` · ${speedKmh} km/h`}` : "Demo drive (simulation, not live GPS)"}
-      </p>
-
-      {!halted && (
-        <div className="grid grid-cols-3 gap-2">
-          <button onClick={() => onDemo("jam")} className="min-h-12 rounded-xl border-2 border-dashed border-ink/40 px-2 text-sm font-semibold">
-            Demo: jam
+      <div className="pointer-events-auto rounded-t-3xl bg-white px-4 pt-2 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(20,35,31,0.18)]">
+        <button onClick={() => setDemoOpen(!demoOpen)} aria-label="Demo controls" className="mx-auto flex min-h-6 w-16 items-center justify-center">
+          <span className="h-1.5 w-12 rounded-full bg-ink/25" />
+        </button>
+        <div className="flex items-center gap-3">
+          <button onClick={p.onStop} aria-label="End trip" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-ink/20">
+            <Icon name="close" className="h-7 w-7" />
           </button>
-          <button onClick={() => onDemo("ai")} className="min-h-12 rounded-xl border-2 border-dashed border-ink/40 px-2 text-sm font-semibold">
-            Demo: AI risk
-          </button>
-          <button onClick={() => onDemo("closure")} className="min-h-12 rounded-xl border-2 border-dashed border-ink/40 px-2 text-sm font-semibold">
-            Demo: landslide
-          </button>
+          <div className="min-w-0 flex-1 text-center">
+            <p className={`font-display text-3xl leading-none font-bold ${p.halted ? "text-danger" : "text-green-dark"}`}>{p.halted ? "Stop" : duration(p.remainingHours)}</p>
+            <p className="mt-1 truncate text-sm text-muted">
+              {p.halted ? `Road closed · wait at ${p.stopPlace}` : `${p.remainingKm} km · ${arrivalClock(now, p.remainingHours)}`}
+            </p>
+          </div>
+          <Link href="/sos" aria-label="SOS emergency" className="flex h-14 min-w-[88px] items-center justify-center rounded-full bg-danger px-4 font-display text-xl font-bold text-white shadow-md">
+            SOS
+          </Link>
         </div>
-      )}
-    </section>
+        {demoOpen && (
+          <div className="mt-3 flex flex-col gap-2">
+            <p className="text-center text-xs text-muted">{p.gps ? "Live GPS" : "Demo drive (simulation, not live GPS)"}</p>
+            <div className="grid grid-cols-3 gap-2">
+              {(["jam", "ai", "closure"] as const).map((k) => (
+                <button key={k} onClick={() => p.onDemo(k)} className="min-h-11 rounded-xl border-2 border-dashed border-ink/40 px-2 text-sm font-semibold">
+                  Demo: {k === "jam" ? "jam" : k === "ai" ? "AI risk" : "landslide"}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
