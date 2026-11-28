@@ -6,6 +6,7 @@ import { PLACES, type Place } from "@/lib/trip";
 
 export type VoiceCommand =
   | { type: "go"; place: Place }
+  | { type: "find"; query: string } // "go to <a place we only know from search>"
   | { type: "start" }
   | { type: "save" }
   | { type: "sos" }
@@ -62,6 +63,8 @@ export function parseCommand(heard: string): VoiceCommand {
     .sort((a, b) => Number(b.dham) - Number(a.dham))
     .find((p) => names(p).some((n) => text.includes(n)) || heard.includes(p.hindi));
   if (place) return { type: "go", place };
+  const to = text.match(/\b(?:go|navigate|take me|directions|route|drive)\s+to\s+(.+)$/);
+  if (to) return { type: "find", query: to[1].replace(/[.?!]+$/, "").trim() };
   if (has(text, ["start", "go", "chalo", "navigate"])) return { type: "start" };
   return { type: "unknown", heard };
 }

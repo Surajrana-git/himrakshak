@@ -38,7 +38,7 @@ import { isGuest, useAuth } from "@/lib/auth";
 import { useSavedPlaces } from "@/lib/saved-places";
 import { canListen, listen, parseCommand, say } from "@/lib/voice";
 import lakesData from "@/data/glacial-lakes.json";
-import { nearestPlace, useTrip, type Hazard } from "@/lib/trip";
+import { nearestPlace, useTrip, type Hazard, type Place } from "@/lib/trip";
 import { confirmedBlocks, createReport, recentJams, REPORT_KINDS, useReports, type Report } from "@/lib/reports";
 import { distanceKm } from "@/lib/geo";
 import { deviceId } from "@/lib/device";
@@ -251,13 +251,26 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
     setListening(false);
     if (!heard) return note("Didn't catch that. Try: go to Badrinath");
     const cmd = parseCommand(heard);
-    if (cmd.type === "go") {
+    // Any place in Uttarakhand: ask the same search the search bar uses.
+    const place =
+      cmd.type === "go"
+        ? cmd.place
+        : cmd.type === "find"
+          ? await fetch(`/api/places?q=${encodeURIComponent(cmd.query)}`)
+              .then((res) => (res.ok ? res.json() : { places: [] }))
+              .then((body: { places: Place[] }) => body.places[0] ?? null)
+              .catch(() => null)
+          : null;
+    if (cmd.type === "find" && !place) {
+      say(`I could not find ${cmd.query} in Uttarakhand`);
+      note(`No place called "${cmd.query}" found in Uttarakhand`);
+    } else if (place) {
       setTab("home");
       setPlusOpen(false);
-      trip.setTo(cmd.place);
+      trip.setTo(place);
       trip.openPlanner();
-      say(`Finding the safest route to ${cmd.place.name}`);
-      note(`"${heard}" → route to ${cmd.place.name}`);
+      say(`Finding the safest route to ${place.name}`);
+      note(`"${heard}" → route to ${place.name}`);
     } else if (cmd.type === "start") {
       if (trip.stage === "plan" && trip.selected) {
         trip.start();
@@ -281,7 +294,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
       say("Trip ended");
     } else {
       say("Sorry, I did not understand. Try: go to Badrinath");
-      note(`Heard "${cmd.heard}". Try: go to Badrinath, start, save route, SOS`);
+      note(`Heard "${heard}". Try: go to Badrinath, start, save route, SOS`);
     }
   }
 

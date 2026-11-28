@@ -80,7 +80,11 @@ const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 // Keep the route clear of the floating panel: left side on desktop, bottom sheet on phones.
 function viewPadding(): PaddingOptions {
   if (window.innerWidth >= 768) return { top: 48, bottom: 48, left: 456, right: 88 };
-  return { top: 160, bottom: Math.round(window.innerHeight * 0.45), left: 32, right: 72 };
+  // With the phone keyboard open the screen is short; padding taller than the map makes
+  // MapLibre zoom out to the whole country, so keep at least 120 px of map visible.
+  const top = Math.min(160, Math.round(window.innerHeight * 0.25));
+  const bottom = Math.max(0, Math.min(Math.round(window.innerHeight * 0.45), window.innerHeight - top - 120));
+  return { top, bottom, left: 32, right: 72 };
 }
 
 function boundsOf(coordinates: number[][]): LngLatBounds {
