@@ -26,6 +26,11 @@ export default function LiveReports({ reports, segmentName }: Props) {
               </p>
               <p className="text-sm text-muted">
                 {r.segment_id === OFF_HIGHWAY ? `Near ${nearestPlace(r).name}` : segmentName(r.segment_id)} · {timeAgo(r.created_at)}
+                {r.ai_verdict && r.ai_verdict !== "unclear" && (
+                  <span className="ml-1 font-semibold">
+                    · AI photo check: {r.ai_verdict === "blocked" ? "road looks blocked" : "road looks open"} ({Math.round((r.ai_confidence ?? 0) * 100)}%)
+                  </span>
+                )}
               </p>
               {r.note && <p className="mt-1">{r.note}</p>}
             </div>

@@ -27,7 +27,10 @@ export type Report = {
   lat: number;
   lon: number;
   photo_url: string | null;
-  device_id?: string | null; // missing until supabase/run-28nov.sql has been run
+  // These three stay missing until supabase/run-28nov.sql has been run.
+  device_id?: string | null;
+  ai_verdict?: "blocked" | "clear" | "unclear" | null; // what the AI saw in the photo
+  ai_confidence?: number | null;
 };
 
 export type NewReport = Omit<Report, "id" | "created_at" | "photo_url"> & { photo: File | null };
@@ -77,6 +80,14 @@ function mergeReports(current: Report[], incoming: Report[]): Report[] {
   return [...byId.values()].sort((a, b) => b.created_at.localeCompare(a.created_at));
 }
 
+// The AI look at the photo is a bonus: if it is off or fails, the report still goes out.
+async function checkPhoto(photoUrl: string): Promise<{ verdict: "blocked" | "clear" | "unclear"; confidence: number } | null> {
+  const res = await fetch("/api/photo-check", { method: "POST", body: JSON.stringify({ photoUrl }) }).catch(() => null);
+  if (!res?.ok) return null;
+  const body = await res.json();
+  return body.verdict ? body : null;
+}
+
 export async function createReport(report: NewReport): Promise<void> {
   if (!supabase) throw new Error("Reports are off: Supabase keys missing in .env.local");
 
@@ -90,10 +101,11 @@ export async function createReport(report: NewReport): Promise<void> {
     photo_url = supabase.storage.from("report-photos").getPublicUrl(path).data.publicUrl;
   }
 
+  const ai = photo_url ? await checkPhoto(photo_url) : null;
   const row = { segment_id: report.segment_id, kind: report.kind, note: report.note, lat: report.lat, lon: report.lon, photo_url };
-  let { error } = await supabase.from("reports").insert({ ...row, device_id: deviceId() });
-  // Until supabase/run-28nov.sql adds the column, save the report without it rather than lose it.
-  if (error?.message.includes("device_id")) ({ error } = await supabase.from("reports").insert(row));
+  let { error } = await supabase.from("reports").insert({ ...row, device_id: deviceId(), ai_verdict: ai?.verdict ?? null, ai_confidence: ai?.confidence ?? null });
+  // Until supabase/run-28nov.sql adds the new columns, save the report without them rather than lose it.
+  if (error && /device_id|ai_verdict|ai_confidence/.test(error.message)) ({ error } = await supabase.from("reports").insert(row));
   if (error) throw new Error(`Report save failed: ${error.message}`);
 }
 
