@@ -1,0 +1,133 @@
+package in.himrakshak.app;
+
+import android.Manifest;
+import android.content.Intent;
+import android.os.Build;
+import androidx.core.content.ContextCompat;
+import com.getcapacitor.JSObject;
+import com.getcapacitor.PermissionState;
+import com.getcapacitor.Plugin;
+import com.getcapacitor.PluginCall;
+import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
+
+/**
+ * The web app's door to the offline SOS: SMS without data, and the Bluetooth mesh.
+ * JS: registerPlugin("SosNative") → sendSms({ number, text }), startMesh({ packet? }), stopMesh(), meshStatus().
+ */
+@CapacitorPlugin(
+        name = "SosNative",
+        permissions = {
+                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS}),
+                @Permission(alias = "bluetooth", strings = {Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_ADVERTISE, Manifest.permission.BLUETOOTH_CONNECT}),
+                @Permission(alias = "location", strings = {Manifest.permission.ACCESS_FINE_LOCATION}),
+                @Permission(alias = "notifications", strings = {Manifest.permission.POST_NOTIFICATIONS}),
+        })
+public class SosNativePlugin extends Plugin {
+
+    @Override
+    public void load() {
+        MeshRelayService.listener = (event, packet, heard, relayed, synced) -> {
+            JSObject data = new JSObject();
+            data.put("event", event);
+            data.put("heard", heard);
+            data.put("relayed", relayed);
+            data.put("synced", synced);
+            if (packet != null) data.put("packet", packet.toText());
+            notifyListeners("mesh", data);
+        };
+    }
+
+    // ---- SMS ---------------------------------------------------------------------------------
+
+    @PluginMethod
+    public void sendSms(PluginCall call) {
+        if (getPermissionState("sms") != PermissionState.GRANTED) {
+            requestPermissionForAlias("sms", call, "smsPermission");
+            return;
+        }
+        doSend(call);
+    }
+
+    @PermissionCallback
+    private void smsPermission(PluginCall call) {
+        if (getPermissionState("sms") == PermissionState.GRANTED) doSend(call);
+        else call.reject("SMS permission was not given");
+    }
+
+    private void doSend(PluginCall call) {
+        String number = call.getString("number");
+        String text = call.getString("text");
+        if (number == null || number.isEmpty() || text == null) {
+            call.reject("number and text are needed");
+            return;
+        }
+        call.setKeepAlive(true); // resolves "sent", then reports "delivered" as an event
+        SmsFallback.send(getContext(), number, text, (status, detail) -> {
+            JSObject data = new JSObject();
+            data.put("number", number);
+            data.put("status", status);
+            data.put("detail", detail);
+            notifyListeners("sms", data);
+            if (status.equals("sent")) call.resolve(data);
+            else if (status.equals("failed")) call.reject(detail);
+            if (!status.equals("retrying") && !status.equals("sent")) call.setKeepAlive(false);
+        });
+    }
+
+    // ---- Bluetooth mesh ------------------------------------------------------------------------
+
+    @PluginMethod
+    public void startMesh(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && getPermissionState("bluetooth") != PermissionState.GRANTED) {
+            requestPermissionForAliases(new String[] {"bluetooth", "location", "notifications"}, call, "meshPermission");
+            return;
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S && getPermissionState("location") != PermissionState.GRANTED) {
+            requestPermissionForAlias("location", call, "meshPermission");
+            return;
+        }
+        doStart(call);
+    }
+
+    @PermissionCallback
+    private void meshPermission(PluginCall call) {
+        boolean ok = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                ? getPermissionState("bluetooth") == PermissionState.GRANTED
+                : getPermissionState("location") == PermissionState.GRANTED;
+        if (ok) doStart(call);
+        else call.reject("Bluetooth permission was not given");
+    }
+
+    private void doStart(PluginCall call) {
+        Intent intent = new Intent(getContext(), MeshRelayService.class);
+        String packet = call.getString("packet");
+        if (packet != null) intent.putExtra(MeshRelayService.EXTRA_PACKET, packet);
+        ContextCompat.startForegroundService(getContext(), intent);
+        call.resolve(status());
+    }
+
+    @PluginMethod
+    public void stopMesh(PluginCall call) {
+        getContext().stopService(new Intent(getContext(), MeshRelayService.class));
+        MeshRelayService.ownId = null;
+        call.resolve(status());
+    }
+
+    @PluginMethod
+    public void meshStatus(PluginCall call) {
+        call.resolve(status());
+    }
+
+    private JSObject status() {
+        JSObject s = new JSObject();
+        s.put("running", MeshRelayService.running);
+        s.put("heard", MeshRelayService.heard);
+        s.put("relayed", MeshRelayService.relayedIds.size());
+        s.put("synced", MeshRelayService.synced.size());
+        s.put("sending", MeshRelayService.ownId != null);
+        return s;
+    }
+}

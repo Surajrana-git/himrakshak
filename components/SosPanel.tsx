@@ -1,8 +1,15 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { getGpsFix, sendSos, sosText, type GpsFix } from "@/lib/sos";
+import { getGpsFix, sosText, type GpsFix } from "@/lib/sos";
+import { MESH_TTL, newPacketId, REASON_HAZARD, toText, type SosPacket } from "@/lib/sos-packet";
+import { hasNativeSos, sosNative, type MeshStatus } from "@/lib/sos-native";
+
+const noop = () => () => {};
+
+// Rescue gateway number that turns an SMS into a pin on the dashboard (/api/sos-sms webhook).
+const GATEWAY = process.env.NEXT_PUBLIC_SOS_SMS_GATEWAY ?? "";
 
 const REASONS = ["Vehicle stuck", "Injured", "Trapped by a road block", "Saw a landslide"];
 const CONTACT_KEY = "himrakshak-sos-contact";
@@ -11,7 +18,7 @@ type Step =
   | { kind: "idle" }
   | { kind: "locating" }
   | { kind: "sent"; fix: GpsFix }
-  | { kind: "offline"; fix: GpsFix; reason: string }
+  | { kind: "offline"; fix: GpsFix; reason: string; packet: SosPacket }
   | { kind: "no-gps"; reason: string };
 
 // The contact number lives in this phone only (localStorage), read through a tiny store so
@@ -52,7 +59,28 @@ export default function SosPanel() {
   const [step, setStep] = useState<Step>({ kind: "idle" });
   const [reason, setReason] = useState<string | null>(null);
   const contact = useSyncExternalStore(subscribeContact, readContact, () => "");
+  // Android app with the offline SOS plugin (false on the server render and on the website).
+  const native = useSyncExternalStore(noop, hasNativeSos, () => false);
+  const [sms, setSms] = useState<Record<string, string>>({}); // number → what happened
+  const [mesh, setMesh] = useState<MeshStatus | null>(null);
+  const [meshNote, setMeshNote] = useState("");
 
+  // Live counts from the Bluetooth relay, and SMS delivery reports.
+  useEffect(() => {
+    if (!hasNativeSos()) return;
+    sosNative.meshStatus().then(setMesh).catch(() => {});
+    const handles = [
+      sosNative.addListener("mesh", (e) => {
+        setMesh(e);
+        if (e.event === "bluetooth-off") setMeshNote("Turn on Bluetooth so phones nearby can pass your SOS on.");
+        if (e.event === "synced") setMeshNote("A phone with internet carried an SOS to the rescue dashboard.");
+      }),
+      sosNative.addListener("sms", (e) => setSms((cur) => ({ ...cur, [e.number]: `${e.status}${e.status === "failed" || e.status === "retrying" ? `: ${e.detail}` : ""}` }))),
+    ];
+    return () => handles.forEach((h) => h.then((x) => x.remove()));
+  }, []);
+
+  // The waterfall: internet → SMS (no data needed) → Bluetooth mesh (no signal needed).
   async function pressSos() {
     setStep({ kind: "locating" });
     let fix: GpsFix;
@@ -62,11 +90,30 @@ export default function SosPanel() {
       setStep({ kind: "no-gps", reason: (e as Error).message });
       return;
     }
+    const packet: SosPacket = { id: newPacketId(), lat: fix.lat, lon: fix.lon, hazard: (reason && REASON_HAZARD[reason]) || "OTHER", ts: Math.floor(Date.now() / 1000), ttl: MESH_TTL };
+    const online = await fetch("/api/sos-relay", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ packet: toText(packet), via: "app" }) })
+      .then((r) => r.ok)
+      .catch(() => false);
+    if (online) return setStep({ kind: "sent", fix });
+
+    setStep({ kind: "offline", fix, reason: "No internet", packet });
+    if (!native) return; // website: the SMS button below opens the SMS app
+    // Android app: the SMS goes out by itself, and the Bluetooth mesh starts carrying the SOS.
+    const family = contact.replace(/[^\d+]/g, "");
+    const sends = [
+      family && sosNative.sendSms({ number: family, text: `${sosText(fix, reason)}\n${toText(packet)}` }),
+      GATEWAY && sosNative.sendSms({ number: GATEWAY, text: toText(packet) }),
+    ].filter(Boolean) as Promise<unknown>[];
+    await Promise.allSettled(sends);
+    sosNative.startMesh({ packet: toText(packet) }).then(setMesh).catch((e: Error) => setMeshNote(e.message));
+  }
+
+  async function toggleRelay() {
     try {
-      await sendSos(fix, reason);
-      setStep({ kind: "sent", fix });
+      setMesh(mesh?.running ? await sosNative.stopMesh() : await sosNative.startMesh({}));
+      setMeshNote("");
     } catch (e) {
-      setStep({ kind: "offline", fix, reason: (e as Error).message });
+      setMeshNote(e instanceof Error ? e.message : "Bluetooth relay could not start");
     }
   }
 
@@ -83,7 +130,7 @@ export default function SosPanel() {
         </Link>
         <div>
           <h1 className="font-display text-3xl leading-tight">SOS</h1>
-          <p className="text-sm text-muted">Works without internet too (by SMS)</p>
+          <p className="text-sm text-muted">Works without internet: SMS, then Bluetooth phone to phone</p>
         </div>
       </header>
 
@@ -117,8 +164,24 @@ export default function SosPanel() {
       )}
       {step.kind === "offline" && (
         <section className="rounded-2xl bg-danger p-4 text-snow">
-          <p className="font-display text-2xl">Not sent over internet: send an SMS</p>
-          <p className="text-sm">{step.reason}. Tap the SMS button below: the message with your location is ready.</p>
+          <p className="font-display text-2xl">No internet: sending another way</p>
+          {native ? (
+            <ul className="mt-1 flex flex-col gap-1 text-sm">
+              {!contact && !GATEWAY && <li>SMS: add a family number below to send your location by SMS.</li>}
+              {Object.entries(sms).map(([n, st]) => (
+                <li key={n}>
+                  SMS to {n}: <b>{st}</b>
+                </li>
+              ))}
+              <li>
+                Bluetooth: {mesh?.sending ? "your SOS is being passed phone to phone" : "starting…"}
+                {mesh ? ` · ${mesh.heard} heard, ${mesh.synced} reached rescue` : ""}
+              </li>
+              <li className="font-mono text-xs opacity-80">{toText(step.packet)}</li>
+            </ul>
+          ) : (
+            <p className="text-sm">Tap the SMS button below: the message with your location is ready.</p>
+          )}
         </section>
       )}
       {step.kind === "no-gps" && (
@@ -146,6 +209,24 @@ export default function SosPanel() {
         />
         <span className="text-xs text-muted">Saved on this phone only. Leave empty to pick a contact in your SMS app.</span>
       </label>
+
+      {native && (
+        <section className="rounded-2xl border-2 border-ink/15 p-3">
+          <button onClick={toggleRelay} role="switch" aria-checked={Boolean(mesh?.running)} className="flex min-h-12 w-full items-center justify-between gap-3 text-left">
+            <span>
+              <b>Help relay SOS (Bluetooth)</b>
+              <span className="block text-sm text-muted">Pass on SOS calls from phones nearby that have no signal. Works without internet.</span>
+            </span>
+            <span className={`rounded-full px-3 py-1 text-sm font-bold ${mesh?.running ? "bg-green text-white" : "bg-ink/10"}`}>{mesh?.running ? "On" : "Off"}</span>
+          </button>
+          {mesh?.running && (
+            <p className="mt-1 text-sm">
+              Heard {mesh.heard} · passed on {mesh.relayed} · reached rescue {mesh.synced}
+            </p>
+          )}
+          {meshNote && <p className="mt-1 text-sm font-semibold">{meshNote}</p>}
+        </section>
+      )}
 
       <div className="grid grid-cols-2 gap-2">
         <a href="tel:112" className="flex min-h-14 flex-col items-center justify-center rounded-2xl border-2 border-danger font-semibold text-danger">
