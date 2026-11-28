@@ -58,7 +58,10 @@ export async function registerForPush(userId: string | null): Promise<void> {
   const { receive } = await PushNotifications.requestPermissions();
   if (receive !== "granted") return;
   await PushNotifications.addListener("registration", async ({ value }) => {
-    await client.from("push_tokens").upsert({ token: value, user_id: userId }, { onConflict: "token" });
+    // Insert, then refresh if this phone is already known. (An upsert needs a read policy,
+    // and phone tokens are deliberately unreadable to the app.)
+    const { error } = await client.from("push_tokens").insert({ token: value, user_id: userId });
+    if (error?.code === "23505") await client.from("push_tokens").update({ user_id: userId, updated_at: new Date().toISOString() }).eq("token", value);
   });
   await PushNotifications.register();
 }
