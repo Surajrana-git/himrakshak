@@ -55,6 +55,7 @@ public class MeshRelayService extends Service {
     static final String EXTRA_PACKET = "packet";
     static final String RELAY_URL = "https://himrakshak.vercel.app/api/sos-relay";
     private static final String CHANNEL = "himrakshak-mesh";
+    private static final String ALERT_CHANNEL = "himrakshak-sos-nearby";
     private static final int ROTATE_MS = 4000; // each packet is on air 4 s, then the next one
 
     interface Listener {
@@ -82,6 +83,10 @@ public class MeshRelayService extends Service {
         NotificationManager nm = getSystemService(NotificationManager.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             nm.createNotificationChannel(new NotificationChannel(CHANNEL, "SOS Bluetooth relay", NotificationManager.IMPORTANCE_LOW));
+            NotificationChannel alerts = new NotificationChannel(ALERT_CHANNEL, "SOS from phones nearby", NotificationManager.IMPORTANCE_HIGH);
+            alerts.enableVibration(true);
+            alerts.setVibrationPattern(new long[] {0, 600, 200, 600, 200, 600});
+            nm.createNotificationChannel(alerts);
         }
     }
 
@@ -142,6 +147,7 @@ public class MeshRelayService extends Service {
             // Keep it for rebroadcast with one hop less; ttl 0 is only delivered, not passed on.
             packets.put(p.id, p.withTtl(Math.max(0, p.ttl - 1)));
             emit("heard", p);
+            alertNearby(p);
         }
     };
 
@@ -284,6 +290,29 @@ public class MeshRelayService extends Service {
             return code == 200;
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    // Someone close by (Bluetooth range, ~50–100 m) is asking for help: tell this phone's owner loudly.
+    private void alertNearby(SosPacket p) {
+        String what = p.hazard.equals("STUCK") ? "Vehicle stuck" : p.hazard.equals("INJURED") ? "Someone injured"
+                : p.hazard.equals("TRAPPED") ? "Trapped by a road block" : p.hazard.equals("SLIDE") ? "Landslide seen" : "Needs help";
+        Intent map = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(String.format(java.util.Locale.US, "geo:%.5f,%.5f?q=%.5f,%.5f(SOS)", p.lat, p.lon, p.lat, p.lon)));
+        PendingIntent pi = PendingIntent.getActivity(this, p.id.hashCode(), map, PendingIntent.FLAG_IMMUTABLE);
+        Notification n = new NotificationCompat.Builder(this, ALERT_CHANNEL)
+                .setSmallIcon(android.R.drawable.stat_sys_warning)
+                .setContentTitle("SOS nearby: someone needs help")
+                .setContentText(String.format(java.util.Locale.US, "%s · %.4f, %.4f · tap for the spot", what, p.lat, p.lon))
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setCategory(NotificationCompat.CATEGORY_ALARM)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setAutoCancel(true)
+                .setContentIntent(pi)
+                .build();
+        try {
+            getSystemService(NotificationManager.class).notify(1000 + Math.abs(p.id.hashCode() % 1000), n);
+        } catch (SecurityException ignored) {
+            // Notifications turned off for the app: the in-app counter still shows it.
         }
     }
 
