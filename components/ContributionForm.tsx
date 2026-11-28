@@ -6,7 +6,7 @@ import Screen, { Card, Chips, PRIMARY } from "@/components/Screen";
 import Icon, { type IconName } from "@/components/Icon";
 import PinPicker, { type Spot } from "@/components/PinPicker";
 import PhotoSlots from "@/components/PhotoSlots";
-import { addContribution, type ContributionKind } from "@/lib/contributions";
+import { addContribution, STATUS_LABEL, type ContributionKind, type Status } from "@/lib/contributions";
 
 type Config = {
   kind: ContributionKind;
@@ -36,6 +36,7 @@ export default function ContributionForm({ config }: { config: Config }) {
   const [details, setDetails] = useState("");
   const [visibility, setVisibility] = useState<"Public" | "Community">("Public");
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
+  const [result, setResult] = useState<{ status: Status; reason: string | null } | null>(null);
   const [error, setError] = useState("");
 
   const missing = !category
@@ -53,7 +54,7 @@ export default function ContributionForm({ config }: { config: Config }) {
     setStatus("sending");
     setError("");
     try {
-      await addContribution({
+      const saved = await addContribution({
         kind: config.kind,
         category,
         title: config.nameField ? name.trim() : null,
@@ -63,6 +64,7 @@ export default function ContributionForm({ config }: { config: Config }) {
         photos,
         visibility: visibility === "Public" ? "public" : "community",
       });
+      setResult(saved);
       setStatus("done");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not send");
@@ -70,11 +72,18 @@ export default function ContributionForm({ config }: { config: Config }) {
     }
   }
 
-  if (status === "done") {
+  if (status === "done" && result) {
     return (
-      <Screen icon="check" title="Thank you" subtitle={config.done}>
-        <p className="rounded-2xl bg-mint p-4 text-center">
-          It is now in <b>View Posted Events</b> for every traveller, and it counts for your Road Rewards.
+      <Screen
+        icon={result.status === "rejected" ? "hazard" : "check"}
+        title={STATUS_LABEL[result.status]}
+        subtitle={result.status === "approved" ? config.done : undefined}
+      >
+        <p className={`rounded-2xl p-4 text-center ${result.status === "rejected" ? "bg-danger/10" : "bg-mint"}`}>
+          {result.status === "approved" && "The AI checked your photo. Your post is on the map with its photo, and it earns Road Rewards points."}
+          {result.status === "pending" &&
+            "Your post is saved. Without a checked photo it waits until another driver posts the same thing nearby; then it goes on the map."}
+          {result.status === "rejected" && `The AI did not accept the photo: ${result.reason ?? "not a live Geo Cam photo"}. It will not show on the map. Take a new photo with the Geo Cam.`}
         </p>
         <button onClick={() => router.push("/events")} className={PRIMARY}>
           View Posted Events

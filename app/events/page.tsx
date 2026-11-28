@@ -3,26 +3,46 @@
 import { useState } from "react";
 import Screen, { Chips } from "@/components/Screen";
 import Icon from "@/components/Icon";
-import { useContributions, type Contribution } from "@/lib/contributions";
-import { REPORT_KINDS, useReports, type Report } from "@/lib/reports";
+import { approval, STATUS_LABEL, useContributions, type Contribution, type Status } from "@/lib/contributions";
+import { confirmedBlocks, REPORT_KINDS, useReports, type Report } from "@/lib/reports";
+import { distanceKm } from "@/lib/geo";
 import { nearestPlace } from "@/lib/trip";
 import { googlePlaceUrl } from "@/lib/google-maps";
 
 const FILTERS = ["All Events", "Safety", "Travel", "Community", "Other"] as const;
 type Filter = (typeof FILTERS)[number];
-type Event = { id: string; at: string; group: Exclude<Filter, "All Events">; label: string; title: string; details: string | null; lat: number; lon: number; photo: string | null };
+type Event = {
+  id: string;
+  at: string;
+  group: Exclude<Filter, "All Events">;
+  label: string;
+  title: string;
+  details: string | null;
+  lat: number;
+  lon: number;
+  photo: string | null;
+  status: Status;
+  reason: string | null;
+};
 
 const SAFETY = ["Landslide", "Rockfall", "Blocked Road", "Closed / Blocked Road", "Road Condition", "Traffic", "Weather", "Safety Info", "Water on road", "Road Issue"];
 
-function fromContribution(c: Contribution): Event {
+function fromContribution(c: Contribution, all: Contribution[]): Event {
+  const status = approval(c, all);
   const group = c.kind === "hazard" || SAFETY.includes(c.category) ? "Safety" : c.kind === "place" ? "Travel" : c.kind === "post" ? "Community" : "Other";
   const label = { place: "New Place", fix: "Map Fix", post: c.category, hazard: "Road Alert" }[c.kind];
-  return { id: c.id, at: c.created_at, group, label, title: c.title ?? c.category, details: c.details, lat: c.lat, lon: c.lon, photo: c.photo_urls[0] ?? null };
+  // A rejected photo is never shown again.
+  const photo = status === "rejected" ? null : (c.photo_urls[0] ?? null);
+  return { id: c.id, at: c.created_at, group, label, title: c.title ?? c.category, details: c.details, lat: c.lat, lon: c.lon, photo, status, reason: c.ai_reason ?? null };
 }
 
-function fromReport(r: Report): Event {
-  return { id: r.id, at: r.created_at, group: "Safety", label: "Road Alert", title: REPORT_KINDS[r.kind].label, details: r.note, lat: r.lat, lon: r.lon, photo: r.photo_url };
+// A driver report is approved when a second phone reported the same spot (the road-closure rule).
+function fromReport(r: Report, confirmed: { lat: number; lon: number }[]): Event {
+  const status = confirmed.some((b) => distanceKm(b.lat, b.lon, r.lat, r.lon) < 1) ? "approved" : "pending";
+  return { id: r.id, at: r.created_at, group: "Safety", label: "Road Alert", title: REPORT_KINDS[r.kind].label, details: r.note, lat: r.lat, lon: r.lon, photo: r.photo_url, status, reason: null };
 }
+
+const BADGE: Record<Status, string> = { approved: "bg-mint text-green-dark", pending: "bg-orange/20 text-ink", rejected: "bg-danger/15 text-danger" };
 
 const when = (iso: string) => new Date(iso).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
 
@@ -34,7 +54,9 @@ export default function EventsPage() {
   const [query, setQuery] = useState("");
 
   const q = query.trim().toLowerCase();
-  const events = [...items.filter((c) => c.visibility === "public").map(fromContribution), ...reports.map(fromReport)]
+  // Reports load in the browser (none at build time, where the clock must not be read).
+  const confirmed = reports.length ? confirmedBlocks(reports) : [];
+  const events = [...items.filter((c) => c.visibility === "public").map((c) => fromContribution(c, items)), ...reports.map((r) => fromReport(r, confirmed))]
     .sort((a, b) => b.at.localeCompare(a.at))
     .filter((e) => filter === "All Events" || e.group === filter)
     .filter((e) => !q || `${e.title} ${e.label} ${e.details ?? ""} ${nearestPlace(e).name}`.toLowerCase().includes(q));
@@ -65,6 +87,11 @@ export default function EventsPage() {
                 <span className="block truncate font-display font-semibold">{e.title}</span>
                 <span className="block truncate text-sm text-muted">Near {nearestPlace(e).name}, Uttarakhand</span>
                 <span className="block text-xs text-muted">{when(e.at)}</span>
+                <span className={`mt-1 inline-block rounded-full px-2 text-xs font-bold ${BADGE[e.status]}`}>
+                  {STATUS_LABEL[e.status]}
+                  {e.status === "approved" && " · on the map"}
+                </span>
+                {e.status === "rejected" && e.reason && <span className="block text-xs text-danger">AI: {e.reason}</span>}
               </span>
               <Icon name="chevron" className="h-5 w-5 text-muted" />
             </a>

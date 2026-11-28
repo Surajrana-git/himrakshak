@@ -38,6 +38,7 @@ import type { AiRiskFeed } from "@/lib/ai-risk";
 import { isGuest, useAuth } from "@/lib/auth";
 import { useSavedPlaces } from "@/lib/saved-places";
 import { useSavedRoutes } from "@/lib/saved-routes";
+import { approval, useContributions } from "@/lib/contributions";
 import { canListen, listen, parseCommand, say } from "@/lib/voice";
 import lakesData from "@/data/glacial-lakes.json";
 import { nearestPlace, useTrip, type Hazard, type Place } from "@/lib/trip";
@@ -81,6 +82,15 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const auth = useAuth();
   const saved = useSavedPlaces(auth.user?.id ?? null);
   const savedRoutes = useSavedRoutes(auth.user?.id ?? null);
+  // Only approved public posts go on the map; waiting and rejected ones stay in the events list.
+  const { items: contributions } = useContributions();
+  const mapPosts = useMemo(
+    () =>
+      contributions
+        .filter((c) => c.visibility === "public" && approval(c, contributions) === "approved")
+        .map((c) => ({ id: c.id, lat: c.lat, lon: c.lon, title: c.title ?? c.category, details: c.details, photo: c.photo_urls[0] ?? null, at: c.created_at })),
+    [contributions],
+  );
   const [lakeId, setLakeId] = useState<string | null>(null);
   const selectedLake = lakesData.lakes.find((l) => l.id === lakeId) ?? null;
   // Fit the camera to the lake and the road below it, so the link to the route is visible.
@@ -346,6 +356,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
           }}
           towns={route.towns}
           reports={reports}
+          posts={mapPosts}
           focusId={focusId}
           onSelectSegment={selectSegment}
           locateSignal={locateSignal}

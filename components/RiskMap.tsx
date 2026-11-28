@@ -64,6 +64,8 @@ type Props = {
   onSelectLake: (id: string) => void;
   towns: { name: string; lat: number; lon: number }[];
   reports: Report[];
+  // Approved traveller posts (AI-checked Geo Cam photo, or confirmed by a second phone).
+  posts: { id: string; lat: number; lon: number; title: string; details: string | null; photo: string | null; at: string }[];
   focusId: string | null;
   onSelectSegment: (id: string) => void;
   locateSignal: number;
@@ -254,6 +256,47 @@ function lakePin(name: string): HTMLElement {
   return pin;
 }
 
+function postPin(title: string, photo: string | null): HTMLElement {
+  const pin = document.createElement("button");
+  pin.type = "button";
+  pin.setAttribute("aria-label", `Approved post: ${title}`);
+  pin.className = "flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-[3px] border-green bg-white text-green shadow-lg";
+  if (photo) {
+    const img = document.createElement("img");
+    img.src = photo;
+    img.alt = "";
+    img.className = "h-full w-full object-cover";
+    pin.append(img);
+  } else pin.append(iconElement(REPORT_ICONS.clear, 22));
+  return pin;
+}
+
+function postPopup(post: Props["posts"][number]): HTMLElement {
+  const box = document.createElement("div");
+  box.className = "flex flex-col gap-1 text-ink";
+  if (post.photo) {
+    const img = document.createElement("img");
+    img.src = post.photo;
+    img.alt = post.title;
+    img.className = "w-full rounded-xl";
+    box.append(img);
+  }
+  const title = document.createElement("p");
+  title.className = "font-display text-base font-semibold";
+  title.textContent = post.title;
+  const meta = document.createElement("p");
+  meta.className = "text-xs font-semibold text-green-dark";
+  meta.textContent = `Approved · ${timeAgo(post.at)}`;
+  box.append(title, meta);
+  if (post.details) {
+    const details = document.createElement("p");
+    details.className = "text-sm";
+    details.textContent = post.details;
+    box.append(details);
+  }
+  return box;
+}
+
 function carPin(): HTMLElement {
   const pin = document.createElement("div");
   pin.setAttribute("role", "img");
@@ -296,6 +339,7 @@ export default function RiskMap({
   onSelectLake,
   towns,
   reports,
+  posts,
   focusId,
   onSelectSegment,
   locateSignal,
@@ -314,6 +358,7 @@ export default function RiskMap({
   const carMarker = useRef<Marker | null>(null);
   const arrowHead = useRef<Marker | null>(null);
   const lakeMarkers = useRef<Marker[]>([]);
+  const postMarkers = useRef<Marker[]>([]);
   const onSelectLakeRef = useRef(onSelectLake);
   const onSelectRef = useRef(onSelectSegment);
   const [loaded, setLoaded] = useState(false);
@@ -333,6 +378,18 @@ export default function RiskMap({
       return new Marker({ element: pin }).setLngLat([lake.lon, lake.lat]).addTo(map);
     });
   }, [loaded, lakes]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!loaded || !map) return;
+    postMarkers.current.forEach((m) => m.remove());
+    postMarkers.current = posts.map((post) =>
+      new Marker({ element: postPin(post.title, post.photo) })
+        .setLngLat([post.lon, post.lat])
+        .setPopup(new Popup({ maxWidth: "260px", offset: 26 }).setDOMContent(postPopup(post)))
+        .addTo(map),
+    );
+  }, [loaded, posts]);
 
   useEffect(() => {
     if (!container.current) return;
