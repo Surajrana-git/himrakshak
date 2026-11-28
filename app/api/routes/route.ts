@@ -28,7 +28,8 @@ export async function GET(request: Request) {
 
   try {
     return Response.json({ options: await getRouteOptions(from, to, closed, storm) });
-  } catch {
+  } catch (e) {
+    console.error("route options failed:", e);
     return Response.json({ error: "Routing or weather server is not reachable" }, { status: 502 });
   }
 }

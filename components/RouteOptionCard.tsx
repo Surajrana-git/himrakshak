@@ -21,6 +21,10 @@ export default function RouteOptionCard({ option, selected, onSelect }: Props) {
         {option.hours} h · {option.km} km
       </span>
       {via && <span className="text-sm text-muted">via {via}</span>}
+      <span className="text-sm text-muted">
+        {option.steepestDeg === null ? "Slope unknown" : `Steepest hills ${Math.round(option.steepestDeg)}°`} ·{" "}
+        {option.pastSlides === 0 ? "no past slides recorded" : `${option.pastSlides} past slide${option.pastSlides === 1 ? "" : "s"} near the road`}
+      </span>
       <span className="self-start rounded-full px-2.5 py-0.5 text-xs font-semibold" style={{ backgroundColor: risk.color, color: risk.text }}>
         {risk.label} · {option.risk}
       </span>

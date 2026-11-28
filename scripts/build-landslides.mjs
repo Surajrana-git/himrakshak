@@ -1,5 +1,6 @@
-// Builds data/landslides-badrinath.json: past landslides from NASA's Global Landslide
-// Catalog (2007–2017) that happened within 2 km of our route.
+// Builds two files from NASA's Global Landslide Catalog (2007–2017):
+//   data/landslides-badrinath.json   slides within 2 km of the Badrinath road (trains the AI model)
+//   data/landslides-uttarakhand.json every placed slide in the state (history factor for any road, map layer)
 // Download the CSV first (free, ~8 MB):
 //   https://data.nasa.gov/docs/legacy/Global_Landslide_Catalog_Export/Global_Landslide_Catalog_Export_rows.csv
 // Run: node scripts/build-landslides.mjs path/to/Global_Landslide_Catalog_Export_rows.csv
@@ -61,10 +62,23 @@ function isoDate(usDate) {
 }
 
 const landslides = [];
+const statewide = [];
 for (const r of rows) {
   const lat = Number(r[col("latitude")]);
   const lon = Number(r[col("longitude")]);
   if (!PRECISE_ENOUGH.includes(r[col("location_accuracy")])) continue;
+  if (r[col("country_name")] === "India" && r[col("admin_division_name")] === "Uttarakhand" && lat && lon) {
+    statewide.push({
+      id: r[col("event_id")],
+      date: isoDate(r[col("event_date")]),
+      title: r[col("event_title")],
+      place: r[col("location_description")],
+      accuracy: r[col("location_accuracy")],
+      deaths: Number(r[col("fatality_count")]) || 0,
+      lat,
+      lon,
+    });
+  }
   if (!lat || !lon || lat < 29.8 || lat > 31 || lon < 78 || lon > 79.8) continue;
   let best = { km: Infinity, segmentId: "" };
   for (const p of routePoints) {
@@ -103,3 +117,14 @@ writeFileSync(
   ) + "\n",
 );
 console.log(`${landslides.length} landslides within ${MAX_KM} km of the route`);
+
+statewide.sort((a, b) => b.date.localeCompare(a.date));
+writeFileSync(
+  "data/landslides-uttarakhand.json",
+  JSON.stringify({
+    source: "NASA Global Landslide Catalog (Kirschbaum et al. 2015), events 2007–2017, Uttarakhand, placed within 10 km",
+    sourceUrl: "https://data.nasa.gov/dataset/global-landslide-catalog-export",
+    landslides: statewide,
+  }),
+);
+console.log(statewide.length, "slides in Uttarakhand");

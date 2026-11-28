@@ -4,6 +4,7 @@ import { getRain } from "@/lib/weather";
 import { getSlideNews } from "@/lib/slide-news";
 import { getTraffic } from "@/lib/traffic";
 import { getAiRisk } from "@/lib/ai-risk";
+import { getTerrain } from "@/lib/terrain";
 import RiskView from "@/components/RiskView";
 import Splash from "@/components/Splash";
 
@@ -32,5 +33,7 @@ async function LiveRisk() {
       </p>
     );
   }
-  return <RiskView route={route} rain={rain} news={news} traffic={traffic} ai={ai} />;
+  // Slope and landslide history are worked out from the DEM and NASA data, not typed in.
+  const measured = { ...route, segments: route.segments.map((s) => ({ ...s, ...getTerrain(s.coordinates) })) };
+  return <RiskView route={measured} rain={rain} news={news} traffic={traffic} ai={ai} />;
 }

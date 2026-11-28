@@ -91,6 +91,12 @@ history_factor = 1.0 none … 1.8 many past landslides within 2 km
 0–39 Low (green) · 40–69 Medium (orange) · 70+ High (red)
 ```
 
+Where the factors come from (`lib/terrain.ts`, works for any road in Uttarakhand, offline):
+slope from `data/slope-uttarakhand.json` (AWS Terrain Tiles, built by `scripts/build-slope-grid.mjs`),
+10° → 1.0 … 35° → 2.0; history from `data/landslides-uttarakhand.json` (NASA catalog),
++0.4 per past slide per 10 km within 2 km of the road, capped at 1.8. Route options are scored
+per ~10 km stretch (`lib/routes.ts`).
+
 "Safe time to leave" = the earliest hour in the next 12 hours where every
 segment on the route is below 70.
 
