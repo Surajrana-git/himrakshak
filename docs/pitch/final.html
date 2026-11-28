@@ -113,10 +113,10 @@
 <!-- 3 Technical approach -->
 <section class="slide">
   <p class="kicker">3 · Technical approach</p>
-  <h2>Explainable risk from real data, not a black box</h2>
+  <h2>Indian standards + live rain + driver ground truth</h2>
   <div class="card white" style="text-align:center;margin-bottom:.18in">
-    <p style="font-family:Poppins;font-size:19pt;font-weight:700">risk = rain_score × slope_factor × history_factor <span class="muted" style="font-size:13pt;font-weight:500">(0–100, every 10 km)</span></p>
-    <p class="muted">rain = 1.5 × last 24 h + 4 × next 6 h (Open-Meteo) · slope 10° → 1.0 … 35° → 2.0 (elevation tiles, whole state) · history up to 1.8 (NASA slides within 2 km) · 0–39 Low, 40–69 Medium, 70+ High</p>
+    <p style="font-family:Poppins;font-size:19pt;font-weight:700">Risk = 100 × (0.40 × S<sub>static</sub> + 0.60 × T<sub>dynamic</sub>) <span class="muted" style="font-size:13pt;font-weight:500">(0–100, every 10 km)</span></p>
+    <p class="muted">S<sub>static</sub> = TEHD / 10: BIS IS 14496 (Part 2) style hazard score from slope (whole-state elevation tiles) and past landslides within 2 km (NASA) · T<sub>dynamic</sub> = 0.85 × max(rain past 24 h / 140 mm, rain next 6 h / 30 mm), Open-Meteo · a block confirmed by 2 drivers = 95 (red) · 0–39 Low, 40–69 Medium, 70+ High</p>
   </div>
   <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:.14in">
     <div class="card"><h3>Indian thresholds</h3><p class="muted" style="font-size:10.5pt">NH-58 study I = 58.7·D<sup>−1.12</sup> and Chamoli–Joshimath I = 1.82·D<sup>−0.23</sup>, checked over 1–72 h</p></div>

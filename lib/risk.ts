@@ -1,5 +1,11 @@
-// Risk engine. Kept deliberately simple so it can be explained to judges.
-// score = rainScore × slopeFactor × historyFactor, capped at 100.
+// Risk engine (0–100 per road stretch), explainable to judges:
+//   Risk = 100 × (0.40 × S_static + 0.60 × T_dynamic)
+//   S_static  = TEHD / 10. TEHD is the BIS IS 14496 (Part 2) Total Estimated Hazard (0–10); we estimate
+//               it from what we have for every road: hillside slope and past landslides nearby (NASA).
+//               Lithology, land cover and hydrogeology layers are not in yet.
+//   T_dynamic = clamp(0.85 × T_rain, 0, 1), T_rain = max(rain past 24 h / 140 mm, rain next 6 h / 30 mm)
+//               (140 mm / 24 h: Garhwal Himalaya I–D threshold). Soil moisture (15%) is not wired yet.
+// A road blocked and confirmed by drivers is forced to 95 by the caller (ground truth beats weather).
 
 export type RiskLevel = "low" | "medium" | "high";
 
@@ -12,10 +18,16 @@ export const RISK_STYLE: Record<RiskLevel, { color: string; text: string; label:
 
 const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
 
-// IMD calls 64.5 mm in 24 h "heavy rain"; that alone lands near 100.
-// Rain still to come in the next 6 h is weighted higher than rain already fallen.
-export function rainScore(last24hMm: number, next6hMm: number): number {
-  return Math.min(100, last24hMm * 1.5 + next6hMm * 4);
+export const BLOCKED_SCORE = 95;
+
+// TEHD (0–10) from slope factor (1.0 flat … 2.0 at 35°) and history factor (1.0 none … 1.8 many slides).
+export function tehd(slopeFactor: number, historyFactor: number): number {
+  return Math.min(10, Math.max(0, 2 + 4 * (slopeFactor - 1) + 4 * ((historyFactor - 1) / 0.8)));
+}
+
+// 0–1: how close the rain is to the slide-triggering thresholds.
+export function rainTrigger(last24hMm: number, next6hMm: number): number {
+  return Math.min(1, Math.max(0, 0.85 * Math.max(last24hMm / 140, next6hMm / 30)));
 }
 
 export function segmentScore(
@@ -26,7 +38,8 @@ export function segmentScore(
 ): number {
   const last24h = sum(hourlyMm.slice(Math.max(0, nowIndex - 24), nowIndex));
   const next6h = sum(hourlyMm.slice(nowIndex, nowIndex + 6));
-  return Math.min(100, Math.round(rainScore(last24h, next6h) * slopeFactor * historyFactor));
+  const staticPart = tehd(slopeFactor, historyFactor) / 10;
+  return Math.min(100, Math.round(100 * (0.4 * staticPart + 0.6 * rainTrigger(last24h, next6h))));
 }
 
 export type SegmentFactors = { slopeFactor: number; historyFactor: number };

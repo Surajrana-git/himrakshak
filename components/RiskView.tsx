@@ -47,7 +47,7 @@ import { confirmedBlocks, createReport, recentJams, REPORT_KINDS, useReports, ty
 import { distanceKm } from "@/lib/geo";
 import { deviceId } from "@/lib/device";
 import { supabase } from "@/lib/supabase";
-import { RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
+import { BLOCKED_SCORE, RISK_STYLE, riskLevel, safeDepartureHour, segmentScore, withSimulatedStorm } from "@/lib/risk";
 import type { RainSeries } from "@/lib/weather";
 import type { SlideNewsFeed } from "@/lib/slide-news";
 import type { Detour } from "@/lib/detour";
@@ -116,8 +116,10 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   }, [router]);
 
   const series = withSimulatedStorm(rain.mm, rain.nowIndex, storm.mmPerHour, storm.hours);
+  // A stretch with a driver-confirmed block is red whatever the weather says.
+  const blockedIds = new Set(reports.length ? confirmedBlocks(reports).map((b) => b.segmentId) : []);
   const scored = route.segments.map((s, i) => {
-    const score = segmentScore(series[i], rain.nowIndex, s.slopeFactor, s.historyFactor);
+    const score = blockedIds.has(s.id) ? BLOCKED_SCORE : segmentScore(series[i], rain.nowIndex, s.slopeFactor, s.historyFactor);
     return { id: s.id, from: s.from, to: s.to, distanceKm: s.distanceKm, coordinates: s.coordinates, score, level: riskLevel(score) };
   });
   const worst = scored.reduce((a, b) => (b.score > a.score ? b : a));

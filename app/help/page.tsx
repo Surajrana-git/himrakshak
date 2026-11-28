@@ -3,7 +3,7 @@ import Screen, { MenuRow } from "@/components/Screen";
 const REPO = "https://github.com/Surajrana-git/himrakshak";
 
 const FAQS = [
-  ["How is the road risk worked out?", "For every 10 km of road: live rain now and in the next 6 hours (Open-Meteo) × how steep the hills are × past landslides nearby (NASA). Low, Medium or High is written on the map."],
+  ["How is the road risk worked out?", "For every 10 km of road: 40% terrain (a BIS IS 14496 style hazard score from slope and past landslides) + 60% rain (rain in the last 24 h against the 140 mm Garhwal Himalaya threshold, rain in the next 6 h against 30 mm, from Open-Meteo). A road block confirmed by two drivers is always red (95). 0–39 Low, 40–69 Medium, 70+ High."],
   ["When does a road show as closed?", "When drivers on two different phones report a block within 1 km in 12 hours, and nobody has reported it clear since."],
   ["What if there is no internet?", "SOS sends your GPS location by SMS. The last risk map and any offline maps you downloaded still open."],
   ["Why only Geo Cam photos?", "Place, GPS and time are printed on the photo, and an AI check rejects screenshots and gallery photos, so reports cannot be faked."],

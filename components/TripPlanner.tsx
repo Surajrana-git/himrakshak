@@ -221,7 +221,7 @@ export default function TripPlanner(p: Props) {
               {note && <p className="mt-2 text-center text-sm font-semibold">{note}</p>}
             </section>
           )}
-          <p className="text-xs text-muted">Risk for every 10 km of road = live rain now and in the next 6 h (Open-Meteo) × hillside slope × past landslides nearby (NASA).</p>
+          <p className="text-xs text-muted">Risk for every 10 km = 40% terrain (BIS IS 14496 hazard score from slope and past slides) + 60% rain (past 24 h vs 140 mm, next 6 h vs 30 mm, Open-Meteo). A driver-confirmed block is always red.</p>
           <button onClick={p.onStart} disabled={!selected} className="min-h-14 rounded-full bg-green font-display text-xl text-white shadow-lg">
             Start
           </button>

@@ -82,11 +82,14 @@ Keep it flat. No `utils/helpers/common` dumping folders.
 Keep it explainable — judges will ask how it works.
 
 ```
-score = rain_score × slope_factor × history_factor     (0–100, capped)
+Risk = 100 × (0.40 × S_static + 0.60 × T_dynamic)        (0–100, per ~10 km stretch)
 
-rain_score     = from Open-Meteo: rain in last 24 h + forecast next 6 h
-slope_factor   = 1.0 flat … 2.0 very steep (from route data)
-history_factor = 1.0 none … 1.8 many past landslides within 2 km
+S_static  = TEHD / 10   (BIS IS 14496 Part 2 style hazard score 0–10, estimated from
+            slope 10° → 35° and past NASA landslides within 2 km; lithology, land cover and
+            hydrogeology layers are not in yet)
+T_dynamic = clamp(0.85 × max(rain past 24 h / 140 mm, rain next 6 h / 30 mm), 0, 1)
+            (soil moisture, the other 15%, is not wired yet)
+Driver-confirmed block (2 phones) → 95, whatever the weather
 
 0–39 Low (green) · 40–69 Medium (orange) · 70+ High (red)
 ```
