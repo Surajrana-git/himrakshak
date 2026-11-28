@@ -42,7 +42,7 @@ export async function placeAt(lat: number, lon: number): Promise<PlaceName | nul
   const p = features[0]?.properties;
   if (!p) return null;
   const town = p.city ?? p.district ?? p.county ?? p.name;
-  const title = [town, p.state ?? "Uttarakhand", "India"].filter(Boolean).join(", ");
+  const title = [town, p.state ?? "Uttarakhand"].filter(Boolean).join(", ");
   const parts = [p.name, p.street, p.district, p.city, p.county].filter((x, i, all): x is string => !!x && all.indexOf(x) === i);
   const address = `${parts.join(", ")}${p.state ? `, ${p.state}` : ""}${p.postcode ? ` ${p.postcode}` : ""}, India`;
   return { title, address };

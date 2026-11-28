@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { drawStamp, loadImage, tileFor, type StampImages } from "@/lib/geo-photo";
+import { drawStamp, loadImage, tileUrls, type StampImages } from "@/lib/geo-photo";
 import type { PlaceName } from "@/lib/geocode";
 
 type Fix = { lat: number; lon: number };
@@ -17,7 +17,7 @@ export default function GeoCamera({ onUse, onClose }: Props) {
   const [error, setError] = useState("");
   const [fix, setFix] = useState<Fix | null>(null);
   const [place, setPlace] = useState<PlaceName | null>(null);
-  const [images, setImages] = useState<StampImages>({ tile: null, logo: null });
+  const [images, setImages] = useState<StampImages>({ tiles: [], logo: null });
   const [now, setNow] = useState(() => new Date());
   const [aspect, setAspect] = useState(3 / 4);
   const [shot, setShot] = useState<{ file: File; url: string; fix: Fix } | null>(null);
@@ -66,9 +66,10 @@ export default function GeoCamera({ onUse, onClose }: Props) {
       .then((res) => (res.ok ? res.json() : { place: null }))
       .then((body: { place: PlaceName | null }) => setPlace(body.place))
       .catch(() => {});
-    loadImage(tileFor(lat, lon).url)
-      .then((tile) => setImages((i) => ({ ...i, tile })))
-      .catch(() => {});
+    Promise.allSettled(tileUrls(lat, lon).map((t) => loadImage(t.url).then((img) => ({ img, dx: t.dx, dy: t.dy })))).then((results) => {
+      const tiles = results.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
+      setImages((i) => ({ ...i, tiles }));
+    });
   }, [cell]);
 
   // Redraw the live stamp over the preview.

@@ -3,7 +3,8 @@
 import type { PlaceName } from "@/lib/geocode";
 
 export type StampInfo = { lat: number; lon: number; at: Date; place: PlaceName | null };
-export type StampImages = { tile: HTMLImageElement | null; logo: HTMLImageElement | null };
+// tiles: the 3×3 satellite tiles around the point (dx, dy = -1…1), so the little map has no gaps.
+export type StampImages = { tiles: { img: HTMLImageElement; dx: number; dy: number }[]; logo: HTMLImageElement | null };
 
 const TILE_ZOOM = 17;
 
@@ -17,18 +18,24 @@ export function currentFix(): Promise<GeolocationCoordinates> {
   );
 }
 
-// The satellite tile under the point (Esri World Imagery, same as the map's satellite layer)
-// and where the point sits inside it (0–1), for the little map on the stamp.
-export function tileFor(lat: number, lon: number): { url: string; fx: number; fy: number } {
+// Where the point sits in the satellite tile grid (Esri World Imagery, same as the map's satellite layer).
+function tilePosition(lat: number, lon: number): { x: number; y: number } {
   const n = 2 ** TILE_ZOOM;
-  const x = ((lon + 180) / 360) * n;
   const r = (lat * Math.PI) / 180;
-  const y = ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n;
-  return {
-    url: `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${TILE_ZOOM}/${Math.floor(y)}/${Math.floor(x)}`,
-    fx: x % 1,
-    fy: y % 1,
-  };
+  return { x: ((lon + 180) / 360) * n, y: ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n };
+}
+
+export function tileUrls(lat: number, lon: number): { url: string; dx: number; dy: number }[] {
+  const { x, y } = tilePosition(lat, lon);
+  const out = [];
+  for (let dy = -1; dy <= 1; dy++)
+    for (let dx = -1; dx <= 1; dx++)
+      out.push({
+        url: `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${TILE_ZOOM}/${Math.floor(y) + dy}/${Math.floor(x) + dx}`,
+        dx,
+        dy,
+      });
+  return out;
 }
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
@@ -51,7 +58,7 @@ function fit(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): str
 function timeLine(at: Date): string {
   const day = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" }).format(at);
   const time = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Kolkata", hour: "numeric", minute: "2-digit" }).format(at);
-  return `${day.replace(" ", ", ")} ${time} GMT +05:30`;
+  return `${day} ${time} GMT +05:30`;
 }
 
 // Draws the Himrakshak Geo Cam stamp at the bottom of a w×h picture. The live preview and the
@@ -71,11 +78,11 @@ export function drawStamp(ctx: CanvasRenderingContext2D, w: number, h: number, i
   ctx.clip();
   ctx.fillStyle = "#14231F";
   ctx.fillRect(2 * u, top, map, map);
-  if (images.tile) {
-    const { fx, fy } = tileFor(info.lat, info.lon);
-    // Tile scaled 2x and shifted so the pin sits in the middle of the square.
-    const size = map * 2;
-    ctx.drawImage(images.tile, 2 * u + map / 2 - fx * size, top + map / 2 - fy * size, size, size);
+  const { x, y: ty } = tilePosition(info.lat, info.lon);
+  const size = map * 1.5; // one tile, ~300 m across
+  for (const t of images.tiles) {
+    // Shifted so the point sits in the middle of the square.
+    ctx.drawImage(t.img, 2 * u + map / 2 + (t.dx - (x % 1)) * size, top + map / 2 + (t.dy - (ty % 1)) * size, size, size);
   }
   ctx.restore();
   const pinX = 2 * u + map / 2;
@@ -99,7 +106,7 @@ export function drawStamp(ctx: CanvasRenderingContext2D, w: number, h: number, i
 
   // Logo tag above the box, like a camera app's badge.
   const tagH = 5 * u;
-  const tagW = 34 * u;
+  const tagW = 36 * u;
   ctx.fillStyle = "rgba(20, 35, 31, 0.85)";
   ctx.beginPath();
   ctx.roundRect(w - 2 * u - tagW, top - tagH - 1 * u, tagW, tagH, 1.2 * u);
@@ -114,7 +121,7 @@ export function drawStamp(ctx: CanvasRenderingContext2D, w: number, h: number, i
   const textW = boxW - 2 * pad;
   ctx.textBaseline = "top";
   let y = top + 1.6 * u;
-  ctx.font = `700 ${4 * u}px Poppins, Inter, sans-serif`;
+  ctx.font = `700 ${3.6 * u}px Poppins, Inter, sans-serif`;
   ctx.fillText(fit(ctx, info.place?.title ?? "Uttarakhand, India", textW), boxX + pad, y);
   y += 5.6 * u;
   ctx.font = `500 ${2.6 * u}px Inter, sans-serif`;
