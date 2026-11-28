@@ -1,3 +1,4 @@
+import { getSettings } from "@/lib/settings";
 import { useEffect, useRef } from "react";
 import type { Turn } from "@/lib/trip";
 
@@ -25,7 +26,7 @@ export default function TurnBanner({ turn }: { turn: Turn }) {
   const spoken = useRef<string>("");
   const threshold = SPEAK_AT_M.find((m) => metres <= m && metres > (SPEAK_AT_M[SPEAK_AT_M.indexOf(m) + 1] ?? -1));
   useEffect(() => {
-    if (threshold === undefined || !("speechSynthesis" in window)) return;
+    if (threshold === undefined || !("speechSynthesis" in window) || !getSettings().voice) return;
     const key = `${maneuver.lat},${maneuver.lon}@${threshold}`;
     if (spoken.current === key) return;
     spoken.current = key;

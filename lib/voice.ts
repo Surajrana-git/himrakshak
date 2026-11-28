@@ -3,6 +3,7 @@
 import { SpeechRecognition } from "@capacitor-community/speech-recognition";
 import { isApp } from "@/lib/native";
 import { PLACES, type Place } from "@/lib/trip";
+import { getSettings } from "@/lib/settings";
 
 export type VoiceCommand =
   | { type: "go"; place: Place }
@@ -70,7 +71,7 @@ export function parseCommand(heard: string): VoiceCommand {
 }
 
 export function say(text: string) {
-  if (!("speechSynthesis" in window)) return;
+  if (!("speechSynthesis" in window) || !getSettings().voice) return;
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-IN";
   window.speechSynthesis.cancel();

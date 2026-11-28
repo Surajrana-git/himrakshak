@@ -1,5 +1,6 @@
 "use client";
 
+import { getSettings } from "@/lib/settings";
 import { useState } from "react";
 import ReportIcon from "@/components/ReportIcon";
 import { createReport, OFF_HIGHWAY, ON_HIGHWAY_KM, REPORT_KINDS, type ReportKind } from "@/lib/reports";
@@ -25,7 +26,7 @@ export default function QuickReport({ at, segments, onSent, onMore, onClose }: P
       const nearest = nearestSegment(at.lat, at.lon, segments);
       const segment_id = nearest.km <= ON_HIGHWAY_KM ? nearest.id : OFF_HIGHWAY;
       await createReport({ segment_id, kind, note: null, lat: at.lat, lon: at.lon, photo: null });
-      navigator.vibrate?.(80);
+      if (getSettings().vibrate) navigator.vibrate?.(80);
       onSent(REPORT_KINDS[kind].label);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Report was not sent");

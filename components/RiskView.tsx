@@ -1,5 +1,6 @@
 "use client";
 
+import { getSettings } from "@/lib/settings";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -69,7 +70,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   const [fitSignal, setFitSignal] = useState(0);
   const [demoClosedId, setDemoClosedId] = useState<string | null>(null);
   const [layer, setLayer] = useState<DataLayer>("risk");
-  const [baseMap, setBaseMap] = useState<BaseMap>("standard");
+  const [baseMap, setBaseMap] = useState<BaseMap>(() => getSettings().mapType); // Settings → Map Preferences
   const [northSignal, setNorthSignal] = useState(0);
   const [focusPoint, setFocusPoint] = useState<{ lat: number; lon: number } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -183,7 +184,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   // Phone/browser notification once per day per stretch, if the user allowed notifications.
   const aiKey = aiHigh.join(",");
   useEffect(() => {
-    if (!aiKey || !("Notification" in window) || Notification.permission !== "granted") return;
+    if (!aiKey || !("Notification" in window) || Notification.permission !== "granted" || !getSettings().riskAlerts) return;
     for (const id of aiKey.split(",")) {
       new Notification("Himrakshak: high landslide risk today", {
         body: `${segmentName(id)}: heavy rain makes slides likely. Check the safest route before you leave.`,
@@ -222,7 +223,7 @@ export default function RiskView({ route, rain, news, traffic, ai }: Props) {
   // Like Google Maps: the screen stays on while navigating, so the driver never has to unlock it.
   const navigating = trip.stage === "nav";
   useEffect(() => {
-    if (!navigating || !("wakeLock" in navigator)) return;
+    if (!navigating || !("wakeLock" in navigator) || !getSettings().keepScreenOn) return;
     let lock: WakeLockSentinel | null = null;
     const acquire = () => {
       if (document.visibilityState === "visible") navigator.wakeLock.request("screen").then((l) => (lock = l)).catch(() => {});

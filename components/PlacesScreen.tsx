@@ -4,6 +4,7 @@ import { useState } from "react";
 import { PLACES, type Place } from "@/lib/trip";
 import { distanceKm } from "@/lib/geo";
 import { getGpsFix, type GpsFix } from "@/lib/sos";
+import { usePlaceSearch } from "@/lib/place-search";
 
 type Props = {
   onShow: (place: Place) => void;
@@ -14,7 +15,8 @@ type Props = {
 
 const MAX_KM = [null, 50, 150] as const;
 
-// Char Dham towns and shrines: search, filter by type and distance, show on map or plan a route.
+// Places: Char Dham towns and shrines, or any place in Uttarakhand by search; filter by type and
+// distance, show on map or plan a route.
 export default function PlacesScreen({ onShow, onRoute, onSave, onClose }: Props) {
   const [query, setQuery] = useState("");
   const [type, setType] = useState<"all" | "dham" | "town">("all");
@@ -33,9 +35,11 @@ export default function PlacesScreen({ onShow, onRoute, onSave, onClose }: Props
     }
   }
 
+  // Typing searches every place in Uttarakhand (the same search as the search bar).
+  const { results } = usePlaceSearch(query);
   const q = query.trim().toLowerCase();
-  const list = PLACES.map((p) => ({ place: p, km: me ? distanceKm(me.lat, me.lon, p.lat, p.lon) : null }))
-    .filter(({ place }) => !q || place.name.toLowerCase().includes(q) || place.hindi.includes(query.trim()))
+  const list = (q.length >= 2 ? results : PLACES)
+    .map((p) => ({ place: p, km: me ? distanceKm(me.lat, me.lon, p.lat, p.lon) : null }))
     .filter(({ place }) => type === "all" || (type === "dham") === place.dham)
     .filter(({ km }) => maxKm === null || km === null || km <= maxKm)
     .sort((a, b) => (a.km ?? 0) - (b.km ?? 0));

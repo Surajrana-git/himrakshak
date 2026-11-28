@@ -125,7 +125,7 @@ export default function SideMenu({ user, savedCount, onSaves, onLakes, onClose }
           title="Settings & Support"
           rows={[
             { icon: "settings", label: "Settings", href: "/settings" },
-            { icon: "language", label: "Language (English)", href: "/settings#language" },
+            { icon: "language", label: "Language (English)", href: "/settings/language" },
             { icon: "help", label: "Help & Support", href: "/help" },
             { icon: "info", label: "About Himrakshak", href: "/about" },
           ]}

@@ -1,3 +1,4 @@
+import { getSettings } from "@/lib/settings";
 import { useEffect, useRef, useState } from "react";
 import RouteOptionCard from "@/components/RouteOptionCard";
 import ReportIcon from "@/components/ReportIcon";
@@ -18,7 +19,7 @@ const JAM_SECONDS = 5;
 const CLOSURE_SECONDS = 12;
 
 function speak(text: string) {
-  if (!("speechSynthesis" in window)) return;
+  if (!("speechSynthesis" in window) || !getSettings().voice) return;
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "en-IN";
   window.speechSynthesis.cancel();
@@ -46,7 +47,7 @@ export default function NavAlert({ alert, current, stopPlace, onResolve }: Props
 
   useEffect(() => {
     // A buzz the driver feels even with the sound off: longer for a closed road.
-    navigator.vibrate?.(kind === "closure" ? [400, 150, 400, 150, 400] : [250, 120, 250]);
+    if (getSettings().vibrate) navigator.vibrate?.(kind === "closure" ? [400, 150, 400, 150, 400] : [250, 120, 250]);
     speak(
       kind === "jam"
         ? `Traffic jam ${alert.kmAhead} kilometres ahead.`
