@@ -431,7 +431,8 @@ export default function RiskMap({
 
   useEffect(() => {
     if (!container.current) return;
-    const routeBounds = boundsOf(towns.map((t) => [t.lon, t.lat]));
+    // Opening at "my location": start on the whole state so the fly-in to the blue dot is visible.
+    const routeBounds = startAtMe ? new LngLatBounds([77.6, 28.8], [81.0, 31.4]) : boundsOf(towns.map((t) => [t.lon, t.lat]));
 
     const map = new MapLibreMap({
       container: container.current,
@@ -450,7 +451,7 @@ export default function RiskMap({
     const geolocate = new GeolocateControl({
       positionOptions: { enableHighAccuracy: true },
       trackUserLocation: true,
-      fitBoundsOptions: { maxZoom: 14 },
+      fitBoundsOptions: { maxZoom: 15, duration: 2500 }, // a slow zoom-in, like a maps app
     });
     map.addControl(geolocate, "top-left");
     geolocateRef.current = geolocate;
@@ -600,6 +601,8 @@ export default function RiskMap({
       // Next keeps this page alive in the background; when it comes back a new map starts unloaded.
       setLoaded(false);
     };
+    // startAtMe only picks the first view; it never changes for a mounted map.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [towns, pastSlides]);
 
   useEffect(() => {
@@ -745,6 +748,7 @@ export default function RiskMap({
     const map = mapRef.current;
     if (!loaded || !map) return;
     const focused = segments.find((s) => s.id === focusId);
+    if (startAtMe && !focused && fitSignal === 0) return;
     const bounds = focused ? boundsOf(focused.coordinates) : boundsOf(towns.map((t) => [t.lon, t.lat]));
     map.fitBounds(bounds, { padding: viewPadding(), duration: 800 });
     // segments changes every render; only a new focus or a "fit" tap should move the camera.
